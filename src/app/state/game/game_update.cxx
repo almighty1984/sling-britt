@@ -165,10 +165,9 @@ namespace state {
             release(input::Key::up);
             console::log("Game::update pressed up\n");
         }*/
-                
 
         if (m_player.is_to_save()) {
-            m_is_to_write_save = true;
+            m_is_to_player_save = true;
             m_player.is_to_save(false);
         }
 

@@ -27,13 +27,13 @@ export namespace state {
 
         start::Type m_next_level = start::Type::center;
 
-        bool m_is_drawing_debug  = false,
-             m_is_to_change_view = false,
-             m_is_to_write_save  = false;
+        bool m_is_drawing_debug   = false,
+             m_is_to_change_view  = false,
+             m_is_to_player_save  = false;
     public:
-        bool is_drawing_debug() const  { return m_is_drawing_debug;  } void is_drawing_debug(bool q)  { m_is_drawing_debug  = q; }
-        bool is_to_change_view() const { return m_is_to_change_view; } void is_to_change_view(bool q) { m_is_to_change_view = q; }
-        bool is_to_write_save() const  { return m_is_to_write_save;  } void is_to_write_save(bool q)  { m_is_to_write_save  = q; }
+        bool is_drawing_debug()  const { return m_is_drawing_debug;  } void is_drawing_debug(bool q)   { m_is_drawing_debug   = q; }
+        bool is_to_change_view() const { return m_is_to_change_view; } void is_to_change_view(bool q)  { m_is_to_change_view  = q; }
+        bool is_to_player_save() const { return m_is_to_player_save; } void is_to_player_save(bool q)  { m_is_to_player_save  = q; }
 
         virtual std::filesystem::path level_path_to_save() { return {}; }
         virtual ~Object() {

@@ -42,8 +42,8 @@ export class App {
     std::filesystem::path     m_level_path,
                               m_level_path_to_save;
 
-    U8 m_time_left_saving = 0,
-       m_time_to_save = 50;
+    U8 m_time_left_player_save =  0,
+       m_time_to_player_save   = 50;
 
 public:
     App() = delete;
@@ -64,7 +64,7 @@ public:
         m_level_path_to_save = p;
     }
 
-    const std::string read_save(cU8 number) {
+    const std::string read_player_save(cU8 number) {
         std::ostringstream oss;
         oss << (int)number;
         std::ifstream in_file("res/save/" + oss.str() + ".bin", std::ios::in | std::ios::binary);
@@ -72,7 +72,7 @@ public:
         in_file.read((I8*)&saved_path, sizeof(char) * 32);
         return std::string(saved_path);
     }
-    void write_save(const std::filesystem::path& level_path_to_save) {
+    void write_player_save(const std::filesystem::path& level_path_to_save) {
         if (level_path_to_save.empty()) {
             console::error("App::write_save() level_path_to_save empty\n");
             return;
@@ -92,7 +92,7 @@ public:
             start::Info start_info;
 
             if (m_level_path.empty()) {
-                m_level_path = read_save(0);
+                m_level_path = read_player_save(0);
                 console::log("App::set_state() read_save(): ", m_level_path, "\n");
                 if (m_level_path.empty()) {
                     console::log("App::set_state() level path empty!\n");
@@ -127,8 +127,8 @@ public:
                     m_level_path = LevelConfig::level_path(state_object->start_info().type);
 
                     if (m_level_path.empty()) {
-                        m_level_path = read_save(0);
-                        console::log("App::set_state() read_save(): ", m_level_path, "\n");
+                        m_level_path = read_player_save(0);
+                        console::log("App::set_state() read_player_save(): ", m_level_path, "\n");
                         if (m_level_path.empty()) {
                             console::log("App::set_state() level path empty!\n");
                             m_level_path = "res/level/test.bin";
@@ -207,11 +207,12 @@ public:
                         else {
                             state_object->view(m_window->view());
                         }
-                        if (state_object->is_to_write_save()) {
-                            state_object->is_to_write_save(false);
-                            if (m_time_left_saving == 0) {
-                                m_time_left_saving = m_time_to_save;
-                                write_save(state_object->level_path_to_save());
+                        if (state_object->is_to_player_save()) {
+                            state_object->is_to_player_save(false);
+
+                            if (m_time_left_player_save == 0) {
+                                m_time_left_player_save = m_time_to_player_save;
+                                write_player_save(state_object->level_path_to_save());
                             }
                         }
 
@@ -236,8 +237,8 @@ public:
                     i.join();
                 }
 
-                if (m_time_left_saving > 0) {
-                    --m_time_left_saving;
+                if (m_time_left_player_save > 0) {
+                    --m_time_left_player_save;
                 }                
             }
 
