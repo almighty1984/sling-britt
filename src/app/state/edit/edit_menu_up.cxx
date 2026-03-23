@@ -105,13 +105,13 @@ namespace state {
             offset_x += (F32)sprite::source_rect(i).w;
         }
 
-        bitmap_text->transform_id = m_menu_up_transform_id;
-        bitmap_text->layer = MENU_LAYER;
+        bitmap_text->transform_id(m_menu_up_transform_id);
+        bitmap_text->layer(MENU_LAYER);
         bitmap_text->offset({ offset_x, 0.0F });
         bitmap_text->set_text(text);
 
-        cU16 bg_w = text.size() * (int)bitmap_text->font_size;
-        cU16 bg_h = (int)bitmap_text->font_size;
+        cU16 bg_w = text.size() * (int)bitmap_text->font_size();
+        cU16 bg_h = (int)bitmap_text->font_size();
 
         m_menu_up_w += bg_w;
 
@@ -154,16 +154,16 @@ namespace state {
         path_str.erase(0, res_path_pos);    // keep last part of the path (res/level/...)        
 
         std::unique_ptr<BitmapText> bitmap_text = std::make_unique<BitmapText>();
-        bitmap_text->transform_id = m_menu_up_lists[menu].transform_id;
-        bitmap_text->layer = MENU_LAYER;
-        bitmap_text->offset({ 0.0F, m_menu_up_lists[menu].text_items.size() * (F32)bitmap_text->font_size });
+        bitmap_text->transform_id(m_menu_up_lists[menu].transform_id);
+        bitmap_text->layer(MENU_LAYER);
+        bitmap_text->offset({ 0.0F, m_menu_up_lists[menu].text_items.size() * (F32)bitmap_text->font_size()});
         bitmap_text->set_text(path_str);
 
-        cU16 bg_w = path_str.size() * (int)bitmap_text->font_size;
+        cU16 bg_w = path_str.size() * (int)bitmap_text->font_size();
         if (bg_w > m_menu_up_lists[menu].bg_w) {
             m_menu_up_lists[menu].bg_w = bg_w;
         }
-        m_menu_up_lists[menu].bg_h = (int)(bitmap_text->font_size * (m_menu_up_lists[menu].text_items.size() + 1));
+        m_menu_up_lists[menu].bg_h = (int)(bitmap_text->font_size() * (m_menu_up_lists[menu].text_items.size() + 1));
         sprite::source_rect(m_menu_up_lists[menu].bg_sprite_id, { 0, 0, m_menu_up_lists[menu].bg_w, m_menu_up_lists[menu].bg_h });
 
         m_menu_up_lists[menu].text_items.emplace_back(std::move(bitmap_text));

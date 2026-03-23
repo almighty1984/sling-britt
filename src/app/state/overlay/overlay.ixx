@@ -12,9 +12,6 @@ import sprite;
 
 export namespace state {
     class Overlay : public Object {
-        I32 //m_line_transform_id = -1,
-            m_transform_id = -1;
-
         //I32 m_line_id = -1;
 
         BitmapText m_fps_text;
@@ -26,19 +23,15 @@ export namespace state {
 
             m_input_id = input::make();
 
-            m_transform_id = transform::make();
+            m_fps_text.layer(NUM_VISIBLE_LAYERS - 1);
 
-            m_fps_text.transform_id = m_transform_id;
-            m_fps_text.layer = NUM_VISIBLE_LAYERS - 1;
+            m_fps_text.texture("res/texture/font_5_white.png");
+            m_fps_text.font_size(5);
 
-            m_fps_text.texture_path = "res/texture/font_5_white.png";
-            m_fps_text.font_size = 5;
-
-            m_visible_layers.insert(m_fps_text.layer);
+            m_visible_layers.insert(m_fps_text.layer());
         }
         ~Overlay() {
             console::log("~Overlay()\n");
-            transform::erase(m_transform_id);
             input::erase(m_input_id);
             m_fps_text.clear_text();
         }
@@ -47,12 +40,12 @@ export namespace state {
             if (m_timer < 2) {
                 return;
             }
-            m_timer = 0;*/            
-
+            m_timer = 0;*/
 
             cF32 current_fps = 1.0F / ts;
-
-            m_fps_text.transform_id = m_transform_id;
+             
+            m_fps_text.position({ (F32)(view().w - m_fps_text.get_text().size() * m_fps_text.font_size()),
+                                  (F32)(view().h - m_fps_text.font_size()) });
             m_fps_text.set_text(std::to_string((int)current_fps));
 
             if (is_pressed(input::Key::l)) {
@@ -63,13 +56,10 @@ export namespace state {
             } else {
                 input::unlock(m_input_id, input::Key::l);
             }
-
-            transform::position(m_transform_id, { (F32)(view().w - m_fps_text.get_text().size() * m_fps_text.font_size),
-                                                  (F32)(view().h - m_fps_text.font_size) });
         }
         void draw(std::unique_ptr<Window>& window, cU8 layer) override {
             //console::log("fps text layer: ", (int)m_fps_text.layer, " ", (int)layer, "\n");
-            if (m_fps_text.layer == layer) {
+            if (m_fps_text.layer() == layer) {
                 m_fps_text.draw(window);
             }
         }

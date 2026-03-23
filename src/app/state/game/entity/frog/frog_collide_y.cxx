@@ -51,7 +51,7 @@ namespace entity {
             }
             if (other_rect.y > our_rect.y) return;
 
-            add_position_y(-overlap_y);
+            position_add_y(-overlap_y);
 
             if (our_rect.y > other_rect.y) {
                 hurt(other.owner);
@@ -65,7 +65,7 @@ namespace entity {
             }
             if (other.owner->state() == State::upended || other.owner->state() == State::bounce) {
                 if (velocity().y < 0.0F) return;
-                add_position_y(-overlap_y);
+                position_add_y(-overlap_y);
                 max_velocity_y(10.0F);
                 velocity_y(-5.0F - velocity().y / 4.0F);
                 m_is_on_ground = false;
@@ -79,7 +79,7 @@ namespace entity {
             m_is_on_ground = true;
         }
         else if (other_type == Type::clip || other_type == Type::clip_ledge) {
-            add_position_y(-overlap_y);
+            position_add_y(-overlap_y);
             velocity_y(0.0F);
             moved_velocity_y(0.0F);
             if (our_rect.y < other_rect.y) {
@@ -90,7 +90,7 @@ namespace entity {
         }
         else if (other_type == Type::clip_U || other_type == Type::slope_U) {
             if (velocity().y < 0.0F) return;
-            add_position_y(-overlap_y);
+            position_add_y(-overlap_y);
 
             velocity_y(0.0F);
             moved_velocity_y(0.0F);
@@ -100,7 +100,7 @@ namespace entity {
         }
         else if (other_type == Type::clip_D || other_type == Type::clip_LD || other_type == Type::clip_RD) {
             if (velocity().y > 0.0F) return;
-            add_position_y(-overlap_y);
+            position_add_y(-overlap_y);
             m_is_on_ground = false;
             m_is_on_slope = false;
             velocity_y(std::abs(velocity().y) * 0.75F);
@@ -110,11 +110,11 @@ namespace entity {
         }
         else if (other_type == Type::frog) {
             if (our_rect.h <= other_rect.y) {
-                add_position_y(-overlap_y);
+                position_add_y(-overlap_y);
                 velocity_y(-4.0F);
 
                 velocity_x(other.owner->velocity().x + other.owner->moved_velocity().x);
-                add_velocity({ 0.0F, other.owner->velocity().y + other.owner->moved_velocity().y });
+                velocity_add({ 0.0F, other.owner->velocity().y + other.owner->moved_velocity().y });
 
                 Vec2F our_center = Vec2F{ our_rect.x + (our_rect.w - our_rect.x) / 2.0F,     our_rect.y + (our_rect.h - our_rect.y) / 2.0F };
                 Vec2F other_center = Vec2F{ other_rect.x + (other_rect.w - other_rect.x) / 2.0F, other_rect.y + (other_rect.h - other_rect.y) / 2.0F };
@@ -129,7 +129,7 @@ namespace entity {
         }
         else if (other_type == Type::slope_L_2x1_0 || other_type == Type::slope_L_2x1_1) {
             //if (velocity().y < 0.0F) return;
-            add_position_y(-overlap_y);
+            position_add_y(-overlap_y);
 
             velocity_y(0.0F);
             moved_velocity_y(0.0F);
@@ -145,7 +145,7 @@ namespace entity {
         }
         else if (other_type == Type::slope_R_1x1) {
             //if (velocity().y < 0.0F) return;
-            add_position_y(-overlap_y);
+            position_add_y(-overlap_y);
 
             velocity_y(0.0F);
             moved_velocity_y(0.0F);
@@ -161,7 +161,7 @@ namespace entity {
         }
         else if (other_type == Type::slope_R_2x1_0 || other_type == Type::slope_R_2x1_1) {
             //if (velocity().y < 0.0F) return;
-            add_position_y(-overlap_y);
+            position_add_y(-overlap_y);
 
             velocity_y(0.0F);
             moved_velocity_y(0.0F);
@@ -182,7 +182,7 @@ namespace entity {
             }
             if (our_rect.y <= other_rect.y) {
 
-                add_position_y(-overlap_y);
+                position_add_y(-overlap_y);
 
                 cI32 rand_num = random::number(-1, 1);
 

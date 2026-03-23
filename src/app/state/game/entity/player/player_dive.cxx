@@ -9,7 +9,8 @@ namespace entity {
     void Player::state_dive() {
         if (m_is_first_state_update) {
             m_is_first_state_update = false;
-            
+            m_is_carrying = false;
+            m_is_down_thrusting = false;
             sound_stop("hover");
             sound_stop("slide_wall");
         }
@@ -32,10 +33,10 @@ namespace entity {
 
         if (!is_pressed(input::Key::ctrl)) {            
             if (is_pressed(key_left)) {                  
-                add_velocity_x(-acceleration().x);
+                velocity_add_x(-acceleration().x);
             }
             if (is_pressed(key_right)) {            
-                add_velocity_x(acceleration().x);
+                velocity_add_x(acceleration().x);
             }
         }
 
@@ -47,7 +48,7 @@ namespace entity {
                 }
             }
         }
-        add_velocity({ 0.0F, acceleration().y });
+        velocity_add({ 0.0F, acceleration().y });
 
         anim::speed(m_current_anim_id, 0.0F);
         anim::source_x(m_current_anim_id, anim::source(m_current_anim_id).w * 7);

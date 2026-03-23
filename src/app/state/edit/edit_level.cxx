@@ -11,8 +11,8 @@ import types;
 
 namespace state {
     void Edit::move_level(cVec2F amount) {
-        transform::add_position(m_level_transform_id, amount);
-        transform::add_position(m_grid_transform_id, amount);
+        transform::position_add(m_level_transform_id, amount);
+        transform::position_add(m_grid_transform_id, amount);
 
         sprite::offset(m_position_on_grid_map_sprite_id, Vec2F{ 7.0F, 7.0F } - transform::position(m_grid_transform_id) / 16.0F);
     }
@@ -28,13 +28,13 @@ namespace state {
             
             if (amount.x < 0.0F && sprite::offset(i).x + transform::position(m_level_transform_id).x < view().x ||
                 amount.x > 0.0F && sprite::offset(i).x + transform::position(m_level_transform_id).x > view().w - 48.0F) {
-                transform::add_position(m_level_transform_id, { -amount.x, 0.0F });
-                transform::add_position(m_grid_transform_id, { -amount.x, 0.0F });
+                transform::position_add(m_level_transform_id, { -amount.x, 0.0F });
+                transform::position_add(m_grid_transform_id, { -amount.x, 0.0F });
             }
             if (amount.y < 0.0F && sprite::offset(i).y + transform::position(m_level_transform_id).y < view().y ||
                 amount.y > 0.0F && sprite::offset(i).y + transform::position(m_level_transform_id).y > view().h - 32.0F) {
-                transform::add_position(m_level_transform_id, { 0.0F, -amount.y });
-                transform::add_position(m_grid_transform_id, { 0.0F, -amount.y });
+                transform::position_add(m_level_transform_id, { 0.0F, -amount.y });
+                transform::position_add(m_grid_transform_id, { 0.0F, -amount.y });
             }
         }
         for (auto& i : m_moving_sprite_ids) {

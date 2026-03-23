@@ -10,68 +10,56 @@ export namespace transform {
     protected:
         I32 m_transform_id = -1;
     public:
-        I32 transform_id() const { return m_transform_id; }    void transform_id(cI32 id) { m_transform_id = id; }
+        I32           transform_id() const  { return m_transform_id; }
+        virtual void  transform_id(cI32 id) { m_transform_id = id;   }
 
-        Vec2F position() const { return transform::position(m_transform_id); }
-        void position(cVec2F p) { transform::position(m_transform_id, p); }
-        void position_x(cF32 x) { transform::position_x(m_transform_id, x); }
-        void position_y(cF32 y) { transform::position_y(m_transform_id, y); }
-        void add_position(cVec2F v) { transform::add_position(m_transform_id, v); }
-        void add_position_x(cF32 x) { transform::add_position_x(m_transform_id, x); }
-        void add_position_y(cF32 y) { transform::add_position_y(m_transform_id, y); }
-
-        Vec2F start_position() const { return transform::start_position(m_transform_id); }
-        void start_position(cVec2F p) { transform::start_position(m_transform_id, p); }
-
-        Vec2F velocity() const { return transform::velocity(m_transform_id); }
-        void  velocity(cVec2F v) { transform::velocity(m_transform_id, v); }
-
-        void velocity_x(cF32 x) { transform::velocity_x(m_transform_id, x); }
-        void velocity_y(cF32 y) { transform::velocity_y(m_transform_id, y); }
-
-        void add_velocity(cVec2F v) { transform::add_velocity(m_transform_id, v); }
-        void add_velocity_x(cF32 x) { transform::add_velocity_x(m_transform_id, x); }
-        void add_velocity_y(cF32 y) { transform::add_velocity_y(m_transform_id, y); }
-
-        Vec2F moved_velocity() const { return transform::moved_velocity(m_transform_id); }
-        void moved_velocity(cVec2F v) { transform::moved_velocity(m_transform_id, v); }
-        void moved_velocity_x(cF32 x) { transform::moved_velocity_x(m_transform_id, x); }
-        void moved_velocity_y(cF32 y) { transform::moved_velocity_y(m_transform_id, y); }
-        void add_moved_velocity(cVec2F v) { transform::add_moved_velocity(m_transform_id, v); }
-        void add_moved_velocity_x(cF32 x) { transform::add_moved_velocity_x(m_transform_id, x); }
-        void add_moved_velocity_y(cF32 y) { transform::add_moved_velocity_y(m_transform_id, y); }
-
-        Vec2F acceleration() const { return transform::acceleration(m_transform_id); }
-        void acceleration(cVec2F a) { transform::acceleration(m_transform_id, a); }
-        void acceleration_x(cF32 a) { transform::acceleration_x(m_transform_id, a); }
-        void acceleration_y(cF32 a) { transform::acceleration_y(m_transform_id, a); }
-
-        Vec2F start_acceleration() const { return transform::start_acceleration(m_transform_id); }
-        void start_acceleration(cVec2F m) { transform::start_acceleration(m_transform_id, m); }
-        void start_acceleration_x(cF32 x) { transform::start_acceleration_x(m_transform_id, x); }
-        void start_acceleration_y(cF32 y) { transform::start_acceleration_y(m_transform_id, y); }
-
-        Vec2F deceleration() const { return transform::deceleration(m_transform_id); }
-        void deceleration(cVec2F d) { transform::deceleration(m_transform_id, d); }
-        void deceleration_x(cF32 a) { transform::deceleration_x(m_transform_id, a); }
-        void deceleration_y(cF32 a) { transform::deceleration_y(m_transform_id, a); }
-
-        Vec2F start_deceleration() const { return transform::start_deceleration(m_transform_id); }
-        void start_deceleration(cVec2F m) { transform::start_deceleration(m_transform_id, m); }
-        void start_deceleration_x(cF32 x) { transform::start_deceleration_x(m_transform_id, x); }
-        void start_deceleration_y(cF32 y) { transform::start_deceleration_y(m_transform_id, y); }
-
-        Vec2F max_velocity() const { return transform::max_velocity(m_transform_id); }
-        void max_velocity(cVec2F m) { transform::max_velocity(m_transform_id, m); }
-        void max_velocity_x(cF32 x) { transform::max_velocity_x(m_transform_id, x); }
-        void max_velocity_y(cF32 y) { transform::max_velocity_y(m_transform_id, y); }
-
-        Vec2F start_max_velocity() const { return transform::start_max_velocity(m_transform_id); }
-        void start_max_velocity(cVec2F m) { transform::start_max_velocity(m_transform_id, m); }
-        void start_max_velocity_x(cF32 x) { transform::start_max_velocity_x(m_transform_id, x); }
-        void start_max_velocity_y(cF32 y) { transform::start_max_velocity_y(m_transform_id, y); }
+        Vec2F position()                   const { return transform::position(m_transform_id);           }
+        void  position(cVec2F p)           const { transform::position(m_transform_id, p);               }
+        void  position_x(cF32 x)           const { transform::position_x(m_transform_id, x);             }
+        void  position_y(cF32 y)           const { transform::position_y(m_transform_id, y);             }
+        void  position_add(cVec2F v)       const { transform::position_add(m_transform_id, v);           }
+        void  position_add_x(cF32 x)       const { transform::position_add_x(m_transform_id, x);         }
+        void  position_add_y(cF32 y)       const { transform::position_add_y(m_transform_id, y);         }
+        Vec2F start_position()             const { return transform::start_position(m_transform_id);     }
+        void  start_position(cVec2F p)     const { transform::start_position(m_transform_id, p);         }
+        Vec2F velocity()                   const { return transform::velocity(m_transform_id);           }
+        void  velocity(cVec2F v)           const { transform::velocity(m_transform_id, v);               }
+        void  velocity_x(cF32 x)           const { transform::velocity_x(m_transform_id, x);             }
+        void  velocity_y(cF32 y)           const { transform::velocity_y(m_transform_id, y);             }
+        void  velocity_add(cVec2F v)       const { transform::velocity_add(m_transform_id, v);           }
+        void  velocity_add_x(cF32 x)       const { transform::velocity_add_x(m_transform_id, x);         }
+        void  velocity_add_y(cF32 y)       const { transform::velocity_add_y(m_transform_id, y);         }
+        Vec2F moved_velocity()             const { return transform::moved_velocity(m_transform_id);     }
+        void  moved_velocity(cVec2F v)     const { transform::moved_velocity(m_transform_id, v);         }
+        void  moved_velocity_x(cF32 x)     const { transform::moved_velocity_x(m_transform_id, x);       }
+        void  moved_velocity_y(cF32 y)     const { transform::moved_velocity_y(m_transform_id, y);       }
+        void  moved_velocity_add(cVec2F v) const { transform::moved_velocity_add(m_transform_id, v);     }
+        void  moved_velocity_add_x(cF32 x) const { transform::moved_velocity_add_x(m_transform_id, x);   }
+        void  moved_velocity_add_y(cF32 y) const { transform::moved_velocity_add_y(m_transform_id, y);   }
+        Vec2F acceleration()               const { return transform::acceleration(m_transform_id);       }
+        void  acceleration(cVec2F a)       const { transform::acceleration(m_transform_id, a);           }
+        void  acceleration_x(cF32 a)       const { transform::acceleration_x(m_transform_id, a);         }
+        void  acceleration_y(cF32 a)       const { transform::acceleration_y(m_transform_id, a);         }
+        Vec2F start_acceleration()         const { return transform::start_acceleration(m_transform_id); }
+        void  start_acceleration(cVec2F m) const { transform::start_acceleration(m_transform_id, m);     }
+        void  start_acceleration_x(cF32 x) const { transform::start_acceleration_x(m_transform_id, x);   }
+        void  start_acceleration_y(cF32 y) const { transform::start_acceleration_y(m_transform_id, y);   }
+        Vec2F deceleration()               const { return transform::deceleration(m_transform_id);       }
+        void  deceleration(cVec2F d)       const { transform::deceleration(m_transform_id, d);           }
+        void  deceleration_x(cF32 a)       const { transform::deceleration_x(m_transform_id, a);         }
+        void  deceleration_y(cF32 a)       const { transform::deceleration_y(m_transform_id, a);         }
+        Vec2F start_deceleration()         const { return transform::start_deceleration(m_transform_id); }
+        void  start_deceleration(cVec2F m) const { transform::start_deceleration(m_transform_id, m);     }
+        void  start_deceleration_x(cF32 x) const { transform::start_deceleration_x(m_transform_id, x);   }
+        void  start_deceleration_y(cF32 y) const { transform::start_deceleration_y(m_transform_id, y);   }
+        Vec2F max_velocity()               const { return transform::max_velocity(m_transform_id);       }
+        void  max_velocity(cVec2F m)       const { transform::max_velocity(m_transform_id, m);           }
+        void  max_velocity_x(cF32 x)       const { transform::max_velocity_x(m_transform_id, x);         }
+        void  max_velocity_y(cF32 y)       const { transform::max_velocity_y(m_transform_id, y);         }
+        Vec2F start_max_velocity()         const { return transform::start_max_velocity(m_transform_id); }
+        void  start_max_velocity(cVec2F m) const { transform::start_max_velocity(m_transform_id, m);     }
+        void  start_max_velocity_x(cF32 x) const { transform::start_max_velocity_x(m_transform_id, x);   }
+        void  start_max_velocity_y(cF32 y) const { transform::start_max_velocity_y(m_transform_id, y);   }
     };
-
-
     bool parse_config(const std::string& text, Trait* owner);
 }

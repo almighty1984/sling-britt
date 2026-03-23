@@ -31,7 +31,7 @@ namespace entity {
         cF32 overlap_x = our_rect.x < other_rect.x ? our_rect.w - other_rect.x : -(other_rect.w - our_rect.x);
 
         if (m_state == State::sling) {
-            //add_position_x( -overlap_x );
+            //position_add_x( -overlap_x );
             //velocity_x(-velocity().x;
 
             if (is_arch(other_type)) {
@@ -56,7 +56,7 @@ namespace entity {
             //    return;
             //}
             //if (m_is_on_ground && m_is_on_slope) {
-            //    add_position_x(-overlap_x);
+            //    position_add_x(-overlap_x);
             //    velocity_x(velocity().x * 0.0F);
             //    //return;
             //}
@@ -75,7 +75,7 @@ namespace entity {
                 //collide_y(our, other);
                 return;
             }
-            add_position_x(-overlap_x);
+            position_add_x(-overlap_x);
             velocity_x(velocity().x * 0.95F);
         }
         else if (other_type == Type::bug) {
@@ -87,25 +87,25 @@ namespace entity {
                 collide_y(our, other);
                 return;
             }
-            add_position_x(-overlap_x);
+            position_add_x(-overlap_x);
 
             //velocity_x(-0.9F;
 
             /*if (std::abs(our_velocity.x) < std::abs(other_velocity.x)) {
                 velocity_x(other_velocity.x * 4.0F;
                 velocity().y -= 2.0F;
-                add_position_x( -overlap_x );
+                position_add_x( -overlap_x );
             }*/
             /*if (our_rect.h < other_rect.y + 2.0F ||
                 our_rect.y > other_rect.h - 2.0F) {
                 return;
             }
-            add_position_x( -overlap_x );*/
+            position_add_x( -overlap_x );*/
         }
         else if (other_type == Type::clip) {
             if (our_rect.h > other_rect.y && our_rect.h - other_rect.y < 2.0F) return;
             m_is_wall_to_left = other_rect.x < our_rect.x;
-            add_position_x(-overlap_x);
+            position_add_x(-overlap_x);
             velocity_x(0.0F);
             moved_velocity_x(0.0F);
 
@@ -142,11 +142,11 @@ namespace entity {
         else if (other_type == Type::clip_ledge) {
             if (m_state == State::ledge) return;
             if (our_rect.h > other_rect.y && our_rect.h - other_rect.y < 2.0F) return;
-            if (our_rect.y >= other_rect.h - 2.0F) {
+            if (our_rect.y > other_rect.h - 2.0F) {
                 //console::log("entity::Player::collide_x clip_ledge skip\n");
                 return;
             }
-            if (our_rect.h <= other_rect.y + 2.0F) {
+            if (our_rect.h < other_rect.y + 2.0F) {
                 //console::log("entity::Player::collide_x clip_ledge above skip\n");
                 return;
             }
@@ -155,7 +155,7 @@ namespace entity {
                 return;
             }
 
-            add_position_x(-overlap_x);
+            position_add_x(-overlap_x);
             if (m_state == State::swim) {
                 return;
             }
@@ -195,7 +195,7 @@ namespace entity {
             if (our_velocity.y > 0.0F && !m_is_carrying && !m_is_hovering) {
                 if (m_is_wall_to_left && is_pressed(key_left) ||
                     !m_is_wall_to_left && is_pressed(key_right)) {
-                    if (m_state != State::ledge && our_rect.y <= other_rect.y && our_rect.y + 16 >= other_rect.y) {
+                    if (m_state != State::ledge && our_rect.y < other_rect.y - 2.0F && our_rect.y + 16 > other_rect.y) {
                         
                         m_next_state = State::ledge;
                         m_is_sliding_wall = false;
@@ -212,7 +212,7 @@ namespace entity {
         }
         else if (other_type == Type::clip_L) {
             if (our_velocity.x < 0.0F || m_state == State::ledge) return;
-            add_position_x(-overlap_x);            
+            position_add_x(-overlap_x);            
             velocity_x(0.0F);
             moved_velocity_x(0.0F);
             moved_velocity_y(0.0F);
@@ -255,7 +255,7 @@ namespace entity {
 
             if (our_velocity.x <= 0.0F || m_state == State::ledge) return;
 
-            add_position_x(-overlap_x);            
+            position_add_x(-overlap_x);            
             velocity_x(0.0F);
             moved_velocity_x(0.0F);
             moved_velocity_y(0.0F);
@@ -283,7 +283,7 @@ namespace entity {
         }
         else if (other_type == Type::clip_R) {
             if (our_velocity.x >= 0.0F || m_state == State::ledge) return;
-            add_position_x(-overlap_x);            
+            position_add_x(-overlap_x);            
             velocity_x(0.0F);
             moved_velocity_x(0.0F);
             moved_velocity_y(0.0F);
@@ -322,7 +322,7 @@ namespace entity {
 
             if (our_velocity.x >= 0.0F || m_state == State::ledge) return;
 
-            add_position_x(-overlap_x);            
+            position_add_x(-overlap_x);            
             velocity_x(0.0F);
             moved_velocity_x(0.0F);
             moved_velocity_y(0.0F);
@@ -350,7 +350,7 @@ namespace entity {
         else if (is_conduit(other_type)) {
             return;
             if (other.owner->is_dead()) return;
-            add_position_x(-overlap_x);
+            position_add_x(-overlap_x);
             velocity_x(0.0F);
             moved_velocity_x(0.0F);
         }
@@ -371,7 +371,7 @@ namespace entity {
             //if (our_rect.h + 1.0F <= other_rect.y) return;
             //velocity_x(moved_velocity_x(0.0F);
 
-            add_position_x(-overlap_x);
+            position_add_x(-overlap_x);
 
             if (std::abs(our_velocity.x) > std::abs(other_velocity.x)) {
                 return;
@@ -380,12 +380,12 @@ namespace entity {
             velocity_x(other_velocity.x * 0.5F);
             other.owner->velocity_x(our_velocity.x * 0.25f);
             if (our_rect.x < other_rect.x) {
-                add_velocity({ -1.0F, 0.0F });
-                other.owner->add_velocity({ 1.0F, 0.0F });
+                velocity_add({ -1.0F, 0.0F });
+                other.owner->velocity_add({ 1.0F, 0.0F });
             }
             else {
-                add_velocity({ 1.0F, 0.0F });
-                other.owner->add_velocity({ -1.0F, 0.0F });
+                velocity_add({ 1.0F, 0.0F });
+                other.owner->velocity_add({ -1.0F, 0.0F });
             }
         }
         else if (other_type == Type::level_L_0) {
@@ -405,7 +405,7 @@ namespace entity {
             collide_y(our, other);
         }
         else if (other_type == Type::particle_brick) {
-            //add_position_x( -overlap_x );
+            //position_add_x( -overlap_x );
             //velocity().x *= 0.95F;
         }
         else if (other_type == Type::particle_health) { }
@@ -423,7 +423,7 @@ namespace entity {
                 if (our_velocity.x > 0.0F && std::abs(our_velocity.y) < our_velocity.x) {
                     velocity_y(-our_velocity.x * 0.9F);
                     velocity_x(velocity().x * 0.95f);
-                    add_position({ 0.0F, -1.0F });
+                    position_add({ 0.0F, -1.0F });
                 }
                 return;
             }
@@ -433,7 +433,7 @@ namespace entity {
             }
             //velocity_y(-velocity().x;
             //position().y -= 1.0F;
-            add_position({ 0.0F, -velocity().x });
+            position_add({ 0.0F, -velocity().x });
 
             m_is_on_ground = true;
             m_is_on_slope = true;
@@ -447,19 +447,19 @@ namespace entity {
                 if (our_velocity.x < 0.0F && std::abs(our_velocity.y) < our_velocity.x) {
                     velocity_y(our_velocity.x * 0.9F);
                     velocity_x(velocity().x * 0.95F);
-                    add_position({ 0.0F, -1.0F });
+                    position_add({ 0.0F, -1.0F });
                 }
                 return;
             }
             //position().y -= overlap_x;
-            //add_position_x( -overlap_x );
+            //position_add_x( -overlap_x );
             //velocity_y(0.0F);
             if (our_velocity.x < -max_velocity().x * 0.7F) {
                 velocity_x(-max_velocity().x * 0.7F);
             }
             //velocity_y(velocity().x);
             //position().y -= 1.0F;
-            add_position({ 0.0F, velocity().x });
+            position_add({ 0.0F, velocity().x });
             m_is_on_ground = true;
             m_is_on_slope = true;
         }
@@ -472,7 +472,7 @@ namespace entity {
                 if (our_velocity.x > 0.0F && std::abs(our_velocity.y) < our_velocity.x) {
                     velocity_y(-our_velocity.x * 0.5F);
                     velocity_x(our_velocity.x * 0.95F);
-                    add_position({ 0.0F, -1.0F });
+                    position_add({ 0.0F, -1.0F });
                 }
                 return;
             }
@@ -482,7 +482,7 @@ namespace entity {
             }
             //velocity_y(-velocity().x / 2.0F;
             //velocity().y -= 0.5F;
-            add_position({ 0.0F, -velocity().x / 2.0F });
+            position_add({ 0.0F, -velocity().x / 2.0F });
 
             m_is_on_ground = true;
             m_is_on_slope = true;
@@ -496,18 +496,18 @@ namespace entity {
                 if (our_velocity.x < 0.0F && std::abs(our_velocity.y) < our_velocity.x) {
                     velocity_y(our_velocity.x * 0.5F);
                     velocity_x(velocity().x * 0.95f);
-                    add_position({ 0.0F, -1.0F });
+                    position_add({ 0.0F, -1.0F });
                 }
                 return;
             }
             //position().y -= overlap_x;
-            //add_position_x( -overlap_x );
+            //position_add_x( -overlap_x );
             if (velocity().x < -max_velocity().x * 0.9F) {
                 velocity_x(-max_velocity().x * 0.9F);
             }
             //velocity_y(velocity().x / 2.0F;
             //velocity().y -= 0.5F;
-            add_position({ 0.0F, velocity().x / 2.0F });
+            position_add({ 0.0F, velocity().x / 2.0F });
 
             m_is_on_ground = true;
             m_is_on_slope = true;
@@ -520,7 +520,7 @@ namespace entity {
         }
         else if (other_type == Type::player) {
             return;
-            add_position_x(-overlap_x);
+            position_add_x(-overlap_x);
             //velocity_x(0.0F);
 
             //velocity_x(velocity().x * 0.5F + velocity.x * 0.5F;

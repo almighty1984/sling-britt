@@ -63,6 +63,7 @@ namespace entity {
         if (is_pressed(key_down) && !is_locked(key_down)) {
             release(key_down);
             m_next_state = State::run;
+            velocity_y(0.5F);
         }
         if (is_pressed(key_jump)) {
             m_time_left_jumping_wall = m_time_to_jump_wall;            

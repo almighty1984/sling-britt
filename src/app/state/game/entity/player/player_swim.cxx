@@ -101,18 +101,18 @@ namespace entity {
         
         if (!is_pressed(input::Key::ctrl)) {
             if (is_pressed(key_up) && m_time_in_state > 4) {
-                add_velocity_y(-acceleration().y);
+                velocity_add_y(-acceleration().y);
             }
             if (is_pressed(key_down)) {
-                add_velocity_y(acceleration().y);
+                velocity_add_y(acceleration().y);
             }
             if (is_pressed(key_left)) {
                 //sprite::is_leftward(m_sprite_id, true);        
-                add_velocity_x(-acceleration().x);
+                velocity_add_x(-acceleration().x);
             }
             if (is_pressed(key_right)) {
                 //sprite::is_leftward(m_sprite_id, false);
-                add_velocity_x(acceleration().x);
+                velocity_add_x(acceleration().x);
             }
         }
 

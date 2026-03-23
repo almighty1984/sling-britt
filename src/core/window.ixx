@@ -15,6 +15,8 @@ export class Window {
     U16 m_w = 0,
         m_h = 0;
 
+    bool m_is_in_focus = true;
+
 public:
     sf::RenderWindow m_sf_window;
     Shader test_shader;
@@ -32,6 +34,10 @@ public:
         
         test_shader.load("res/shader/test.vert", "res/shader/test.frag");
     }
+    
+    bool is_open() const { return m_sf_window.isOpen(); }
+    bool is_in_focus() const { return m_is_in_focus; }  void is_in_focus(bool q) { m_is_in_focus = q; }
+
     RectF view()  const { return m_view;  }
     U8    scale() const { return m_scale; }
     U16   w()     const { return m_w;     }    void w(cU16 w) { m_w = w; }
@@ -72,6 +78,6 @@ public:
 
     //    //m_sf_window.draw(sprite->sf_sprite);
     //}
-    bool is_open() const { return m_sf_window.isOpen(); }
     std::optional<sf::Event> poll_event() { return m_sf_window.pollEvent(); }
+
 };

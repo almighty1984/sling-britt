@@ -74,7 +74,7 @@ export namespace entity {
             sprite::source_rect(m_sprite_id, anim::source(m_current_anim_id));
 
             if (!is_dead()) {
-                add_velocity_y(acceleration().y);
+                velocity_add_y(acceleration().y);
             }
             m_is_near_wall_L = m_is_near_wall_R = false;
             if (!m_is_on_slope && (velocity().y < 0.0F || velocity().y > acceleration().y)) {

@@ -68,7 +68,7 @@ namespace entity {
                 }*/
                 //m_force.y = other_velocity.y * 4.0F;                
 
-                other.owner->add_position_y(-overlap_y);
+                other.owner->position_add_y(-overlap_y);
 
                 other.owner->velocity_y(0.0F);
                 //other.owner->velocity_y(0.0F);

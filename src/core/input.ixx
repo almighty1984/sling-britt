@@ -6,7 +6,6 @@ module;
 #include <vector>
 
 export module input;
-
 import console;
 import types;
 import window;
@@ -75,7 +74,8 @@ export namespace input {
                         i->press(key_num);
                     }
                 }
-            } else if (const auto* sf_key = sf_event->getIf<sf::Event::KeyReleased>()) {
+            }
+            else if (const auto* sf_key = sf_event->getIf<sf::Event::KeyReleased>()) {
                 input::Key key_num = (input::Key)sf_key->scancode;
                 //console::log("key released ", (I32)key_num, "\n");
                 for (auto& i : s_listeners) {
@@ -83,7 +83,8 @@ export namespace input {
                         i->release(key_num);
                     }
                 }
-            } else if (const auto* sf_mouse_moved = sf_event->getIf<sf::Event::MouseMoved>()) {
+            }
+            else if (const auto* sf_mouse_moved = sf_event->getIf<sf::Event::MouseMoved>()) {
                 F32 screen_w = window->w() / window->view().w;
                 F32 screen_h = window->h() / window->view().h;
 
@@ -92,7 +93,8 @@ export namespace input {
 
                 mouse = { (F32)(sf_mouse_moved->position.x / window->scale() / screen_w),
                           (F32)(sf_mouse_moved->position.y / window->scale() / screen_h)};
-            } else if (const auto* sf_mouse_pressed = sf_event->getIf<sf::Event::MouseButtonPressed>()) {
+            }
+            else if (const auto* sf_mouse_pressed = sf_event->getIf<sf::Event::MouseButtonPressed>()) {
                 Button button = (Button)sf_mouse_pressed->button;
                 //console::log("mouse pressed ", (I8)b, "\n");                
                 for (auto& i : s_listeners) {
@@ -102,11 +104,13 @@ export namespace input {
                 }
                 if (button == Button::left) {
                     mouse_prev = { (F32)(sf_mouse_pressed->position.x / window->scale()), (F32)(sf_mouse_pressed->position.y / window->scale()) };
-                } else if (button == Button::right) {
+                }
+                else if (button == Button::right) {
                     //m_mouse_x = mouse_pressed->position.x;
                         //m_mouse_y = mouse_pressed->position.y;
                 }
-            } else if (const auto* sf_mouse_released = sf_event->getIf<sf::Event::MouseButtonReleased>()) {
+            }
+            else if (const auto* sf_mouse_released = sf_event->getIf<sf::Event::MouseButtonReleased>()) {
                 Button b = (Button)sf_mouse_released->button;
                 //console::log("mouse released ", button_num, "\n");
                 for (auto& i : s_listeners) {
@@ -114,12 +118,22 @@ export namespace input {
                         i->release(b);
                     }
                 }
-            } else if (const auto* sf_mouse_scrolled = sf_event->getIf<sf::Event::MouseWheelScrolled>()) {
+            }
+            else if (const auto* sf_mouse_scrolled = sf_event->getIf<sf::Event::MouseWheelScrolled>()) {
                 scroll = sf_mouse_scrolled->delta;
                 //console::log("input::handle_events mouse delta: ", mouse_scrolled->delta, "\n");
-            } else if (sf_event->is<sf::Event::JoystickButtonPressed>()) {
+            }
+            else if (sf_event->is<sf::Event::JoystickButtonPressed>()) {
                 //console::log("ListenerHandler JoystickButtonPressed ", sfEvent.joystickButton.button, "\n");
                 //state->joystickButtonDown(sfEvent.joystickButton.button);
+            }
+            else if (sf_event->is<sf::Event::FocusGained>()) {
+                console::log("input::handle_events() focus gained\n");
+                window->is_in_focus(true);
+            }
+            else if (sf_event->is<sf::Event::FocusLost>()) {
+                console::log("input::handle_events() focus lost\n");
+                window->is_in_focus(false);
             }
         }
     }

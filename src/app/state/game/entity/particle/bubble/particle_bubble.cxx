@@ -21,10 +21,10 @@ namespace entity {
 
         if (is_clip(other_type)) {
             m_time_in_state = 0;
-            add_position_x(-overlap_x);
+            position_add_x(-overlap_x);
             velocity_x(0.0F);
         } else if (other_type == Type::particle_bubble) {
-            add_position_x(-overlap_x);
+            position_add_x(-overlap_x);
             //cF32 vel_x = velocity().x;
             //velocity_x((other.owner->velocity().x + vel_x) / 2.0F;
             //other.owner->velocity_x((other.owner->velocity().x + vel_x) / 2.0F;
@@ -64,10 +64,10 @@ namespace entity {
                 amount = -1.0F;
             }
             velocity_x(velocity().y * amount);
-            add_position_y(-overlap_y);
+            position_add_y(-overlap_y);
         }
         else if (is_clip(other_type)) {
-            add_position_y(-overlap_y);
+            position_add_y(-overlap_y);
 
             m_time_in_state = 0;
 
@@ -93,7 +93,7 @@ namespace entity {
                 if (!is_dead()) {
                     m_time_left_alive = 0;
                     m_time_left_dead = m_time_to_be_dead;
-                    other.owner->add_velocity_y(our.owner->velocity().y / 4.0F);
+                    other.owner->velocity_add_y(our.owner->velocity().y / 4.0F);
                 }
             }
     }
@@ -103,10 +103,10 @@ namespace entity {
         //if (m_time_in_state < 10) return;
 
         if (m_direction.x == 0.0F) {
-            add_velocity({ -acceleration().x, 0.0F });
+            velocity_add({ -acceleration().x, 0.0F });
         }
         else {
-            add_velocity({ acceleration().x, 0.0F });
+            velocity_add({ acceleration().x, 0.0F });
         }
         if (velocity().x < -0.2F) {
             m_direction.x = 1.0F;

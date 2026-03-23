@@ -184,7 +184,7 @@ namespace state {
         cVec2F limit = { view().w - 512.0F - 32.0F,
                          view().h == 270.0F ? -272.0F : -352.0F };
 
-        transform::add_position(m_tile_set_transform_id, amount);
+        transform::position_add(m_tile_set_transform_id, amount);
         if (transform::position(m_tile_set_transform_id).y > edge_y) {            
             transform::position_y(m_tile_set_transform_id, edge_y);
         } else if (transform::position(m_tile_set_transform_id).y < edge_y + limit.y) {

@@ -76,7 +76,7 @@ export namespace entity {
             }
 
             if (!is_dead()) {
-                add_velocity_y(acceleration().y);
+                velocity_add_y(acceleration().y);
             }
             switch (m_state) {
                 case State::bounce:  state_bounce();  break;

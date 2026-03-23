@@ -69,7 +69,7 @@ namespace entity {
             }
             if (position().x > m_parent->position().x - 12.0F) {
                 cF32 diff_x = (m_parent->position().x - 12.0F) - position().x;
-                add_velocity_x(diff_x / 4.0F);
+                velocity_add_x(diff_x / 4.0F);
             }
             else {
                 position_x(m_parent->position().x - 12.0F);
@@ -82,7 +82,7 @@ namespace entity {
 
             if (position().x < m_parent->position().x + 12.0F) {
                 cF32 diff_x = (m_parent->position().x + 12.0F) - position().x;
-                add_velocity_x(diff_x / 4.0F);
+                velocity_add_x(diff_x / 4.0F);
             }
             else {
                 position_x(m_parent->position().x + 12.0F);
@@ -91,20 +91,20 @@ namespace entity {
 
         sprite::is_leftward(m_sprite_id, position().x + 16.0F < m_parent->position().x + 8.0F);
 
-        position_y(m_parent->position().y + 6.0F);
+        position_y(m_parent->position().y + 2.0F);
         /*if (m_parent->is_ducking()) {
-            add_position_y(4.0F);
+            position_add_y(4.0F);
         }*/
         if (m_parent->is_ducking() || !m_parent->is_carrying()) {
             m_parent->is_carrying(false);
             velocity({ m_parent->velocity().x, velocity().y });
             if (sprite::is_leftward(m_sprite_id)) {
-                add_velocity_x(-0.5F);
-                add_position_x(-8.0F);
+                velocity_add_x(-0.5F);
+                position_add_x(-8.0F);
             }
             else {
-                add_velocity_x(0.5F);
-                add_position_x(8.0F);
+                velocity_add_x(0.5F);
+                position_add_x(8.0F);
             }
             velocity({ velocity().x, -1.0F });
 
@@ -207,7 +207,7 @@ namespace entity {
             max_velocity({ 4.0F, 4.0F });
 
             cF32 diff_y = m_water_line_y - position_on_level().y;
-            add_velocity_y(diff_y / 30.0F);
+            velocity_add_y(diff_y / 30.0F);
 
             sprite::angle(m_sprite_id, degrees() + 270.0F);
         }

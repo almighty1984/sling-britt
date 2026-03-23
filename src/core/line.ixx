@@ -168,8 +168,8 @@ export namespace line {
     void end_y(cI32 i, cF32 y)          { if (is_valid(i)) s_lines.at(i)->end.y        = y;  }
     void delta(cI32 i, cVec2F d)        { if (is_valid(i)) s_lines.at(i)->delta        = d;  }
     void velocity(cI32 i, cVec2F v)     { if (is_valid(i)) s_lines.at(i)->velocity     = v;  }
-    void add_velocity_x(cI32 i, cF32 x) { if (is_valid(i)) s_lines.at(i)->velocity.x   += x; }
-    void add_velocity_y(cI32 i, cF32 y) { if (is_valid(i)) s_lines.at(i)->velocity.y   += y; }    
+    void velocity_add_x(cI32 i, cF32 x) { if (is_valid(i)) s_lines.at(i)->velocity.x   += x; }
+    void velocity_add_y(cI32 i, cF32 y) { if (is_valid(i)) s_lines.at(i)->velocity.y   += y; }    
     void max_length(cI32 i, cF32 m)     { if (is_valid(i)) s_lines.at(i)->max_length   = m;  }    
     void add_start(cI32 i, cVec2F s)    { if (is_valid(i)) s_lines.at(i)->start        += s; }
     void add_end(cI32 i, cVec2F e)      { if (is_valid(i)) s_lines.at(i)->end          += e; }

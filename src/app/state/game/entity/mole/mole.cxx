@@ -143,13 +143,13 @@ namespace entity {
         }
 
         if (sprite::is_leftward(m_sprite_id)) {
-            add_velocity_x(-acceleration().x);
+            velocity_add_x(-acceleration().x);
         }
         else {
-            add_velocity_x(acceleration().x);
+            velocity_add_x(acceleration().x);
         }
 
-        add_velocity_y(acceleration().y);
+        velocity_add_y(acceleration().y);
 
         if (!m_is_on_ground) {
             return;
@@ -227,7 +227,7 @@ namespace entity {
             max_velocity({ 10.0F, 10.0F });
         }
 
-        add_velocity_y(acceleration().y);
+        velocity_add_y(acceleration().y);
 
         F32 radians = std::atan2(velocity().y, velocity().x);
         if (radians < 0.0F) radians += 3.1415926535f * 2.0F;
@@ -299,7 +299,7 @@ namespace entity {
 
         cF32 diff_y = m_water_line_y - position_on_level().y;
         
-        add_velocity_y(diff_y / 30.0F);
+        velocity_add_y(diff_y / 30.0F);
 
         //console::log(class_name(), "::state_swim() degrees: ", degrees(), "\n");
 

@@ -177,6 +177,12 @@ public:
                 //seconds_timer = 0;
             //}
 
+            input::handle_events(m_window);
+
+            if (!m_window->is_in_focus()) {
+                continue;
+            }
+
             std::set<U8> layers_to_draw;
 
             for (auto& state : m_state_objects) {
@@ -190,8 +196,7 @@ public:
                 frames = 0;
                 cF32 time_step = std::chrono::duration_cast<std::chrono::nanoseconds>(delta_time).count() / 1000000000.0F;
 
-                input::handle_events(m_window);
-                
+
                 std::vector<std::thread> threads;
 
                 for (auto& state_object : m_state_objects) {

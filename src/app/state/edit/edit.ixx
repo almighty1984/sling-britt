@@ -295,18 +295,18 @@ export namespace state {
                     if (sprite::layer(i) == layer) sprite::draw(window, i);
                 }
                 for (auto& text_label : m_menu_up_bar) {
-                    if (text_label && text_label->layer == layer) {
+                    if (text_label && text_label->layer() == layer) {
                         text_label->draw(window);
                     }
                 }
             }
-            if (m_text_current_tile_set.layer == layer) {
+            if (m_text_current_tile_set.layer() == layer) {
                 m_text_current_tile_set.draw(window);
             }
-            if (m_text_bar.layer == layer) {
+            if (m_text_bar.layer() == layer) {
                 m_text_bar.draw(window);
             }
-            if (m_info_message.layer == layer) {
+            if (m_info_message.layer() == layer) {
                 m_info_message.draw(window);
             }
 

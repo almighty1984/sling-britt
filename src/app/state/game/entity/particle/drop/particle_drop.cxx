@@ -82,7 +82,7 @@ namespace entity {
             (other_type == Type::clip_R && velocity().x < 0.0F) ||
             (other_type == Type::clip_RD && velocity().x < 0.0F)
             ) {
-            add_position_x(-overlap_x);
+            position_add_x(-overlap_x);
             velocity({});
 
             if (other_rect.x < our_rect.x) {
@@ -111,7 +111,7 @@ namespace entity {
 
         if (other_rect.y > our_rect.y && velocity().y > 0.0f) {
             if (is_water_line(other_type)) {
-                add_position_y(-overlap_y);
+                position_add_y(-overlap_y);
                 velocity({});
                 //moved_velocity() = other.owner->velocity();
                 m_next_state = State::dead;
@@ -126,8 +126,8 @@ namespace entity {
                        other_type == Type::slope_U    ||
                        is_slope(other_type)
                 ) {
-                add_position_y(-overlap_y);
-                add_position({ 0.0F, 2.0f });
+                position_add_y(-overlap_y);
+                position_add({ 0.0F, 2.0f });
 
                 velocity_y(0.0F);
                 acceleration_y(0.0F);
@@ -162,8 +162,8 @@ namespace entity {
                 } else if (other_type == Type::arch_R_2x1_0 || other_type == Type::arch_R_2x1_1) {
                     sprite::angle(m_sprite_id, 67.5f);
                 }
-                add_position({ 0.0F, -overlap_y });
-                add_position({ 0.0F, -4.0F });
+                position_add({ 0.0F, -overlap_y });
+                position_add({ 0.0F, -4.0F });
                 velocity_y(0.0F);
                 acceleration_y(0.0F);
                 m_next_state = State::dead;
@@ -172,7 +172,7 @@ namespace entity {
                 other_type == Type::clip_LD ||
                 other_type == Type::clip_RD ||
                 other_type == Type::clip_ledge) {
-                add_position({ 0.0F, -overlap_y });
+                position_add({ 0.0F, -overlap_y });
 
                 velocity_y(0.0F);
                 acceleration_y(0.0F);

@@ -37,7 +37,7 @@ namespace entity {
             if (other_type == Type::bug) {
                 if (m_state == State::swim && other.owner->state() == State::swim) {                    
 
-                    add_position_x(-overlap_x);
+                    position_add_x(-overlap_x);
                     velocity_x(our_velocity.x * 0.5F + other_velocity.x * 0.5F);
                     other.owner->velocity_x(our_velocity.x * 0.5F + other_velocity.x * 0.5F);
 
@@ -60,8 +60,8 @@ namespace entity {
                 //m_time_left_colliding_with[Type::water_line] = 5;
 
                 //console::log("yo\n");
-                add_position_x(-overlap_x);
-                //add_position_x(-2.0F);
+                position_add_x(-overlap_x);
+                //position_add_x(-2.0F);
                                 
                 m_force.x = 0.0F;
                 velocity_x(velocity().x * -1.0F);
@@ -85,8 +85,8 @@ namespace entity {
                 //if (m_time_left_colliding_with[Type::water_line] > 0) return;
                 //m_time_left_colliding_with[Type::water_line] = 5;
 
-                add_position_x(-overlap_x);
-                //add_position_x(2.0F);
+                position_add_x(-overlap_x);
+                //position_add_x(2.0F);
 
                 m_force.x = 0.0F;
                 velocity_x(velocity().x * -1.0F);
@@ -112,13 +112,13 @@ namespace entity {
         }
         else if (m_state == State::jump) {
             if (velocity().x < 0.0F && (other_type == Type::clip_R || other_type == Type::clip_RD || other_type == Type::clip_ledge)) {
-                add_position_x(-overlap_x);
-                add_position_x(1.0F);
+                position_add_x(-overlap_x);
+                position_add_x(1.0F);
                 velocity_x(velocity().x * -1.0F);
             }
             if (velocity().x > 0.0F && (other_type == Type::clip_L || other_type == Type::clip_LD || other_type == Type::clip_ledge)) {
-                add_position_x(-overlap_x);
-                add_position_x(-1.0F);
+                position_add_x(-overlap_x);
+                position_add_x(-1.0F);
                 velocity_x(velocity().x * -1.0F);
             }
             return;

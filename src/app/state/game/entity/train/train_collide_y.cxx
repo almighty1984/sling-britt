@@ -51,7 +51,7 @@ namespace entity {
 
         if (other_type == Type::track_UD) {
             if (other_name == aabb::Name::track) {
-                add_position_x(other_rect.x - our_rect.x);
+                position_add_x(other_rect.x - our_rect.x);
                 velocity_x(0.0F);
                 m_direction.x = 0.0F;
                 if (m_direction.y < 0.0F) {
@@ -62,7 +62,7 @@ namespace entity {
             }
         } else if (other_type == Type::track_LR || other_type == Type::track_trigger_UL || other_type == Type::track_trigger_UR) {
             if (other_name == aabb::Name::track) {
-                add_position_y(other_rect.y - our_rect.y);
+                position_add_y(other_rect.y - our_rect.y);
                 velocity_y(0.0F);
                 m_direction.y = 0.0F;
                 if (m_direction.x < 0.0F) {
@@ -75,12 +75,12 @@ namespace entity {
             if (other_name == aabb::Name::up) {
                 if (our_rect.y < other_rect.h) {
                     velocity_y(0.0F);
-                    add_position_y(-overlap_y);
+                    position_add_y(-overlap_y);
                 }
             } else if (other_name == aabb::Name::down) {
                 if (our_rect.h > other_rect.y) {
                     velocity_y(0.0F);
-                    add_position_y(-overlap_y);
+                    position_add_y(-overlap_y);
                 }
             } else if (other_name == aabb::Name::track) {
                 if (m_direction.x < 0.0F) {
@@ -96,10 +96,10 @@ namespace entity {
                     if (our_rect.y < other_rect.y) {
                         velocity_y(0.0F);
                         velocity_x(std::abs(m_speed));
-                        add_position_y(other_rect.y - our_rect.y);
+                        position_add_y(other_rect.y - our_rect.y);
                     }
                 } else if (m_direction.y > 0.0F && m_direction.x < 0.0F) {
-                    add_position_y(other_rect.y - our_rect.y);
+                    position_add_y(other_rect.y - our_rect.y);
                     velocity_y(0.0F);                    
                     velocity_x(-std::abs(m_speed));
                 }
@@ -109,7 +109,7 @@ namespace entity {
                 } else if (m_direction.y > 0.0F) {
                     velocity_y(std::abs(m_speed));
                 }
-                add_position_x(other_rect.x - our_rect.x);
+                position_add_x(other_rect.x - our_rect.x);
                 velocity_x(0.0F);
             }
         } else if (other_type == Type::track_corner_UR) {
@@ -118,7 +118,7 @@ namespace entity {
                     if (our_rect.y < other_rect.y) {
                         velocity_y(0.0F);
                         velocity_x(-std::abs(m_speed));
-                        add_position_y(other_rect.y - our_rect.y);
+                        position_add_y(other_rect.y - our_rect.y);
                     }
                 }
             } else if (other_name == aabb::Name::down) {
@@ -127,7 +127,7 @@ namespace entity {
                 } else if (m_direction.y > 0.0F) {
                     velocity_y(std::abs(m_speed));
                 }
-                add_position_x(other_rect.x - our_rect.x);
+                position_add_x(other_rect.x - our_rect.x);
                 velocity_x(0.0F);
             }
         } else if (other_type == Type::track_corner_DL) {
@@ -137,20 +137,20 @@ namespace entity {
                 } else if (m_direction.y > 0.0F) {
                     velocity_y(std::abs(m_speed));
                 }
-                add_position_x(other_rect.x - our_rect.x);
+                position_add_x(other_rect.x - our_rect.x);
                 velocity_x(0.0F);
             } else if (other_name == aabb::Name::down) {
                 if (m_direction.y > 0.0F && m_direction.x >= 0.0F) {
                     if (our_rect.y > other_rect.y) {
                         velocity_y(0.0F);
                         velocity_x(std::abs(m_speed));
-                        add_position_y(other_rect.y - our_rect.y);
+                        position_add_y(other_rect.y - our_rect.y);
                     }
                 } else if (m_direction.y < 0.0F && m_direction.x < 0.0F) {
                     if (our_rect.y < other_rect.y) {
                         velocity_y(0.0F);
                         velocity_x(-std::abs(m_speed));
-                        add_position_y(other_rect.y - our_rect.y);
+                        position_add_y(other_rect.y - our_rect.y);
                     }
                 }
             }
@@ -161,18 +161,18 @@ namespace entity {
                 } else if (m_direction.y > 0.0F) {
                     velocity_y(std::abs(m_speed));
                 }
-                add_position_x(other_rect.x - our_rect.x);
+                position_add_x(other_rect.x - our_rect.x);
                 velocity_x(0.0F);
             } else if (other_name == aabb::Name::down) {
                 if (m_direction.y > 0.0F) {
                     if (our_rect.y > other_rect.y) {
-                        add_position_y(other_rect.y - our_rect.y);
+                        position_add_y(other_rect.y - our_rect.y);
                         velocity_y(0.0F);
                         velocity_x(-std::abs(m_speed));
                     }
                 } else if (m_direction.x > 0.0F) {
                     if (our_rect.y < other_rect.y) {                        
-                        add_position_y(other_rect.y - our_rect.y); 
+                        position_add_y(other_rect.y - our_rect.y); 
                         velocity_x(std::abs(m_speed));
                     }
                 }
@@ -188,7 +188,7 @@ namespace entity {
                     if (our_rect.y < other_rect.y) {
                         velocity({ std::abs(m_speed) * 0.71F, std::abs(m_speed) * 0.71F });
 
-                        //add_position_y(other_rect.y - our_rect.y);
+                        //position_add_y(other_rect.y - our_rect.y);
                     }
                 } else if (m_direction.y < 0.0F) {
                     if (our_rect.y < other_rect.y) {
@@ -209,11 +209,11 @@ namespace entity {
                         velocity_x( std::abs(m_speed) * 0.71F);
                         velocity_y(-std::abs(m_speed) * 0.71F);
 
-                        //add_position_y(other_rect.y - our_rect.y);
+                        //position_add_y(other_rect.y - our_rect.y);
                     }
                 } else if (m_direction.y < 0.0F && m_direction.x <= 0.0F) {
 
-                    add_position_y(other_rect.y - our_rect.y);
+                    position_add_y(other_rect.y - our_rect.y);
                     if (our_rect.y < other_rect.y) {
                         velocity_x(-std::abs(m_speed) * 0.71F);
                         velocity_y( std::abs(m_speed) * 0.71F);

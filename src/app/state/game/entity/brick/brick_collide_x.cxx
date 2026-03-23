@@ -48,13 +48,13 @@ namespace entity {
         if (is_arch(other_type)) {
             if (m_parent || other.owner->parent() || is_hurting()) return;
             console::log("entity::Brick::collide_x ", to_string(other_type), "\n");
-            add_position_x(-overlap_x);
+            position_add_x(-overlap_x);
             if (std::abs(our_velocity.x - other_velocity.x) >= m_break_velocity.x) {
                 velocity_x(velocity().x * -0.9F);
                 hurt(other.owner);
             }
         } else if (other_type == Type::brick) {
-            add_position_x(-overlap_x);
+            position_add_x(-overlap_x);
             moved_velocity_x(0.0F);
 
             if (m_state == State::tossed) {
@@ -72,7 +72,7 @@ namespace entity {
         } else if (other_type == Type::bug) {
             if (m_parent || other.owner->parent()) return;
             console::log("entity::Brick::collide_x bug\n");
-            //add_position_x( -overlap_x );
+            //position_add_x( -overlap_x );
             moved_velocity_x(0.0F);
 
             if (m_state == State::tossed || other.owner->state() == State::tossed) {
@@ -95,7 +95,7 @@ namespace entity {
             ((other_type == Type::clip_L || other_type == Type::clip_LD) && our_velocity.x > 0.0F) ||
             ((other_type == Type::clip_R || other_type == Type::clip_RD) && our_velocity.x < 0.0F)
             ) {
-            add_position_x(-overlap_x);
+            position_add_x(-overlap_x);
             moved_velocity_x(0.0F);
             velocity_x(velocity().x * -0.9F);
             //console::log("velocity.x ", velocity().x, "\n");
@@ -106,7 +106,7 @@ namespace entity {
         } else if (other_type == Type::frog) {
             if (our_rect.h < other_rect.y + 4.0F) return;
 
-            add_position_x(-overlap_x);
+            position_add_x(-overlap_x);
             velocity_x(velocity().x * -0.5F);
             moved_velocity_x(0.0F);
             if (m_state == State::tossed) {
@@ -117,7 +117,7 @@ namespace entity {
             }
         } else if (other_type == Type::mole) {
             if (m_time_in_state < 10) {
-                add_position_x(-overlap_x);
+                position_add_x(-overlap_x);
                 return;
             }
             if (m_state == State::tossed && other.owner->state() != State::idle) {
@@ -132,7 +132,7 @@ namespace entity {
                 return;
             }
             velocity_x(other_velocity.x);
-            add_position_x(-overlap_x);
+            position_add_x(-overlap_x);
             if (other.owner->state() == State::sling) {
                 velocity_x(-other.owner->rotation_speed());
                 hurt(other.owner);

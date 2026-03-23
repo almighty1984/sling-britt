@@ -37,7 +37,7 @@ namespace entity {
         if (is_arch(other_type)) {
             if (m_parent || other.owner->parent() || is_hurting()) return;
             console::log(class_name(), "::collide_y ", to_string(other_type), "\n");
-            add_position_y(-overlap_y);
+            position_add_y(-overlap_y);
             velocity_y(velocity().y * -0.9F);
             //if (velocity().y <= -m_break_velocity.y || velocity().y >= m_break_velocity.y) {
                 hurt(other.owner);
@@ -55,7 +55,7 @@ namespace entity {
                 return;
             }
             if (our_rect.y < other_rect.y) {
-                add_position_y(-overlap_y);
+                position_add_y(-overlap_y);
                 m_is_on_ground = true;
                 velocity_y(0.0F);
                 moved_velocity(other_velocity);
@@ -70,7 +70,7 @@ namespace entity {
                 other.owner->hurt(this);
                 return;
             }
-            add_position_y(-overlap_y);
+            position_add_y(-overlap_y);
             m_is_on_ground = true;
             velocity_y(0.0F);
             moved_velocity(other_velocity);
@@ -101,7 +101,7 @@ namespace entity {
                     (other_type == Type::clip_D || other_type == Type::clip_LD || other_type == Type::clip_RD && our_velocity.y < -1.0F)
                     ||
                     std::abs(velocity().y) >= m_break_velocity.y) {
-                    add_position_y(-overlap_y);
+                    position_add_y(-overlap_y);
                     velocity_y(velocity().y * -0.9F);
                     hurt(other.owner);
                     return;
@@ -109,10 +109,10 @@ namespace entity {
             }
 
             if (velocity().y < 0.0F && other_rect.h < our_rect.h) {
-                add_position_y(-overlap_y);
+                position_add_y(-overlap_y);
                 //velocity_y(velocity().y * -1.0F);
             } else if (velocity().y > 0.0F && other_rect.y > our_rect.y) {
-                add_position_y(-overlap_y);
+                position_add_y(-overlap_y);
                 moved_velocity_y(0.0F);
                 m_is_on_ground = true;
             }
@@ -125,7 +125,7 @@ namespace entity {
                 hurt(other.owner);
                 return;
             }
-            add_position_y(-overlap_y);
+            position_add_y(-overlap_y);
             velocity({});
             moved_velocity({});
             m_is_on_ground = true;
@@ -135,13 +135,13 @@ namespace entity {
 
             if (m_state == State::tossed) {
                 //if (std::abs(our_velocity.y) >= m_break_velocity.y) {
-                add_position_y(-overlap_y);
+                position_add_y(-overlap_y);
                 velocity_y(velocity().y * -0.5F);
                 hurt(other.owner);
                 other.owner->hurt(this);
                 return;
             }
-            add_position_y(-overlap_y);
+            position_add_y(-overlap_y);
             velocity_y(0.0F);
             moved_velocity(other_velocity);
             m_is_on_ground = true;
@@ -150,7 +150,7 @@ namespace entity {
         } else if (other_type == Type::player) {
             if (our_rect.h >= other_rect.y + 4.0F) return;
 
-            add_position_y(-overlap_y);
+            position_add_y(-overlap_y);
             velocity_y(velocity().y * -0.9F);
             if (std::abs(our_velocity.y - other_velocity.y) >= m_break_velocity.y) {
                 hurt(other.owner);
@@ -170,7 +170,7 @@ namespace entity {
                 hurt(other.owner);
                 return;
             }
-            add_position_y(-overlap_y);
+            position_add_y(-overlap_y);
             //velocity_y(-velocity().x;
             if (velocity().y > 0.0F) {
                 velocity_x(-velocity().y);
@@ -185,7 +185,7 @@ namespace entity {
                 hurt(other.owner);
                 return;
             }
-            add_position_y(-overlap_y);
+            position_add_y(-overlap_y);
             //velocity_y(velocity().x);
             if (velocity().y > 0.0F) {
                 velocity_x(velocity().y);
@@ -200,7 +200,7 @@ namespace entity {
                 hurt(other.owner);
                 return;
             }
-            add_position_y(-overlap_y);
+            position_add_y(-overlap_y);
             //velocity_y(0.0F);
             moved_velocity_y(0.0F);
             //if (velocity().x < 0.0F) {
@@ -219,7 +219,7 @@ namespace entity {
                 hurt(other.owner);
                 return;
             }
-            add_position_y(-overlap_y);
+            position_add_y(-overlap_y);
 
             velocity_y(0.0F);
             moved_velocity_y(0.0F);
@@ -233,7 +233,7 @@ namespace entity {
             m_is_on_slope = true;
         } else if (other_type == Type::spring_U) {
             if (m_parent) return;
-            add_position_y(-overlap_y);
+            position_add_y(-overlap_y);
             max_velocity_y(10.0F);
             velocity_y(-5.0F - velocity().y / 4.0F);
             m_is_on_ground = false;

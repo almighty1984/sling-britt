@@ -1,26 +1,29 @@
-F1 to switch between Edit and Game
+Menu:
+    
+    F1                 - Edit
+    F2                 - Game
 
 Edit:
 
     Move mouse to top of window to access menu
     Press del on level in list to delete
 
-    wasd               - move camera / selected
-    space              - show tile set
-    mouse wheel / 1-5  - brush size
-    ctrl               - select    
-    x                  - move selected
-    c                  - copy selected
-    ctrl-z             - undo
-    ctrl-shift-z       - redo
-    alt                - hide menu
-    ctrl-s             - save level
-    ctrl-shift-s       - save level as    
+    WASD               - move camera / selected
+    Space              - show tile set
+    Scroll / 1-5       - brush size
+    Ctrl               - select    
+    X                  - move selected
+    C                  - copy selected
+    Ctrl-Z             - undo
+    Ctrl-Shift-Z       - redo
+    Alt                - hide menu
+    Ctrl-S             - save level
+    Ctrl-Shift-S       - save level as    
 
 Game:
 
-    arrows             - move
-    z                  - sprint
-    x                  - jump
-    c                  - melee
-    ctrl               - move camera
+    Arrows             - move
+    Z                  - sprint
+    X                  - jump
+    C                  - melee
+    Ctrl               - move camera

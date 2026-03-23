@@ -107,7 +107,7 @@ namespace entity {
 
         line::set(m_tounge_line_id, m_tounge_start, m_tounge_end);
 
-        transform::add_velocity(m_transform_id, { 0.0F, transform::acceleration(m_transform_id).y });
+        transform::velocity_add(m_transform_id, { 0.0F, transform::acceleration(m_transform_id).y });
 
         ++m_time_in_state;
         if (m_is_on_ground && m_time_in_state > 100) {
@@ -167,7 +167,7 @@ namespace entity {
 
             line::max_length(m_tounge_line_id, line::length(m_tounge_line_id));
         }
-        add_velocity_y(acceleration().y);
+        velocity_add_y(acceleration().y);
 
         //console::log("entity::Frog::state_heal() health: ", health::amount(m_health_id), " ", m_time_left_in_state, "\n");
         if (m_time_left_in_state > 0) {
@@ -207,7 +207,7 @@ namespace entity {
 
         console::log("entity::Frog::hurt\n");
 
-        add_velocity_y(acceleration().y);
+        velocity_add_y(acceleration().y);
 
         //console::log("time left to react: ", (int)m_time_left_to_react, "\n");
         if (m_time_left_to_react > 0) {
@@ -272,7 +272,7 @@ namespace entity {
 
         deceleration_x(m_is_on_ground ? 0.2F : 0.0F);
 
-        add_velocity({ 0.0F, acceleration().y });
+        velocity_add({ 0.0F, acceleration().y });
 
         if (m_time_left_to_spawn_sense > 0) {
             --m_time_left_to_spawn_sense;
@@ -355,7 +355,7 @@ namespace entity {
             velocity_x(diff_x / 64.0F);
             velocity_y(diff_y / 10.0F);
 
-            add_position_y(-2.0F);
+            position_add_y(-2.0F);
 
             if (velocity().y < -4.0F) {
                 velocity_y(-4.0F);
@@ -371,7 +371,7 @@ namespace entity {
 
         set_anim("jump");
 
-        add_velocity_y(acceleration().y);
+        velocity_add_y(acceleration().y);
 
         if (m_is_on_ground && velocity().y > 0.0F) {
             m_next_state = State::idle;
@@ -454,7 +454,7 @@ namespace entity {
 
         line::is_hidden(m_tounge_line_id, true);
 
-        add_velocity_y(acceleration().y);
+        velocity_add_y(acceleration().y);
 
         console::log("Frog::stunned time left: ", m_time_left_in_state, "\n");
 
@@ -499,9 +499,9 @@ namespace entity {
         //moved_velocity({});
 
         if (position_on_level().y > m_water_line_y) {
-            add_velocity({ 0.0F, -0.3F });
+            velocity_add({ 0.0F, -0.3F });
         } else {
-            add_velocity({ 0.0F, 0.3F });
+            velocity_add({ 0.0F, 0.3F });
         }
     }
 }

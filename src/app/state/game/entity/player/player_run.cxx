@@ -23,7 +23,7 @@ namespace entity {
             }
         }
 
-        if (!m_is_on_ground && !m_is_carrying && !m_is_sliding_wall && !m_is_climbing_ledge) {
+        if (!m_is_on_ground && !m_is_carrying && !m_is_climbing_ledge && !m_is_down_thrusting && !m_is_sliding_wall) {
             if (is_pressed(key_up)) {
                 release(key_up);
                 m_next_state = State::dive;                
@@ -115,7 +115,8 @@ namespace entity {
             velocity({ 0.0F, 0.0F });
             if (m_time_left_until_down_thrust > 0) {
                 return;
-            } else if (!m_is_down_thrusting) {
+            }
+            else if (!m_is_down_thrusting) {
                 m_is_down_thrusting = true;
                 max_velocity_y(10.0F);
                 velocity_y(10.0F);
@@ -202,7 +203,7 @@ namespace entity {
                 //console::log("max_velocity().x: ", max_velocity().x, "\n");
                 //console::log("acceleration().x: ", acceleration().x, "\n");
                 //console::log("m_ground_velocity_limit.x: ", m_ground_velocity_limit.x, "\n");
-                add_velocity_x(-acceleration().x);
+                velocity_add_x(-acceleration().x);
             }
 
             if (m_is_on_ground && !m_is_ducking) {
@@ -222,7 +223,7 @@ namespace entity {
         }
         if (is_pressed(key_right) && !is_locked(key_right)) {
             if (!m_is_sliding_ground && (velocity().x < m_ground_velocity_limit.x * is_pressed(key_sprint) ? 1.2F : 1.0F)) {
-                add_velocity({ acceleration().x, 0.0F });
+                velocity_add({ acceleration().x, 0.0F });
             }
             if (m_is_on_ground && !m_is_ducking) {
                 if (velocity().x <= 0.0F) {
@@ -282,11 +283,11 @@ namespace entity {
             m_time_sliding_ground = 0;
         }
 
-        add_velocity({ 0.0F, acceleration().y });
+        velocity_add({ 0.0F, acceleration().y });
         //moved_velocity().y += acceleration().y;
 
         if (moved_velocity().y < 0.0F) {
-            add_moved_velocity_y(acceleration().y);
+            moved_velocity_add_y(acceleration().y);
         }
 
 
@@ -332,7 +333,7 @@ namespace entity {
                 if (is_pressed(key_jump) && !is_locked(key_jump) && m_time_left_jumping_wall == 0.0F) {
                     lock(key_jump);
                     if (moved_velocity().y != 0.0F) {
-                        add_velocity({ 0.0F, moved_velocity().y });
+                        velocity_add({ 0.0F, moved_velocity().y });
                         moved_velocity_y(0.0F);
                     }
                     m_is_hovering = true;
@@ -356,7 +357,7 @@ namespace entity {
                 release(key_sprint);
             }
             else {
-                if (m_time_left_ducking == 0 && m_time_left_rising == 0) {
+                if (!m_is_sliding_wall && m_time_left_ducking == 0 && m_time_left_rising == 0) {
                     release(key_down);
                     release(key_jump);
                     m_time_left_until_down_thrust = m_time_until_down_thrust;
@@ -364,7 +365,7 @@ namespace entity {
                     if (sound_is_playing("hover")) {
                         sound_stop("hover");
                     }
-                    sound_position("down_thrust", { position().x / (WINDOW_W / 2.0F), position().y / (WINDOW_H / 2.0F) });
+                    sound_position("down_thrust", { (position().x + 8.0F) / WINDOW_W / 2.0F, (position().y + 8.0F) / WINDOW_H / 2.0F });
                     sound_play("down_thrust");
                 }
             }
@@ -439,7 +440,7 @@ namespace entity {
                     console::log("velocity at jump: ", m_velocity_at_jump, "\n");
                 }*/
 
-                add_position({ 0.0F,-2.0F });
+                position_add({ 0.0F,-2.0F });
 
                 ++m_num_jumps;
                 if (m_is_carrying) {
@@ -470,7 +471,7 @@ namespace entity {
             } else {
                 if (m_time_left_holding_jump > 0 && velocity().y < 0.0F) {
                     --m_time_left_holding_jump;
-                    add_velocity({ 0.0F,-0.3F });
+                    velocity_add({ 0.0F,-0.3F });
                     //console::log("Player holding jump: ", m_time_left_holding_jump, "\n");
                 } else {
                     //release(key_jump);

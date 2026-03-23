@@ -101,19 +101,19 @@ namespace entity {
                 sprite::layer(object->sprite_id(), object->start_layer());
                 object->parent(nullptr);
                 object->velocity(velocity() + moved_velocity());
-                //object->add_position_x(object->velocity().x);
+                //object->position_add_x(object->velocity().x);
                 if (sprite_is_leftward()) {
-                    object->add_velocity_x(-2.0F);
-                    object->add_position_x(-8.0F);
+                    object->velocity_add_x(-2.0F);
+                    object->position_add_x(-8.0F);
                 }
                 else {
-                    object->add_velocity_x(2.0F);
-                    object->add_position_x(8.0F);
+                    object->velocity_add_x(2.0F);
+                    object->position_add_x(8.0F);
                 }
                 //console::log("object->velocity().x: ", object->velocity().x, "\n");
 
-                object->add_velocity_y(-1.5F);
-                object->add_position_y(-1.0F);
+                object->velocity_add_y(-1.5F);
+                object->position_add_y(-1.0F);
                 object->next_state(State::tossed);
                 //object->time_left_interacting(10);
 

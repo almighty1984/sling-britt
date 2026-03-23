@@ -133,7 +133,7 @@ namespace entity {
         }
 
         cF32 diff_y = position_on_level().y - start_position_on_level().y;
-        add_velocity({ 0.0F, -diff_y * 0.025f });
+        velocity_add({ 0.0F, -diff_y * 0.025f });
 
         //console::log("entity::WaterLine::update() diff_y: ", diff_y, "\n");
 

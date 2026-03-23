@@ -13,9 +13,9 @@ export namespace state {
         
         I32 m_transform_id = -1;
         
-        I32 m_line = -1;
-        I32 m_normal = -1;
-        I32 m_proj_on_normal = -1;
+        I32 m_line_id           = -1,
+            m_normal_id         = -1,
+            m_proj_on_normal_id = -1;
 
         BitmapText m_enter_text;
     public:

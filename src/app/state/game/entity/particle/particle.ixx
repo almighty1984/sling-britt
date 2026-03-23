@@ -37,7 +37,7 @@ export namespace entity {
                 m_is_first_state_update = true;
             }
 
-            add_velocity_y(acceleration().y);
+            velocity_add_y(acceleration().y);
 
             switch (m_state) {
                 case State::idle: state_idle();  break;                

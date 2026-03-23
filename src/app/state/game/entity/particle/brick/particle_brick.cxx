@@ -48,7 +48,7 @@ namespace entity {
             if (other_rect.x < our_rect.x && velocity().x > 0.0F ||
                 other_rect.w > our_rect.w && velocity().x < 0.0F) return;
 
-            add_position_x(-overlap_x);
+            position_add_x(-overlap_x);
             velocity_x(velocity().x * -0.75F);
         }
         else if (other_type == Type::frog) {
@@ -61,7 +61,7 @@ namespace entity {
 
                 particle::spawn(this, particle::Type::hit, hit_pos, {});
             }
-            add_position_x(-overlap_x);
+            position_add_x(-overlap_x);
             velocity_x(velocity().x * -1.0F);
         }
         else if (other_type == Type::mole) {
@@ -74,7 +74,7 @@ namespace entity {
                 return;
             }
 
-            add_position_x(-overlap_x);
+            position_add_x(-overlap_x);
             velocity_x(velocity().x * -1.0F);
 
             cVec2F hit_pos = position() + Vec2F{ -8.0F, -8.0F };
@@ -84,25 +84,25 @@ namespace entity {
 
         }
         else if (other_type == Type::slope_L_1x1) {
-            //add_position_x( -overlap_x );
+            //position_add_x( -overlap_x );
             collide_y(our, other);
         }
         else if (other_type == Type::slope_R_1x1) {
-            //add_position_x( -overlap_x );
+            //position_add_x( -overlap_x );
             collide_y(our, other);
         }
         else if (other_type == Type::slope_L_2x1_0 || other_type == Type::slope_L_2x1_1) {
-            //add_position_x( -overlap_x );
+            //position_add_x( -overlap_x );
             collide_y(our, other);
         }
         else if (other_type == Type::slope_R_2x1_0 || other_type == Type::slope_R_2x1_1) {
-            //add_position_x( -overlap_x );
+            //position_add_x( -overlap_x );
             collide_y(our, other);
         }
         else if (other_type == Type::particle_brick) {
             //if (is_hurting() || std::abs(other_velocity.x) < 1.0F) return;
 
-            //add_position_x( -overlap_x );
+            //position_add_x( -overlap_x );
             //velocity_x(our_velocity.x * 0.4F + other_velocity.x * 0.4F;
             //other.owner->velocity_x(our_velocity.x * 0.5F + other_velocity.x * 0.5F;
 
@@ -121,7 +121,7 @@ namespace entity {
             m_time_left_hurt = m_time_to_hurt;
             m_time_left_dead = m_time_to_be_dead;
 
-            //add_position_x( -overlap_x );
+            //position_add_x( -overlap_x );
             //position().y -= 2.0F;
             velocity_y(other_velocity.y - 2.0F);
 
@@ -150,14 +150,14 @@ namespace entity {
 
         if (is_arch(other_type)) {
             if (velocity().y < 0.0F) {
-                add_position_y(-overlap_y);
+                position_add_y(-overlap_y);
                 velocity_y(velocity().y * -1.0F);
             }
         }
         else if (other_type == Type::brick) {
             if (our_rect.y > other_rect.y) return;
 
-            add_position_y(-overlap_y);
+            position_add_y(-overlap_y);
             velocity_y(velocity().y * -0.5F);
             if (velocity().y >= -acceleration().y && velocity().y <= acceleration().y) {
                 velocity_y(0.0F);
@@ -170,7 +170,7 @@ namespace entity {
             if (velocity().y < 0.0F && our_rect.h < other_rect.h) return;
             if (velocity().y > 0.0F && our_rect.y > other_rect.y) return;
 
-            add_position_y(-overlap_y);
+            position_add_y(-overlap_y);
             velocity_y(velocity().y * -0.5F);
             if (velocity().y >= -acceleration().y && velocity().y <= acceleration().y) {
                 velocity_y(0.0F);
@@ -183,7 +183,7 @@ namespace entity {
             if (velocity().y < 0.0F) return;
             //if (velocity().y > 0.0F && our_rect.y > other_rect.h) return;
 
-            add_position_y(-overlap_y);
+            position_add_y(-overlap_y);
 
             if (velocity().y > 1.0F) {
                 velocity_y(velocity().y * -0.5F);
@@ -199,7 +199,7 @@ namespace entity {
             if (velocity().y > 0.0F) return;
             //if (velocity().y < 0.0F && our_rect.h < other_rect.h) return;
 
-            add_position_y(-overlap_y);
+            position_add_y(-overlap_y);
             velocity_y(velocity().y * -0.5F);
             moved_velocity({});
 
@@ -216,7 +216,7 @@ namespace entity {
                 particle::spawn(this, particle::Type::hit, hit_pos, {});
             }
             if (our_rect.y < other_rect.y) {
-                add_position_y(-overlap_y);
+                position_add_y(-overlap_y);
                 velocity_y(velocity().y * -1.0F);
             }
         }
@@ -228,13 +228,13 @@ namespace entity {
                 sound_play("melee");
                 particle::spawn(this, particle::Type::hit, hit_pos, {});
 
-                add_position_y(-overlap_y);
+                position_add_y(-overlap_y);
                 velocity_y(velocity().y * -1.0F);
             }
         }
         else if (other_type == Type::slope_L_1x1) {
             if (velocity().y < 0.0F) return;
-            add_position_y(-overlap_y);
+            position_add_y(-overlap_y);
             if (velocity().y > 1.0F) {
                 velocity_y(velocity().y * -0.5F);
             } else {
@@ -246,7 +246,7 @@ namespace entity {
         }
         else if (other_type == Type::slope_R_1x1) {
             if (velocity().y < 0.0F) return;
-            add_position_y(-overlap_y);
+            position_add_y(-overlap_y);
             if (velocity().y > 1.0F) {
                 velocity_y(velocity().y * -0.5F);
             } else {
@@ -258,7 +258,7 @@ namespace entity {
         }
         else if (other_type == Type::slope_L_2x1_0 || other_type == Type::slope_L_2x1_1) {
             if (velocity().y < 0.0F) return;
-            add_position_y(-overlap_y);
+            position_add_y(-overlap_y);
             if (velocity().y > 1.0F) {
                 velocity_y(velocity().y * -0.5F);
             } else {
@@ -270,7 +270,7 @@ namespace entity {
         }
         else if (other_type == Type::slope_R_2x1_0 || other_type == Type::slope_R_2x1_1) {
             if (velocity().y < 0.0F) return;
-            add_position_y(-overlap_y);
+            position_add_y(-overlap_y);
             if (velocity().y > 1.0F) {
                 velocity_y(velocity().y * -0.5F);
             } else {
@@ -284,7 +284,7 @@ namespace entity {
             if (is_hurting() || std::abs(other_velocity.x) < 1.0F) return;
             m_time_left_hurt = m_time_to_hurt;
 
-            add_position({ 0.0F, -2.0F });
+            position_add({ 0.0F, -2.0F });
             velocity_x(other_velocity.x * 1.2F);
             velocity_y(other_velocity.y - 1.0F);
         }
@@ -292,7 +292,7 @@ namespace entity {
             //if (is_hurting() || std::abs(other_velocity.x) < 1.0F) return;
             ////if (other_rect.y > our_rect.y) return;
 
-            ////add_position_y( -overlap_y );
+            ////position_add_y( -overlap_y );
             ////velocity_x(other_velocity.y * 0.5F;
             ////other.owner->velocity_x(our_velocity.y * 0.5F;
 

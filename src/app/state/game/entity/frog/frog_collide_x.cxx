@@ -31,7 +31,7 @@ namespace entity {
             //console::log("Frog::collide_x brick\n");
         }
         else if (other_type == Type::bug) {
-            add_position_x(-overlap_x);
+            position_add_x(-overlap_x);
             if (other.owner->state() == State::tossed) {
                 return;
             }
@@ -41,26 +41,26 @@ namespace entity {
 
             if (our_rect.x < other_rect.x) {
                 //velocity().x -= 1.0F;
-                other.owner->add_velocity({ 1.0F, 0.0F });
+                other.owner->velocity_add({ 1.0F, 0.0F });
                 sprite::is_leftward(other.owner->sprite_id(), false);
             } else {
                 //velocity().x += 1.0F;
-                other.owner->add_velocity({ -1.0F, 0.0F });
+                other.owner->velocity_add({ -1.0F, 0.0F });
                 sprite::is_leftward(other.owner->sprite_id(), true);
             }
         }
         else if (other_type == Type::clip || other_type == Type::clip_ledge) {
-            add_position_x(-overlap_x);
+            position_add_x(-overlap_x);
             if (m_state == State::swim) {
                 if (velocity().x < 0.0F) {
                     sprite::is_leftward(m_sprite_id, false);
                     velocity_x(velocity().x * -1.0F);
-                    add_position({ 1.0F, 0.0F });
+                    position_add({ 1.0F, 0.0F });
                 }
                 else if (velocity().x > 0.0F) {
                     sprite::is_leftward(m_sprite_id, true);
                     velocity_x(velocity().x * -1.0F);
-                    add_position({ -1.0F, 0.0F });
+                    position_add({ -1.0F, 0.0F });
                 }
             }
             velocity_x(0.0F);
@@ -71,7 +71,7 @@ namespace entity {
             if (m_state == State::swim) {
                 sprite::is_leftward(m_sprite_id, true);
             }
-            add_position_x(-overlap_x);
+            position_add_x(-overlap_x);
             velocity_x(0.0F);
             moved_velocity_x(0.0F);
         }
@@ -80,24 +80,24 @@ namespace entity {
             if (m_state == State::swim) {
                 sprite::is_leftward(m_sprite_id, false);
             }
-            add_position_x(-overlap_x);
+            position_add_x(-overlap_x);
             velocity_x(0.0F);
             moved_velocity_x(0.0F);
         }
         else if (other_type == Type::frog) {
-            add_position_x(-overlap_x);
+            position_add_x(-overlap_x);
             if (std::abs(our_velocity.x) > std::abs(other_velocity.x)) {
                 return;
             }
             velocity_x(other_velocity.x * 0.5F);
             other.owner->velocity_x(our_velocity.x * 0.25f);
             if (our_rect.x < other_rect.x) {
-                add_velocity({ -1.0F, 0.0F });
-                other.owner->add_velocity({ 1.0F, 0.0F });
+                velocity_add({ -1.0F, 0.0F });
+                other.owner->velocity_add({ 1.0F, 0.0F });
             }
             else {
-                add_velocity({ 1.0F, 0.0F });
-                other.owner->add_velocity({ -1.0F, 0.0F });
+                velocity_add({ 1.0F, 0.0F });
+                other.owner->velocity_add({ -1.0F, 0.0F });
             }
         }
         else if (other_type == Type::particle_health) {
@@ -108,7 +108,7 @@ namespace entity {
         }
         else if (other_type == Type::particle_melee) { }
         else if (other_type == Type::player) {
-            add_position_x(-overlap_x);
+            position_add_x(-overlap_x);
             if (other.owner->state() == State::sling) {
                 velocity_x(-other.owner->rotation_speed() * 0.75F);
                 hurt(other.owner);
@@ -126,11 +126,11 @@ namespace entity {
             velocity_x(other_velocity.x * 0.5F);
             other.owner->velocity_x(our_velocity.x * 0.25f);
             if (our_rect.x < other_rect.x) {
-                add_velocity({ -1.0F, 0.0F });
-                other.owner->add_velocity({ force_x, 0.0F });
+                velocity_add({ -1.0F, 0.0F });
+                other.owner->velocity_add({ force_x, 0.0F });
             } else {
-                add_velocity({ 1.0F, 0.0F });
-                other.owner->add_velocity({ -force_x, 0.0F });
+                velocity_add({ 1.0F, 0.0F });
+                other.owner->velocity_add({ -force_x, 0.0F });
             }
             moved_velocity_x(0.0F);
 

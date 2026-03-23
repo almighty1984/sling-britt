@@ -37,7 +37,7 @@ namespace entity {
         }
         else if (other_type == Type::clip_U || other_type == Type::clip_ledge || other_type == Type::slope_U) {
             if (velocity().y < 0.0F) return;
-            add_position_y(-overlap_y);
+            position_add_y(-overlap_y);
             velocity_y(0.0F);
             moved_velocity_y(0.0F);
             m_is_on_ground = true;
@@ -64,7 +64,7 @@ namespace entity {
             }
         }
         else if (other_type == Type::slope_L_1x1) {
-            add_position_y(-overlap_y);
+            position_add_y(-overlap_y);
             velocity_y(-velocity().x);
             moved_velocity_x(0.0F);
             moved_velocity_y(0.0F);
@@ -72,7 +72,7 @@ namespace entity {
             sprite_angle(45.0F - 90.0F);
         }
         else if (other_type == Type::slope_R_1x1) {
-            add_position_y(-overlap_y);
+            position_add_y(-overlap_y);
             velocity_y(velocity().x);
             moved_velocity_x(0.0F);
             moved_velocity_y(0.0F);
@@ -80,14 +80,14 @@ namespace entity {
             sprite_angle(135.0F - 90.0F);
         }
         else if (other_type == Type::slope_L_2x1_0 || other_type == Type::slope_L_2x1_1) {
-            add_position_y(-overlap_y);
+            position_add_y(-overlap_y);
             velocity_y(0.0F);
             moved_velocity_y(0.0F);
             m_is_on_ground = m_is_on_slope = true;
             sprite_angle(67.5F - 90.0F);
         }
         else if (other_type == Type::slope_R_2x1_0 || other_type == Type::slope_R_2x1_1) {
-            add_position_y(-overlap_y);
+            position_add_y(-overlap_y);
             velocity_y(0.0F);
             moved_velocity_y(0.0F);
             m_is_on_ground = m_is_on_slope = true;

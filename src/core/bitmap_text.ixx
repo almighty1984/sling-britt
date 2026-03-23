@@ -8,27 +8,49 @@ export module bitmap_text;
 import console;
 import sprite;
 import transform;
+import transform.trait;
 import types;
 import window;
 
-export class BitmapText {
-    bool   m_is_hidden = false;
+export class BitmapText : public transform::Trait {
+    U8  m_layer = 0,
+        m_font_size = 8;
 
     Vec2F               m_offset        = {  0.0F,  0.0F },
                         m_start_offset  = { -1.0F, -1.0F };
     std::string         m_text;
     std::vector<I32>    m_sprite_ids;
+
+    std::filesystem::path m_texture_path = "res/texture/font_8_gray.png";
+
+    bool   m_is_hidden = false;
 public:
-    U8     layer     = 0,
-           font_size = 8;
-    
-    I32    transform_id = -1;
-
-    std::filesystem::path texture_path = "res/texture/font_8_gray.png";
-
+    BitmapText() {
+        m_transform_id = transform::make();
+    }
     ~BitmapText() {
         clear_text();
+        transform::erase(m_transform_id);
     }
+    U8 layer()         const { return m_layer;        } void layer(cU8 l)         { m_layer        = l; }
+    U8 font_size()     const { return m_font_size;    } void font_size(cU8 s)     { m_font_size    = s; }
+    
+    void transform_id(cI32 id) override {
+        transform::erase(m_transform_id);
+        m_transform_id = id;
+        for (auto& i : m_sprite_ids) {
+            sprite::transform_id(i, id);
+        }
+    }
+    std::filesystem::path texture_path() const { return m_texture_path; }
+    void texture(const std::filesystem::path path) {
+        if (path == m_texture_path) return;
+        m_texture_path = path;
+        for (auto& i : m_sprite_ids) {
+            sprite::texture(i, path);
+        }
+    }
+
     const std::string& get_text() const { return m_text; }
     void clear_text() {
         //if (m_sprite_ids.empty()) return;
@@ -73,16 +95,7 @@ public:
         }
         set_text(text);
         return;        
-    }
-    void texture(const std::filesystem::path path) {
-        if (path == texture_path) {
-            return;
-        }
-        texture_path = path;
-        for (auto& i : m_sprite_ids) {
-            sprite::texture(i, path);
-        }
-    }
+    }    
     bool is_hidden() { return m_is_hidden; }
     void is_hidden(bool q) {
         if (q == m_is_hidden) return;
@@ -110,28 +123,28 @@ public:
         //console::log("BitmapText::set_text ");
         for (size_t i = 0; i < m_text.size(); ++i) {
             if (m_text.at(i) == '\n') {
-                //console::log("BitmapText::set_set found new line\n");
-                y += font_size, x = 0.0F;
+                //console::log("BitmapText::set_set() found new line\n");
+                y += m_font_size, x = 0.0F;
                 continue;
             }
-            cI32 sprite_id = sprite::make(texture_path);
+            cI32 sprite_id = sprite::make(m_texture_path);
 
             m_sprite_ids.emplace_back(sprite_id);
             //console::log(sprite_id, " ");
             //sprite::id(sprite_id, sprite_id);
-            sprite::transform_id(sprite_id, transform_id);
-            sprite::layer(sprite_id, layer);
+            sprite::transform_id(sprite_id, m_transform_id);
+            sprite::layer(sprite_id, m_layer);
             sprite::offset(sprite_id, m_offset + Vec2F{ x, y });
 
-            cRectI texture_rect{ ((32 + m_text.at(i)) % 32) * font_size,
-                                 ((m_text.at(i) - m_text.at(i) % 32 - 32) / 32) * font_size,
-                                 font_size,
-                                 font_size };
+            cRectI texture_rect{ ((32 + m_text.at(i)) % 32) * m_font_size,
+                                 ((m_text.at(i) - m_text.at(i) % 32 - 32) / 32) * m_font_size,
+                                 m_font_size,
+                                 m_font_size };
             
             sprite::source_rect(sprite_id, texture_rect);
             sprite::is_hidden(sprite_id, m_is_hidden);
 
-            x += (F32)(font_size);
+            x += (F32)(m_font_size);
             //console::log("BitmapText add sprite id: ", id, "\n");
         }
         /*console::log("BitmapText::set_text ids: ");
@@ -146,14 +159,6 @@ public:
         oss << t;
         set_text(oss.str());
     }
-
-    //void update() {
-    //    if (!transform::is_valid(transform_id)) return;
-
-    //    /*for (auto& i : m_sprite_ids) {
-    //        sprite::get(i)->offset = position + sprite::get(i)->start + transform::get(transform_id)->position;            
-    //    }     */   
-    //}
 
     void draw(std::unique_ptr<Window>& window) {
         for (auto& i : m_sprite_ids) {

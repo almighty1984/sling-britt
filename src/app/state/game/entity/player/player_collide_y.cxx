@@ -56,7 +56,7 @@ namespace entity {
 
 
         if (velocity().y < 0.0F && m_time_left_ducking == 0) {
-            if (m_state != State::swim) {
+            if (m_state != State::swim && our_rect.y > other_rect.h - 2.0F) {
                 if (is_arch(other_type) ||
                     other_type == Type::clip ||
                     other_type == Type::clip_D ||
@@ -87,7 +87,7 @@ namespace entity {
                 sound_play("bump_head");
 
                 m_rotation_speed *= -1.0F;
-                //add_position_y( -overlap_y );
+                //position_add_y( -overlap_y );
                 //velocity_y(-velocity().y;
             }
             return;
@@ -104,15 +104,15 @@ namespace entity {
                 moved_velocity_y(0.0F);
                 console::log(class_name(), "::collide_y() swim arch\n");
                 if (other_type == Type::arch_L_1x1)
-                    add_position({ -0.5F, 0.0F });                    
+                    position_add({ -0.5F, 0.0F });                    
                 else if (other_type == Type::arch_R_1x1)
-                    add_position({  0.5F, 0.0F });                    
+                    position_add({  0.5F, 0.0F });                    
                 else if (other_type == Type::arch_L_2x1_0 || other_type == Type::arch_L_2x1_1)
-                    add_position({ -0.5F, 0.0F });
+                    position_add({ -0.5F, 0.0F });
                 else if (other_type == Type::arch_R_2x1_0 || other_type == Type::arch_R_2x1_1)
-                    add_position({  0.5F, 0.0F });
+                    position_add({  0.5F, 0.0F });
 
-                add_position({ 0.0F, 0.5F });
+                position_add({ 0.0F, 0.5F });
                 return;
             }
             if (m_is_on_ground) {
@@ -121,20 +121,20 @@ namespace entity {
             if (our_rect.y < other_rect.y || m_time_left_ducking > 0) {
                 return;
             }
-            add_position_y(-overlap_y);
+            position_add_y(-overlap_y);
             velocity_y(std::abs(velocity().y) * 0.75F);
 
             if (other_type == Type::arch_L_1x1) {
-                add_velocity({ -velocity().y, 0.0F });
+                velocity_add({ -velocity().y, 0.0F });
             }
             else if (other_type == Type::arch_R_1x1) {
-                add_velocity({ velocity().y, 0.0F });
+                velocity_add({ velocity().y, 0.0F });
             }
             else if (other_type == Type::arch_L_2x1_0 || other_type == Type::arch_L_2x1_1) {
-                add_velocity({ velocity().y * -0.5F, 0.0F });
+                velocity_add({ velocity().y * -0.5F, 0.0F });
             }
             else if (other_type == Type::arch_R_2x1_0 || other_type == Type::arch_R_2x1_1) {
-                add_velocity({ velocity().y * 0.5F, 0.0F });
+                velocity_add({ velocity().y * 0.5F, 0.0F });
             }
         }
 
@@ -142,18 +142,18 @@ namespace entity {
             moved_velocity_y(0.0F);
 
             if (other_type == Type::slope_L_1x1) {
-                add_position({ -0.5F, 0.0F });
+                position_add({ -0.5F, 0.0F });
             }
             else if (other_type == Type::slope_R_1x1) {
-                add_position({ 0.5F, 0.0F });
+                position_add({ 0.5F, 0.0F });
             }
             else if (other_type == Type::slope_L_2x1_0 || other_type == Type::slope_L_2x1_1) {
-                add_position({ -0.5F, 0.0F });
+                position_add({ -0.5F, 0.0F });
             }
             else if (other_type == Type::slope_R_2x1_0 || other_type == Type::slope_R_2x1_1) {
-                add_position({ 0.5F, 0.0F });
+                position_add({ 0.5F, 0.0F });
             }
-            add_position({ 0.0F, -0.5F });   
+            position_add({ 0.0F, -0.5F });   
             
             return;
         }
@@ -171,7 +171,7 @@ namespace entity {
                 m_is_on_ground = true;
                 moved_velocity(other_velocity);
                 velocity_y(0.0F);
-                add_position_y(-overlap_y);
+                position_add_y(-overlap_y);
             }
 
 
@@ -189,16 +189,16 @@ namespace entity {
             if (other.owner->state() == State::swim) {
                 if ((m_state == State::swim || m_state == State::dive) && velocity().y < 0.0F && our_rect.h > other_rect.h) {
                     velocity_y(our_velocity.y * -1.0F);
-                    add_position_y(-overlap_y);
+                    position_add_y(-overlap_y);
 
-                    add_position_y(8.0F);
+                    position_add_y(8.0F);
 
                     m_next_state = State::swim;
 
                     //time_left_colliding_with(Type::water_line, 10);
 
                     other.owner->max_velocity_y(10.0F);
-                    other.owner->add_position_y(-4.0F);
+                    other.owner->position_add_y(-4.0F);
                     other.owner->velocity_y(our_velocity.y * 1.0F);
                     other.owner->velocity_x(our_velocity.x * 0.9F);
 
@@ -238,7 +238,7 @@ namespace entity {
                     velocity_y(0.0F);
                     moved_velocity_x(other_velocity.x);
                     moved_velocity_y(other_velocity.y);
-                    add_position_y(-overlap_y);
+                    position_add_y(-overlap_y);
                     m_is_on_ground = true;
                     console::log(class_name(), "::collide_y() swim bug ", our_velocity.y, "\n");
                     /*if (velocity().y < 0.0F) {
@@ -255,7 +255,7 @@ namespace entity {
             if (our_rect.y + 4.0F >= other_rect.y) {   // bug above
                 Vec2F other_vel = other.owner->velocity() + other.owner->moved_velocity();
                 other.owner->velocity_y(velocity().y / 4.0F - 3.0F);
-                other.owner->add_position_y(-8.0F);
+                other.owner->position_add_y(-8.0F);
 
                 cF32 our_mid_x = our_rect.w - our_rect.x / 2.0F;
                 cF32 other_mid_x = other_rect.w - other_rect.x / 2.0F;
@@ -277,7 +277,7 @@ namespace entity {
             
             if (velocity().y > 2.0F && m_time_left_bouncing == 0 &&
                 (other.owner->state() == State::upended || other.owner->state() == State::bounce)) {
-                add_position_y(-overlap_y);
+                position_add_y(-overlap_y);
                 console::log("Player::collide_y() bug vel: ", velocity().y, "\n");
                 max_velocity_y(10.0F);
                 velocity_y(-5.0F - velocity().y / 4.0F);
@@ -294,7 +294,7 @@ namespace entity {
                 return;
             }
             if (our_rect.h < other_rect.y + 2.0F) {
-                add_position_y(-overlap_y + 1.0F);
+                position_add_y(-overlap_y + 1.0F);
                 moved_velocity(other_velocity);
                 //velocity_x(velocity().x * 0.5F);
                 velocity_y(0.0F);
@@ -303,7 +303,7 @@ namespace entity {
             }            
         }
         else if (other_type == Type::clip) {
-            add_position_y(-overlap_y);
+            position_add_y(-overlap_y);
 
             if (m_state == State::swim) {
                 velocity_y(0.0F);
@@ -318,7 +318,7 @@ namespace entity {
                 velocity_y(0.0F);
                 moved_velocity_y(0.0F);
             } else {
-                velocity_y(std::abs(velocity().y) * 0.75F);                
+                velocity_y(std::abs(velocity().y) * 0.75F);   
             }
         }
         else if (other_type == Type::clip_D || other_type == Type::clip_LD || other_type == Type::clip_RD) {
@@ -326,7 +326,7 @@ namespace entity {
             if (m_state == State::swim && our_rect.h > other_rect.h) {
                 velocity_y(0.0F);
                 moved_velocity_y(0.0F);
-                add_position_y(-overlap_y);                
+                position_add_y(-overlap_y);                
                 return;
             }
             if ((other_rect.y < our_rect.y && m_is_on_ground) || m_is_climbing_ledge) {
@@ -337,7 +337,9 @@ namespace entity {
             if (m_time_left_rising > 0) {
                 return;
             }
-            add_position_y(-overlap_y);
+            if (our_rect.y < other_rect.h - 2.0F) return;
+
+            position_add_y(-overlap_y);
 
             if (our_rect.y > other_rect.y) {
                 m_is_on_ground = false;
@@ -354,15 +356,13 @@ namespace entity {
                 collide_x(our, other);
                 return;
             }
-
-            if (our_rect.h > other_rect.y + 2.0F && our_rect.y < other_rect.h - 2.0F) {
-                console::log("entity::Player::collide_y clip_ledge too far in, collide_x instead\n");
-                collide_x(our, other);
+            if ((velocity().y > 0.0F && our_rect.h > other_rect.y + 2.0F) ||
+                (velocity().y < 0.0F && our_rect.y < other_rect.h - 2.0F)) {                
                 return;
             }
 
             /*console::log(" ", our_rect.y, " ", our_rect.h, "  ", other_rect.y, " ", other_rect.h, "\n");*/
-            add_position_y(-overlap_y);
+            position_add_y(-overlap_y);
             if (m_state == State::swim) {                                    
                 return;                
             }
@@ -380,7 +380,7 @@ namespace entity {
         }
         else if (other_type == Type::clip_U || other_type == Type::slope_U) {
             if (velocity().y < 0.0F) return;
-            add_position_y(-overlap_y);
+            position_add_y(-overlap_y);
 
             moved_velocity_x(0.0F);
             moved_velocity_y(0.0F);
@@ -398,7 +398,7 @@ namespace entity {
                 return;
             }
             if (our_rect.y < other_rect.y + 4.0F && our_velocity.y > 0.0F) {
-                add_position_y(-overlap_y);
+                position_add_y(-overlap_y);
 
                 //console::log("Player::collide_y frog\n");
                 if (our_velocity.y >= 6.0F) {
@@ -425,7 +425,7 @@ namespace entity {
             //console::log("other vx: ", other_velocity.x, " ", our.owner->moved_velocity().x, "\n");        
 
             //if (our_rect.y < other_rect.y) {
-            //    add_position_y( -overlap_y );// / 4.0F;
+            //    position_add_y( -overlap_y );// / 4.0F;
 
             //    if (velocity().y >= 9.0F) {
             //        //bounce
@@ -441,7 +441,7 @@ namespace entity {
             //    m_is_on_slope = false;
             //}
             //else {
-            //    //add_position_y( -overlap_y );
+            //    //position_add_y( -overlap_y );
             //}
         }
         else if (other_type == Type::level_L_0 || other_type == Type::level_R_0) {
@@ -477,11 +477,11 @@ namespace entity {
                     }
 
                     velocity_y(std::abs(our_velocity.y) * 0.5F + std::abs(other_velocity.y) * 0.5F);
-                    add_position_y(-overlap_y);
+                    position_add_y(-overlap_y);
 
-                    add_position_y(8.0F);
+                    position_add_y(8.0F);
 
-                    other.owner->add_position_y(-4.0F);
+                    other.owner->position_add_y(-4.0F);
                     other.owner->velocity_y(our_velocity.y * 0.5F);
                     other.owner->velocity_x(our_velocity.x * 0.5F);
 
@@ -500,7 +500,7 @@ namespace entity {
                     velocity_y(0.0F);
                     moved_velocity_x(other_velocity.x);
                     moved_velocity_y(other_velocity.y);
-                    add_position_y(-overlap_y);
+                    position_add_y(-overlap_y);
                     m_is_on_ground = true;
                     console::log(class_name(), "::collide_y() swim mole ", our_velocity.y, "\n");                    
                 }                
@@ -508,7 +508,7 @@ namespace entity {
         }
         else if (other_type == Type::particle_brick) {
             if (our_rect.y < other_rect.y) {
-                //add_position_y( -overlap_y );
+                //position_add_y( -overlap_y );
                 //velocity_y(0.0F);
                 //moved_velocity(other_velocity);
                 //m_is_on_ground = true;
@@ -520,7 +520,7 @@ namespace entity {
         }
         else if (other_type == Type::player) {
             return;
-            add_position_y(-overlap_y);
+            position_add_y(-overlap_y);
 
             //console::log("overlap_y: ", overlap_y, "\n");
 
@@ -556,7 +556,7 @@ namespace entity {
         }
         else if (other_type == Type::slope_L_1x1) {
             //if (velocity().y < 0.0F) return;
-            add_position_y(-overlap_y);
+            position_add_y(-overlap_y);
 
             if (m_state == State::swim) {
                 if (velocity().y > 0.0F && std::abs(velocity().x) < velocity().y) {
@@ -581,7 +581,7 @@ namespace entity {
         }
         else if (other_type == Type::slope_R_1x1) {
             //if (velocity().y < 0.0F) return;
-            add_position_y(-overlap_y);
+            position_add_y(-overlap_y);
 
             if (m_state == State::swim) {
                 if (velocity().y > 0.0F && std::abs(velocity().x) < velocity().y) {
@@ -605,7 +605,7 @@ namespace entity {
         }
         else if (other_type == Type::slope_L_2x1_0 || other_type == Type::slope_L_2x1_1) {
             //if (velocity().y < 0.0F) return;
-            add_position_y(-overlap_y);
+            position_add_y(-overlap_y);
 
             if (m_state == State::swim) {
                 if (velocity().y > 0.0F && std::abs(velocity().x) < velocity().y) {
@@ -629,7 +629,7 @@ namespace entity {
         }
         else if (other_type == Type::slope_R_2x1_0 || other_type == Type::slope_R_2x1_1) {
             //if (velocity().y < 0.0F) return;
-            add_position_y(-overlap_y);
+            position_add_y(-overlap_y);
 
             if (m_state == State::swim) {
                 if (velocity().y > 0.0F && std::abs(velocity().x) < velocity().y) {
@@ -656,7 +656,7 @@ namespace entity {
             if (m_state == State::swim) {
                 m_next_state = State::run;
             }
-            add_position_y(-overlap_y);
+            position_add_y(-overlap_y);
             max_velocity_y(10.0F);
             velocity_y(-5.0F - velocity().y / 4.0F);
             m_is_down_thrusting ? reset_anim("jump_spin") : reset_anim("jump");
@@ -678,10 +678,10 @@ namespace entity {
 
             moved_velocity(other_velocity);            
             velocity_y(1.0F);
-            add_position({ 0.0F, -overlap_y / 6.0F }); // so we don't fly off at turns
+            position_add({ 0.0F, -overlap_y / 6.0F }); // so we don't fly off at turns
             //} else {
                 //velocity_y(0.0F);
-                //add_position_y( -overlap_y );
+                //position_add_y( -overlap_y );
             //}
             m_is_on_ground = true;
 

@@ -43,7 +43,7 @@ namespace entity {
         if (is_arch(other_type)) {
             if (m_parent || other.owner->parent() || is_hurting()) return;
             console::log(class_name(), "::collide_y ", to_string(other_type), "\n");
-            add_position_y(-overlap_y);
+            position_add_y(-overlap_y);
             if (velocity().y <= -2.0F || velocity().y >= 2.0F) {
 
                 cVec2F hit_pos = { (our_rect.x < other_rect.x ? other_rect.x : other_rect.w) - 8.0F,
@@ -66,7 +66,7 @@ namespace entity {
 
             
             if (our_rect.h < other_rect.y + 2.0F) {
-                add_position_y(-overlap_y);
+                position_add_y(-overlap_y);
                 console::log(class_name(), "::collide_y brick above\n");
             }
             if (velocity().y <= -2.0F || velocity().y >= 2.0F) {
@@ -84,7 +84,7 @@ namespace entity {
         else if (other_type == Type::clip || other_type == Type::clip_ledge) {
             if (our_rect.y < other_rect.h) {
                 if (velocity().y > 0.0F) {
-                    add_position_y(-overlap_y);
+                    position_add_y(-overlap_y);
                     //console::log(class_name(), "::collide_y hmmmmm\n");                
                 }
             }
@@ -127,7 +127,7 @@ namespace entity {
             if (velocity().y < 0.0F) return;
             if (our_rect.y > other_rect.y) return;
 
-            add_position_y(-overlap_y);
+            position_add_y(-overlap_y);
 
             velocity_y(0.0F);
             moved_velocity_y(0.0F);
@@ -136,7 +136,7 @@ namespace entity {
         }
         else if (other_type == Type::clip_D || other_type == Type::clip_LD || other_type == Type::clip_RD) {
             if (velocity().y > 0.0F) return;
-            add_position_y(-overlap_y);
+            position_add_y(-overlap_y);
             if (velocity().y <= -2.0F || velocity().y >= 2.0F) {
                 velocity_y(velocity().y * -0.9F);
                 cVec2F hit_pos = { (our_rect.x < other_rect.x ? other_rect.x : other_rect.w) - 8.0F,
@@ -171,7 +171,7 @@ namespace entity {
             }
 
             if (our_rect.h < other_rect.y + 4.0F) {
-                add_position_y(-overlap_y);
+                position_add_y(-overlap_y);
                 if (m_state == State::upended) {
                     m_next_state = State::bounce;
                 }
@@ -181,7 +181,7 @@ namespace entity {
                 //    velocity_y(other.owner->velocity().y + velocity().y - 10.0f;
                 //}
             //} else {
-                //add_position_y( -overlap_y );            
+                //position_add_y( -overlap_y );            
             //}
         }
         else if (other_type == Type::particle_interact) {
@@ -222,7 +222,7 @@ namespace entity {
         }
         else if (other_type == Type::slope_L_1x1) {
             //if (velocity().y < 0.0F) return;
-            add_position_y(-overlap_y);
+            position_add_y(-overlap_y);
 
             velocity_y(-velocity().x);
             moved_velocity_x(0.0F);
@@ -233,7 +233,7 @@ namespace entity {
         }
         else if (other_type == Type::slope_R_1x1) {
             //if (velocity().y < 0.0F) return;
-            add_position_y(-overlap_y);
+            position_add_y(-overlap_y);
 
             velocity_y(velocity().x);
             moved_velocity_x(0.0F);
@@ -243,14 +243,14 @@ namespace entity {
             m_is_on_slope = true;
         }
         else if (other_type == Type::slope_L_2x1_0 || other_type == Type::slope_L_2x1_1) {
-            add_position_y(-overlap_y);
+            position_add_y(-overlap_y);
             moved_velocity_y(0.0F);
             velocity_y(0.0F);
             m_is_on_ground = true;
             m_is_on_slope = true;
         }
         else if (other_type == Type::slope_R_2x1_0 || other_type == Type::slope_R_2x1_1) {
-            add_position_y(-overlap_y);
+            position_add_y(-overlap_y);
 
             velocity_y(0.0F);
             moved_velocity_y(0.0F);

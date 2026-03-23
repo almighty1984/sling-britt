@@ -44,7 +44,7 @@ namespace entity {
         if (is_arch(other_type)) {
             if (m_parent || other.owner->parent() || is_hurting()) return;
             console::log(class_name(), "::collide_x ", to_string(other_type), "\n");
-            add_position_x(-overlap_x);
+            position_add_x(-overlap_x);
             if (std::abs(our_velocity.x - other_velocity.x) >= 2.0F) {
 
                 cVec2F hit_pos = { (our_rect.x < other_rect.x ? other_rect.x : other_rect.w) - 8.0F,
@@ -66,7 +66,7 @@ namespace entity {
                     return;
                 }
             }
-            add_position_x(-overlap_x);
+            position_add_x(-overlap_x);
             velocity_x(velocity().x * -1.0F);
             moved_velocity_x(0.0F);
             sprite::is_leftward(m_sprite_id, !sprite::is_leftward(m_sprite_id));
@@ -83,7 +83,7 @@ namespace entity {
             //if (m_parent || other.owner->parent()) return;
             console::log(class_name(), "::collide_x ", to_string(other_type), "\n");
 
-            add_position_x(-overlap_x);
+            position_add_x(-overlap_x);
             
             //aabb::time_left_colliding_x(our.id, 100);
 
@@ -120,7 +120,7 @@ namespace entity {
             if (our_rect.h > other_rect.y && our_rect.h - other_rect.y < 2.0F) return;
             //if ((velocity().x < 0.0F && !m_is_near_wall_L) ||
             //    (velocity().x > 0.0F && !m_is_near_wall_R)) {
-            add_position_x(-overlap_x);
+            position_add_x(-overlap_x);
             //}
 
             moved_velocity_x(0.0F);
@@ -185,7 +185,7 @@ namespace entity {
         }
         else if (other_type == Type::clip_L || other_type == Type::clip_LD) {
             if (velocity().x + moved_velocity().x < 0.0F) return;
-            add_position_x(-overlap_x);
+            position_add_x(-overlap_x);
             moved_velocity_x(0.0F);
 
             if (m_state == State::swim) {
@@ -221,7 +221,7 @@ namespace entity {
         else if (other_type == Type::clip_R || other_type == Type::clip_RD) {
             if (velocity().x + moved_velocity().x > 0.0F) return;
 
-            add_position_x(-overlap_x);
+            position_add_x(-overlap_x);
             moved_velocity_x(0.0F);
 
             if (m_state == State::swim) {
@@ -255,7 +255,7 @@ namespace entity {
 
         }
         else if (other_type == Type::frog) {
-            add_position_x(-overlap_x);
+            position_add_x(-overlap_x);
             if (m_state == State::tossed) {
                 cVec2F hit_pos = { (our_rect.x < other_rect.x ? other_rect.x : other_rect.w) - 8.0F,
                                    (our_rect.y < other_rect.y ? other_rect.y : other_rect.h) - 8.0F };
@@ -276,7 +276,7 @@ namespace entity {
         else if (other_type == Type::mole) {
             if (m_state == State::swim && other.owner->state() == State::swim) {                
 
-                add_position_x(-overlap_x);
+                position_add_x(-overlap_x);
 
                 velocity_x(-other_velocity.x * 0.5F);
                 //other.owner->velocity_x(our_velocity.x * 0.5F);
@@ -311,14 +311,14 @@ namespace entity {
             if (other_rect.h < our_rect.y + 4.0F) return;
 
             /*if (!m_is_near_wall_L && !m_is_near_wall_R) {
-                add_position_x(-overlap_x);
+                position_add_x(-overlap_x);
                 velocity_x(other_velocity.x);
             } else {
                 if (m_is_near_wall_L) {
-                    other.owner->add_position({ 2.0F, 0.0F });
+                    other.owner->position_add({ 2.0F, 0.0F });
                     other.owner->velocity_x(2.0F);
                 } else if (m_is_near_wall_R) {
-                    other.owner->add_position({ -2.0F, 0.0F });
+                    other.owner->position_add({ -2.0F, 0.0F });
                     other.owner->velocity_x(-2.0F);
                 }
             }*/
@@ -329,11 +329,11 @@ namespace entity {
                 return;
             }
 
-            add_position_x(-overlap_x);
+            position_add_x(-overlap_x);
             
             if (m_state == State::upended || m_state == State::bounce) {
                 velocity_x(other_velocity.x);
-                other.owner->add_position_x(overlap_x);                
+                other.owner->position_add_x(overlap_x);                
             }
             else if (m_state == State::walk) {
                 bool prev_is_left = sprite::is_leftward(m_sprite_id);
@@ -369,7 +369,7 @@ namespace entity {
             //if (our_rect.h > other_rect.h) return;
 
             //velocity_y(-velocity().x;
-            add_position({ 0.0F, -velocity().x });
+            position_add({ 0.0F, -velocity().x });
             /*if (velocity().x > max_velocity().x * 0.7F) {
                 velocity_x(max_velocity().x * 0.7F;
             }*/
@@ -380,7 +380,7 @@ namespace entity {
             //if (our_rect.h > other_rect.h) return;
 
             //velocity_y(velocity().x);
-            add_position({ 0.0F, velocity().x });
+            position_add({ 0.0F, velocity().x });
             /*if (velocity().x < -max_velocity().x * 0.7F) {
                 velocity_x(-max_velocity().x * 0.7F;
             }*/

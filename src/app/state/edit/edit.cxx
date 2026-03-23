@@ -116,17 +116,16 @@ namespace state {
         }
 
 
-
         m_text_bar_bg_sprite_id = sprite::make("res/texture/editor_text_bar_bg.png");
         sprite::offset(m_text_bar_bg_sprite_id, { 0.0F, 0.0F });
         sprite::source_rect(m_text_bar_bg_sprite_id, { 0, 0, 272, 16 });
         sprite::layer(m_text_bar_bg_sprite_id, MENU_LAYER);
         sprite::transform_id(m_text_bar_bg_sprite_id, m_menu_down_transform_id);
 
-        m_text_bar.transform_id = m_menu_down_transform_id;
+        m_text_bar.transform_id(m_menu_down_transform_id);
         m_text_bar.offset({ 0.0F, 4.0F });
-        m_text_bar.layer = MENU_LAYER + 1;
-        m_text_bar.texture_path = "res/texture/font_8_black.png";
+        m_text_bar.layer(MENU_LAYER + 1);
+        m_text_bar.texture("res/texture/font_8_black.png");
         m_text_bar.is_hidden(false);
         //m_text_bar.clear_text();
         //m_text_bar.set_text(m_level_path.string());
@@ -138,14 +137,14 @@ namespace state {
         sprite::transform_id(m_text_current_tile_set_bg_sprite_id, m_menu_right_transform_id);
         sprite::is_hidden(m_text_current_tile_set_bg_sprite_id, true);
 
-        m_text_current_tile_set.transform_id = m_menu_right_transform_id;
-        m_text_current_tile_set.layer = MENU_LAYER;
-        m_text_current_tile_set.texture_path = "res/texture/font_8_black.png";
+        m_text_current_tile_set.transform_id(m_menu_right_transform_id);
+        m_text_current_tile_set.layer(MENU_LAYER);
+        m_text_current_tile_set.texture("res/texture/font_8_black.png");
         m_text_current_tile_set.is_hidden(true);
         m_text_current_tile_set.offset( {4.0F, 4.0F} );
         m_text_current_tile_set.set_text("0");
 
-        m_info_message.transform_id = m_menu_up_transform_id;
+        m_info_message.transform_id(m_menu_up_transform_id);
         m_info_message.is_hidden(true);
 
 
