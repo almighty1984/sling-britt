@@ -31,6 +31,8 @@ public:
     void load(const std::filesystem::path& path) {
         m_path = path;
         m_sound = std::make_unique<sf::Sound>(load_sound_buffer(path));        
+
+        //m_sound->setLooping(false);
     }
     ~Sound() {
         m_sound.release();

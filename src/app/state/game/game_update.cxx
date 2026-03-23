@@ -29,6 +29,18 @@ namespace state {
             m_next_state = state::Type::menu;
             return;
         }
+        if (is_pressed(input::Key::f1) || is_pressed(input::Key::equal)) {
+            release(input::Key::f1);
+            release(input::Key::equal);
+            //console::log("level path: ", m_level_path, "\n");
+            //m_next_start = start::Type::none;
+
+            m_start_info = { .type = start::Type::none,
+                             .number = 0 };
+
+            m_next_state = Type::edit;
+            return;
+        }
 
         if (is_pressed(input::Key::t)) {
             release(input::Key::t);
@@ -118,25 +130,8 @@ namespace state {
             return;
             //restart();
         }
-        
-        
-        if (is_pressed(input::Key::f1) || is_pressed(input::Key::equal)) {
-            release(input::Key::f1);
-            release(input::Key::equal);
-            //console::log("level path: ", m_level_path, "\n");
-            
-            //m_next_start = start::Type::none;            
-
-            m_start_info = { .type = start::Type::none,
-                             .number = 0 };            
-
-            m_next_state = Type::edit;
-
-            return;
-        }
 
         //next_start(m_player.next_start().type);
-
 
         if (is_pressed(input::Key::g)) {
             release(input::Key::g);

@@ -17,6 +17,8 @@ namespace entity {
             
             sound_stop("hover");
             sound_stop("slide_wall");
+
+            reset_anim("swim");
         }
         
         //console::log("entity::Player::state_swim() velocity: ", velocity().x, " ", velocity().y, "\n");;
@@ -32,11 +34,10 @@ namespace entity {
 
         if (m_time_in_state == 40) {
             // prevent getting stuck on playing
-            if (sound_is_playing("water_enter")) sound_stop("water_enter");            
+            if (sound_is_playing("water_enter")) sound_stop("water_enter");
             if (sound_is_playing("water_exit"))  sound_stop("water_exit");
         }
 
-        m_current_anim_id = anim_id("swim");
 
         moved_velocity({});
 

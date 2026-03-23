@@ -111,7 +111,7 @@ public:
         for (size_t i = 0; i < m_text.size(); ++i) {
             if (m_text.at(i) == '\n') {
                 //console::log("BitmapText::set_set found new line\n");
-                y += 16.0F, x = 0.0F;
+                y += font_size, x = 0.0F;
                 continue;
             }
             cI32 sprite_id = sprite::make(texture_path);

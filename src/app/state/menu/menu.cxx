@@ -40,18 +40,20 @@ namespace state {
         console::log("state::Menu::Menu() normal delta: ", line::delta(m_normal).x, " ", line::delta(m_normal).y, "\n");
 
         console::log("state::Menu::Menu() normal length: ", normal_length, "\n");
-
-        
+                
         m_circle.radius(4.0F);
         m_circle.position({ window_w / 2.0F - 16.0F, window_h / 2.0F - 64.0F });
 
         m_circle.max_velocity({ 4.0F, 4.0F });
 
-
         m_proj_on_normal = line::make({ 0.0F, 0.0F }, { 0.0F, 0.0F });
         line::size(m_proj_on_normal, 1.0F);
         line::color(m_proj_on_normal, { 255, 0, 0 });
         line::transform_id(m_proj_on_normal, m_transform_id);
+
+        m_enter_text.set_text("F1: Edit\nF2: Game");
+
+        m_circle.update();
     }
     Menu::~Menu() {
         console::log("state::Menu::~Menu()\n");
@@ -74,16 +76,18 @@ namespace state {
 
         if (is_pressed(input::Key::f1)) {
             release(input::Key::f1);
-
             m_next_state = Type::edit;
+            return;
         }
-        if (is_pressed(input::Key::enter)) {
+        if (is_pressed(input::Key::f2) || is_pressed(input::Key::enter)) {
+            release(input::Key::f2);
             release(input::Key::enter);
             console::log("state::Menu::update()\n");
 
             m_next_state = Type::game;
             m_start_info = { .type   = start::Type::center,
                              .number = 0 };
+            return;
         }
 
         //line::set(m_line, { 0.0F, 0.0F }, { 16.0F, 16.0F });
@@ -109,12 +113,8 @@ namespace state {
         
         Vec2F point = m_circle.position() - transform::position(m_transform_id);
         cF32 point_dot_normal = point.x * normal.x + point.y * normal.y;
-        
-
         cF32 point_dot_tangent = tangent.x * point.x + tangent.y * point.y;
-
         cF32 normal_dot_normal = normal.x * normal.x + normal.y * normal.y;
-
         Vec2F proj_onto_normal = normal * (point_dot_normal / normal_dot_normal);
 
         line::set(m_proj_on_normal, { 0.0F, 0.0F }, proj_onto_normal);
@@ -228,6 +228,7 @@ namespace state {
 
         //line::update(m_line);
         //line::update(m_normal);
+
     }
     void Menu::draw(std::unique_ptr<Window>& window, cU8 layer) {        
         line::draw(window, m_line);
@@ -235,6 +236,8 @@ namespace state {
         line::draw(window, m_proj_on_normal);
 
         m_circle.draw(window);
+
+        m_enter_text.draw(window);
 
     }
 }

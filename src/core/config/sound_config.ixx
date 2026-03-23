@@ -3,6 +3,7 @@ module;
 #include <string>
 
 export module sound.config;
+//import console;
 import sound;
 import sound.trait;
 import types;
@@ -43,7 +44,7 @@ export namespace sound {
                 }
                 const std::filesystem::path sound_path = "res/sound/" + text.substr(value_start, value_end - value_start);
 
-                //console::log("entity::load_config ", path, " sound: ", sound_path, "\n\n");
+                //console::log("entity::load_config() ", sound_path, "\n\n");
 
                 //m_sound_ids[sound_label] = sound::make(sound_path);
 

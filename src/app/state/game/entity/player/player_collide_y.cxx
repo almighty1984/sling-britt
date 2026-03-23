@@ -388,6 +388,9 @@ namespace entity {
             m_is_on_ground = true;
             m_is_on_slope = other_type == Type::slope_U;
         }
+        else if (is_coin(other_type)) {
+            collide_x(our, other);
+        }
         else if (is_conduit(other_type)) { }
         else if (other_type == Type::frog) {
             if (m_state == State::sling) {
@@ -714,7 +717,7 @@ namespace entity {
                 if (velocity().y > 1.0F && m_time_in_state != 0) {
                     m_time_in_state = 0;
                     if (!sound_is_playing("water_enter") && !sound_is_playing("water_exit")) {
-                        sound_position("water_enter", { position().x / (WINDOW_W / 2.0F), position().y / (WINDOW_H / 2.0F) });
+                        sound_position("water_enter", { (position().x + 8.0F) / WINDOW_W / 2.0F, (position().y + 8.0F) / WINDOW_H / 2.0F });
                         sound_play("water_enter");
                         is_to_splash = true;
                     }
@@ -758,10 +761,10 @@ namespace entity {
                 }
 
                 //console::log("is_pressed(key_jump): ", is_pressed(key_jump), "\n");
-                if (velocity().y <= -1.0F && !is_pressed(key_jump) ) {                    
+                if (velocity().y <= -1.0F && !is_pressed(key_jump) ) {
                     is_upwards = true;
-                    if (!sound_is_playing("water_exit") && !sound_is_playing("water_enter")) {
-                        sound_position("water_exit", { position().x / (WINDOW_W / 2.0F), position().y / (WINDOW_H / 2.0F) });
+                    if (!sound_is_playing("water_exit") && !sound_is_playing("water_enter") && m_state != State::dive) {
+                        sound_position("water_exit", { (position().x + 8.0F) / WINDOW_W / 2.0F, (position().y + 8.0F) / WINDOW_H / 2.0F });
                         sound_play("water_exit");
                         is_to_splash = true;
                     }

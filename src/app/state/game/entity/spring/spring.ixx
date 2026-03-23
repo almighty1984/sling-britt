@@ -23,7 +23,7 @@ export namespace entity {
                 reset_anim("dead");
                 m_time_left_dead = m_time_to_be_dead;
                 
-                sound_position("dead", { position().x / (WINDOW_W / 2.0F), position().y / (WINDOW_H / 2.0F) });
+                sound_position("dead", { (position().x + 8.0F) / WINDOW_W / 2.0F, (position().y + 8.0F) / WINDOW_H / 2.0F });
                 sound_play("dead");
             }
 

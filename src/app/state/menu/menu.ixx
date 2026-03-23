@@ -4,6 +4,7 @@ export module state.menu;
 import state;
 import types;
 import circle;
+import bitmap_text;
 
 export namespace state {
     class Menu : public Object {
@@ -16,6 +17,7 @@ export namespace state {
         I32 m_normal = -1;
         I32 m_proj_on_normal = -1;
 
+        BitmapText m_enter_text;
     public:
         Menu() = delete;
         Menu(cU16 window_w, cU16 window_h);

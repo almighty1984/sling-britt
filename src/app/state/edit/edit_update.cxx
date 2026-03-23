@@ -23,9 +23,13 @@ namespace state {
                 sprite::save_level(m_level_path, m_grid_sprite_ids);
             }
         }
-
-        if (is_pressed(input::Key::f1) || is_pressed(input::Key::equal)) {
-            release(input::Key::f1);
+        if (is_pressed(input::Key::esc)) {
+            release(input::Key::esc);
+            m_next_state = Type::menu;
+            return;
+        }
+        if (is_pressed(input::Key::f2) || is_pressed(input::Key::equal)) {
+            release(input::Key::f2);
             release(input::Key::equal);
 
             m_start_info = { .type   = start::Type::center,

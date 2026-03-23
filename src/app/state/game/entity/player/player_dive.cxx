@@ -12,7 +12,6 @@ namespace entity {
             
             sound_stop("hover");
             sound_stop("slide_wall");
-            sound_stop("water_exit");
         }
         //console::log(class_name(), "::state_dive() velocity: ", velocity().x, " ", velocity().y, "\n");;
 

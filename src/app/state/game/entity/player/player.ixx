@@ -37,6 +37,7 @@ export namespace entity {
            m_time_left_lever             = 0, m_time_to_lever          = 10,
            m_time_left_melee             = 0, m_time_to_melee          =  8,
            m_time_left_skidding          = 0, m_time_to_skid           = 20,
+           m_time_sliding_ground         = 0,
            m_time_sliding_wall           = 0;
 
         bool m_is_wall_to_left      = false,

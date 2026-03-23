@@ -78,8 +78,6 @@ namespace entity {
                 m_time_left_melee = m_time_to_melee;
                 reset_anim("melee");
 
-                sound_position("melee", { position().x / (WINDOW_W / 2.0F), position().y / (WINDOW_H / 2.0F) });
-                sound_play("melee");
             }
         } else {
             unlock(key_melee);
@@ -90,7 +88,8 @@ namespace entity {
                 particle::spawn({ .parent = this,
                                            .type = particle::Type::melee,
                                            .position = position() + Vec2F{ sprite::is_leftward(m_sprite_id) ? -16.0F : 16.0F, 0.0F},
-                                           .velocity = velocity() + Vec2F{ sprite::is_leftward(m_sprite_id) ? -2.0F : 2.0F, 0.0F}
+                                           .velocity = velocity() + Vec2F{ sprite::is_leftward(m_sprite_id) ? -2.0F : 2.0F, 0.0F },                    
+                                           .state = entity::State::idle
                     });
             }
             --m_time_left_melee;
@@ -129,7 +128,7 @@ namespace entity {
                 m_time_left_hitting_ground = m_time_to_hit_ground;
                 reset_anim("hit_ground");
 
-                sound_position("hit_ground", { position().x / (WINDOW_W / 2.0F), position().y / (WINDOW_H / 2.0F) });
+                sound_position("hit_ground", { (position().x + 8.0F) / WINDOW_W / 2.0F, (position().y + 24.0F) / WINDOW_H / 2.0F });
                 sound_play("hit_ground");
             } else {
                 set_anim("down_thrust");
@@ -241,7 +240,7 @@ namespace entity {
             }
         }
         if (m_time_left_skidding > 0 && m_time_left_melee == 0 && !m_is_sliding_wall) {
-            if (m_time_left_skidding == m_time_to_skid) {
+            if (m_time_left_skidding == m_time_to_skid && !sound_is_playing("skid")) {
                 sound_position("skid", { position().x / (WINDOW_W / 2.0F), position().y / (WINDOW_H / 2.0F) });
                 sound_play("skid");
             }
@@ -264,14 +263,23 @@ namespace entity {
 
             if (m_is_sliding_ground) {
                 deceleration_x(0.025f);
+
+                if (m_time_sliding_ground == 0 && !sound_is_playing("skid")) {
+                    sound_position("skid", { (position().x + 8.0F) / WINDOW_W / 2.0F, (position().y + 8.0F) / WINDOW_H / 2.0F });
+                    sound_play("skid");
+                }
+
+                ++m_time_sliding_ground;
             } else {
                 deceleration_x(0.1F);
+                m_time_sliding_ground = 0;
             }
             acceleration_x(0.2F);
         } else {
             //transform::max_velocity(m_transform_id, m_air_velocity_limit);
             deceleration_x(0.0F);
             acceleration_x(0.1F);
+            m_time_sliding_ground = 0;
         }
 
         add_velocity({ 0.0F, acceleration().y });

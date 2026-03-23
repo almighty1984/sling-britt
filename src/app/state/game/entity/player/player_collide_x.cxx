@@ -52,15 +52,15 @@ namespace entity {
 
 
         if (is_arch(other_type)) {
-            if (m_is_climbing_ledge) {
-                return;
-            }
-            if (m_is_on_ground && m_is_on_slope) {
-                add_position_x(-overlap_x);
-                velocity_x(velocity().x * 0.0F);
-                //return;
-            }
-            collide_y(our, other);
+            //if (m_is_climbing_ledge) {
+            //    return;
+            //}
+            //if (m_is_on_ground && m_is_on_slope) {
+            //    add_position_x(-overlap_x);
+            //    velocity_x(velocity().x * 0.0F);
+            //    //return;
+            //}
+            //collide_y(our, other);
         }
         else if (is_slope(other_type) && other_type != Type::slope_U && m_state == State::swim) {
             collide_y(our, other);
@@ -356,7 +356,7 @@ namespace entity {
         }
         else if (is_coin(other_type)) {
             if (!other.owner->is_dead()) {
-                sound::position(other.owner->sound_id("dead"), { other_rect.x / (WINDOW_W / 2.0F), other_rect.y / (WINDOW_H / 2.0F) });
+                sound::position(other.owner->sound_id("dead"), { (other_rect.x + 4.0F) / WINDOW_W / 2.0F, (other_rect.y + 4.0F) / WINDOW_H / 2.0F });
                 sound::play(other.owner->sound_id("dead"));
             }
             other.owner->time_left_alive(0);

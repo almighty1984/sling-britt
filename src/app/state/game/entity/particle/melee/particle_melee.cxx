@@ -18,8 +18,8 @@ namespace entity {
             sound_play("bounce");
         }
         else {
-            sound_position("melee", { position().x / (WINDOW_W / 2.0F), position().y / (WINDOW_H / 2.0F) });
-            sound_play("melee");
+            sound_position("hurt", { position().x / (WINDOW_W / 2.0F), position().y / (WINDOW_H / 2.0F) });
+            sound_play("hurt");
         }
         return true;
     }

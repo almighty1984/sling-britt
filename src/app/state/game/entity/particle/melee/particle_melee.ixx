@@ -15,10 +15,19 @@ export namespace entity {
     public:
         ParticleMelee() {
             m_type = Type::particle_melee;
+            m_next_state = State::idle;
         }
         bool hurt(Object* culprit) override;
 
         void collide_x(aabb::cInfo our, aabb::cInfo other) override;
         void collide_y(aabb::cInfo our, aabb::cInfo other) override;
+
+        void state_idle() override {
+            if (m_is_first_state_update) {
+                m_is_first_state_update = false;
+                console::log("run this\n");
+                sound_play("idle");
+            }
+        }
     };
 }
