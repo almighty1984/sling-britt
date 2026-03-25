@@ -22,9 +22,9 @@ namespace entity {
 
         if (culprit->type() == entity::Type::particle_melee) {
             velocity_x(culprit->velocity().x * 0.1F + velocity().x * 0.5F);
-            health_add_amount(-16.0f);
+            health_amount_add(-16.0f);
         } else {
-            health_add_amount(-8.0f);
+            health_amount_add(-8.0f);
         }
         sprite_is_leftward(!sprite_is_leftward());
 

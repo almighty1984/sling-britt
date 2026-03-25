@@ -10,8 +10,8 @@ export namespace transform {
     protected:
         I32 m_transform_id = -1;
     public:
-        I32           transform_id() const  { return m_transform_id; }
-        virtual void  transform_id(cI32 id) { m_transform_id = id;   }
+        I32   transform_id() const  { return m_transform_id; }
+        void  transform_id(cI32 id) { m_transform_id = id;   }
 
         Vec2F position()                   const { return transform::position(m_transform_id);           }
         void  position(cVec2F p)           const { transform::position(m_transform_id, p);               }

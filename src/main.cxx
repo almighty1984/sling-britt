@@ -1,11 +1,12 @@
 import app;
-import config;
-import state;
+import app.config;
+import types;
 
 int main() {
-    Config::load("main.cfg");
-    App app(320, 180, Config::scale(), "Sling-Britt");
-    app.add_state(Config::state_type());
+    app::config::load("main.cfg");
+    app::App app(app::config::window_size().x, app::config::window_size().y, app::config::scale(), "Sling-Britt");
+
+    app.add_state(app::config::start_state());
     app.add_state(state::Type::overlay);    
     app.run();
     return 0;

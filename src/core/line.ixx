@@ -4,11 +4,12 @@ module;
 #include <vector>
 
 export module line;
-import config;
 import console;
 import transform;
 import types;
 import window;
+
+static U8 s_scale = 1;
 
 export namespace line {
     cF32 length(cVec2F v) {
@@ -17,8 +18,8 @@ export namespace line {
 }
 
 struct Line {
-    bool is_debug = false,
-        is_hidden = false;
+    bool is_aabb  = false,
+         is_hidden = false;
 
     I32 id = -1,
         transform_id = -1;
@@ -45,7 +46,7 @@ struct Line {
         color({ 127, 127, 127 }), start_color({ 127, 127, 127 }), prev_color({ 0, 0, 0 }),
         offset({ 0.0F, 0.0F }), start({ 0.0F, 0.0F }), end({ 0.0F, 0.0F }), delta({ 0.0F, 0.0F }), velocity({ 0.0F, 0.0F }),
         length(0.0F), max_length(0.0F), slope(0.0F),
-        is_debug(false), is_hidden(false) {
+        is_aabb(false), is_hidden(false) {
     }*/
     Line(cVec2F in_start, cVec2F in_end) {
         set(in_start, in_end);
@@ -76,17 +77,17 @@ struct Line {
         }
         cVec2F perpendicular = { -delta.y / length * size / 2.0F, delta.x / length * size / 2.0F };
 
-        sf_vertices[0].position.x = (transformed_start().x + perpendicular.x + offset.x) * Config::scale();
-        sf_vertices[0].position.y = (transformed_start().y + perpendicular.y + offset.y) * Config::scale();
+        sf_vertices[0].position.x = (transformed_start().x + perpendicular.x + offset.x) * s_scale;
+        sf_vertices[0].position.y = (transformed_start().y + perpendicular.y + offset.y) * s_scale;
 
-        sf_vertices[1].position.x = (transformed_end().x + perpendicular.x + offset.x) * Config::scale();
-        sf_vertices[1].position.y = (transformed_end().y + perpendicular.y + offset.y) * Config::scale();
+        sf_vertices[1].position.x = (transformed_end().x + perpendicular.x + offset.x) * s_scale;
+        sf_vertices[1].position.y = (transformed_end().y + perpendicular.y + offset.y) * s_scale;
 
-        sf_vertices[2].position.x = (transformed_end().x - perpendicular.x + offset.x) * Config::scale();
-        sf_vertices[2].position.y = (transformed_end().y - perpendicular.y + offset.y) * Config::scale();
+        sf_vertices[2].position.x = (transformed_end().x - perpendicular.x + offset.x) * s_scale;
+        sf_vertices[2].position.y = (transformed_end().y - perpendicular.y + offset.y) * s_scale;
 
-        sf_vertices[3].position.x = (transformed_start().x - perpendicular.x + offset.x) * Config::scale();
-        sf_vertices[3].position.y = (transformed_start().y - perpendicular.y + offset.y) * Config::scale();
+        sf_vertices[3].position.x = (transformed_start().x - perpendicular.x + offset.x) * s_scale;
+        sf_vertices[3].position.y = (transformed_start().y - perpendicular.y + offset.y) * s_scale;
     }
     void update() {
         //Vec2F prev_delta = delta;
@@ -100,17 +101,17 @@ struct Line {
         //}
         cVec2F perpendicular = { -delta.y / length * size / 2.0F, delta.x / length * size / 2.0F };
 
-        sf_vertices[0].position.x = (transformed_start().x + perpendicular.x + offset.x) * Config::scale();
-        sf_vertices[0].position.y = (transformed_start().y + perpendicular.y + offset.y) * Config::scale();
+        sf_vertices[0].position.x = (transformed_start().x + perpendicular.x + offset.x) * s_scale;
+        sf_vertices[0].position.y = (transformed_start().y + perpendicular.y + offset.y) * s_scale;
 
-        sf_vertices[1].position.x = (transformed_end().x + perpendicular.x + offset.x) * Config::scale();
-        sf_vertices[1].position.y = (transformed_end().y + perpendicular.y + offset.y) * Config::scale();
+        sf_vertices[1].position.x = (transformed_end().x + perpendicular.x + offset.x) * s_scale;
+        sf_vertices[1].position.y = (transformed_end().y + perpendicular.y + offset.y) * s_scale;
 
-        sf_vertices[2].position.x = (transformed_end().x - perpendicular.x + offset.x) * Config::scale();
-        sf_vertices[2].position.y = (transformed_end().y - perpendicular.y + offset.y) * Config::scale();
+        sf_vertices[2].position.x = (transformed_end().x - perpendicular.x + offset.x) * s_scale;
+        sf_vertices[2].position.y = (transformed_end().y - perpendicular.y + offset.y) * s_scale;
 
-        sf_vertices[3].position.x = (transformed_start().x - perpendicular.x + offset.x) * Config::scale();
-        sf_vertices[3].position.y = (transformed_start().y - perpendicular.y + offset.y) * Config::scale();
+        sf_vertices[3].position.x = (transformed_start().x - perpendicular.x + offset.x) * s_scale;
+        sf_vertices[3].position.y = (transformed_start().y - perpendicular.y + offset.y) * s_scale;
 
 
         /*if (color == Color{255, 0, 0}) {
@@ -134,7 +135,7 @@ export namespace line {
 
     void set(cI32 i, cVec2F start, cVec2F end) { if (is_valid(i)) s_lines.at(i)->set(start, end); }
 
-    bool  is_debug(cI32 i)     { return is_valid(i) ? s_lines.at(i)->is_debug     :   false; }
+    bool  is_aabb(cI32 i)     { return is_valid(i) ? s_lines.at(i)->is_aabb     :   false; }
     bool  is_hidden(cI32 i)    { return is_valid(i) ? s_lines.at(i)->is_hidden    :   false; }
     Color color(cI32 i)        { return is_valid(i) ? s_lines.at(i)->color        : Color{}; }
     Color start_color(cI32 i)  { return is_valid(i) ? s_lines.at(i)->start_color  : Color{}; }
@@ -151,7 +152,7 @@ export namespace line {
     F32   length(cI32 i)       { return is_valid(i) ? s_lines.at(i)->length       :       0; }
     F32   max_length(cI32 i)   { return is_valid(i) ? s_lines.at(i)->max_length   :       0; }
 
-    void is_debug(cI32 i, bool is)      { if (is_valid(i)) s_lines.at(i)->is_debug     = is; }
+    void is_aabb(cI32 i, bool is)      { if (is_valid(i)) s_lines.at(i)->is_aabb     = is; }
     void is_hidden(cI32 i, bool is)     { if (is_valid(i)) s_lines.at(i)->is_hidden    = is; }
     void transform_id(cI32 i, cI32 t)   { if (is_valid(i)) s_lines.at(i)->transform_id = t;  }
     void color(cI32 i, Color c)         { if (is_valid(i)) s_lines.at(i)->color        = c;  }
@@ -183,7 +184,7 @@ export namespace line {
 
     Vec2F mid_point(cI32 i) { return is_valid(i) ? s_lines.at(i)->delta / 2.0F : Vec2F{}; }
 
-    std::vector<I32> object_ids_in_layer(cU8 layer) {
+    std::vector<I32> ids_in_layer(cU8 layer) {
         std::vector<I32> same_layer_object_ids;
         std::for_each(s_lines.cbegin(), s_lines.cend(), [&](Line* i) {
             if (i && i->id != -1 && i->layer == layer) {
@@ -232,6 +233,8 @@ export namespace line {
     void draw(std::unique_ptr<Window>& window, cI32 i) {        
         if (!window || !is_valid(i) || s_lines.at(i)->is_hidden/* || s_lines.at(i)->length < 1.0F*/) return;
 
+        s_scale = window->scale();
+
         cVec2F start = s_lines.at(i)->transformed_start() + s_lines.at(i)->offset;
         cVec2F end = s_lines.at(i)->transformed_end() + s_lines.at(i)->offset;
 
@@ -252,7 +255,7 @@ export namespace line {
     void draw_in_layer(std::unique_ptr<Window>& window, cU8 layer) {
         for (size_t i = 0; i < s_lines.size(); ++i) {
             if (is_valid(i) && s_lines.at(i)->layer == layer) {
-                if (!s_lines.at(i)->is_debug) {
+                if (!s_lines.at(i)->is_aabb) {
                     draw(window, i);
                 }
             }

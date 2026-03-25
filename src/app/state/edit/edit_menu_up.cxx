@@ -106,7 +106,7 @@ namespace state {
         }
 
         bitmap_text->transform_id(m_menu_up_transform_id);
-        bitmap_text->layer(MENU_LAYER);
+        bitmap_text->layer(MENU_TEXT_LAYER);
         bitmap_text->offset({ offset_x, 0.0F });
         bitmap_text->set_text(text);
 
@@ -117,7 +117,7 @@ namespace state {
 
         m_menu_up_bar_bg_sprite_ids.push_back(sprite::make("res/texture/editor_menu_bg.png"));
         sprite::source_rect(m_menu_up_bar_bg_sprite_ids.back(), { 0, 0, bg_w, bg_h });
-        sprite::layer(m_menu_up_bar_bg_sprite_ids.back(), MENU_LAYER - 1);
+        sprite::layer(m_menu_up_bar_bg_sprite_ids.back(), MENU_BG_LAYER);
         sprite::transform_id(m_menu_up_bar_bg_sprite_ids.back(), m_menu_up_transform_id);
         sprite::offset(m_menu_up_bar_bg_sprite_ids.back(), { offset_x, 0.0F });
 
@@ -155,7 +155,7 @@ namespace state {
 
         std::unique_ptr<BitmapText> bitmap_text = std::make_unique<BitmapText>();
         bitmap_text->transform_id(m_menu_up_lists[menu].transform_id);
-        bitmap_text->layer(MENU_LAYER);
+        bitmap_text->layer(MENU_TEXT_LAYER);
         bitmap_text->offset({ 0.0F, m_menu_up_lists[menu].text_items.size() * (F32)bitmap_text->font_size()});
         bitmap_text->set_text(path_str);
 

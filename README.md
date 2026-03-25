@@ -1,16 +1,9 @@
-Menu:
-    
-    F1                 - Edit
-    F2                 - Game
-
 Edit:
 
-    Move mouse to top of window to access menu
-    Press del on level in list to delete
-
-    WASD               - move camera / selected
+    Shift              - show menu
+    W, A, S, D         - move camera / selected
     Space              - show tile set
-    Scroll / 1-5       - brush size
+    Scroll / 1 - 5     - brush size
     Ctrl               - select    
     X                  - move selected
     C                  - copy selected

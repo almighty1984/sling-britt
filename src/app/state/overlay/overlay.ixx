@@ -9,6 +9,7 @@ import input;
 import line;
 import transform;
 import sprite;
+import state.game.save;
 
 export namespace state {
     class Overlay : public Object {
@@ -43,7 +44,7 @@ export namespace state {
             m_timer = 0;*/
 
             cF32 current_fps = 1.0F / ts;
-             
+
             m_fps_text.position({ (F32)(view().w - m_fps_text.get_text().size() * m_fps_text.font_size()),
                                   (F32)(view().h - m_fps_text.font_size()) });
             m_fps_text.set_text(std::to_string((int)current_fps));
@@ -53,8 +54,16 @@ export namespace state {
                     lock(input::Key::l);
                     console::log("Overlay::update ", current_fps, "\n");
                 }
-            } else {
+            }
+            else {
                 input::unlock(m_input_id, input::Key::l);
+            }
+
+            if (is_pressed(input::Key::del)) {
+                release(input::Key::del);
+
+                state::game::clear_current_save_data();
+                state::game::write_save(0);
             }
         }
         void draw(std::unique_ptr<Window>& window, cU8 layer) override {

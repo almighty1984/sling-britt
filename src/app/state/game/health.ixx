@@ -92,27 +92,27 @@ public:
 std::vector<Bar*>  s_bars;
 std::vector<I32>   s_unused_ids;
 
-#define IS_VALID(i) i >= 0 && i < s_bars.size() && s_bars.at(i)
-
 export namespace health {
+    constexpr bool is_valid(size_t i) { return (i < s_bars.size() && s_bars.at(i)) ? true : false; }
+
     size_t  size() { return s_bars.size(); }
 
-    bool  is_full(cI32 i) { return IS_VALID(i) ? s_bars.at(i)->amount >= s_bars.at(i)->max : false; }
+    bool  is_max(cI32 i) { return is_valid(i) ? s_bars.at(i)->amount >= s_bars.at(i)->max : false; }
 
-    U8    layer(cI32 i)  { return IS_VALID(i) ? s_bars.at(i)->layer  : 0;       }
-    F32   amount(cI32 i) { return IS_VALID(i) ? s_bars.at(i)->amount : 0.0F;    }
-    F32   max(cI32 i)    { return IS_VALID(i) ? s_bars.at(i)->max    : 0.0F;    }
-    F32   regen(cI32 i)  { return IS_VALID(i) ? s_bars.at(i)->regen  : 0.0F;    }
-    Vec2F offset(cI32 i) { return IS_VALID(i) ? s_bars.at(i)->offset : Vec2F{}; }
+    U8    layer(cI32 i)  { return is_valid(i) ? s_bars.at(i)->layer  : 0;       }
+    F32   amount(cI32 i) { return is_valid(i) ? s_bars.at(i)->amount : 0.0F;    }
+    F32   max(cI32 i)    { return is_valid(i) ? s_bars.at(i)->max    : 0.0F;    }
+    F32   regen(cI32 i)  { return is_valid(i) ? s_bars.at(i)->regen  : 0.0F;    }
+    Vec2F offset(cI32 i) { return is_valid(i) ? s_bars.at(i)->offset : Vec2F{}; }
 
-    void  layer(cI32 i, cU8 l)       { if (IS_VALID(i)) s_bars.at(i)->layer   = l; }
-    void  add_amount(cI32 i, cF32 a) { if (IS_VALID(i)) s_bars.at(i)->amount += a; }
-    void  amount(cI32 i, cF32 a)     { if (IS_VALID(i)) s_bars.at(i)->amount  = a; }
-    void  max(cI32 i, cF32 m)        { if (IS_VALID(i)) s_bars.at(i)->max     = m; }
-    void  regen(cI32 i, cF32 r)      { if (IS_VALID(i)) s_bars.at(i)->regen   = r; }
-    void  offset(cI32 i, cVec2F o)   { if (IS_VALID(i)) s_bars.at(i)->offset  = o; }
+    void  layer(cI32 i, cU8 l)       { if (is_valid(i)) s_bars.at(i)->layer   = l; }
+    void  amount(cI32 i, cF32 a)     { if (is_valid(i)) s_bars.at(i)->amount  = a; }
+    void  amount_add(cI32 i, cF32 a) { if (is_valid(i)) s_bars.at(i)->amount += a; }
+    void  max(cI32 i, cF32 m)        { if (is_valid(i)) s_bars.at(i)->max     = m; }
+    void  regen(cI32 i, cF32 r)      { if (is_valid(i)) s_bars.at(i)->regen   = r; }
+    void  offset(cI32 i, cVec2F o)   { if (is_valid(i)) s_bars.at(i)->offset  = o; }
 
-    void reset(cI32 i) { if (IS_VALID(i)) s_bars.at(i)->reset(); }
+    void reset(cI32 i) { if (is_valid(i)) s_bars.at(i)->reset(); }
 
     I32 make(cI32 transform_id) {
         Bar* object = new Bar(transform_id);
@@ -130,14 +130,14 @@ export namespace health {
         return object->id;
     }
     bool erase(cI32 i) {            
-        if (IS_VALID(i)) {
-            delete s_bars.at(i);
-            s_bars.at(i) = nullptr;
-            s_unused_ids.emplace_back(i);
-            return true;            
+        if (!is_valid(i)) {
+            //console::log("health::erase ", i, " can't do it\n");
+            return false;
         }
-        //console::log("transform::erase ", i, " can't do it\n");
-        return false;        
+        delete s_bars.at(i);
+        s_bars.at(i) = nullptr;
+        s_unused_ids.emplace_back(i);
+        return true;            
     }
     void update() {
         for (auto& i : s_bars) {
@@ -146,7 +146,7 @@ export namespace health {
     }
     void draw(std::unique_ptr<Window>& window, cU8 layer) {
         for (auto& i : s_bars) {
-            if (i && i->layer == layer) {
+            if (i) {
                 i->draw(window);
             }
         }

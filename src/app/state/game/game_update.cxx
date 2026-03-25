@@ -4,6 +4,7 @@ module;
 #include <sstream>
 
 module state.game;
+import app.config;
 import camera;
 import aabb;
 import console;
@@ -15,6 +16,7 @@ import entity.particle.sense;
 import entity.water_line;
 import sound;
 import particle_system;
+import state.game.save;
 
 namespace state {
     void Game::update_unlocked() {
@@ -26,7 +28,8 @@ namespace state {
         if (is_pressed(input::Key::esc)) {
             release(input::Key::esc);
             console::log("state::Game::update() pressed esc\n");
-            m_next_state = state::Type::menu;
+            state::game::clear_current_save_data();
+            m_next_state = state::Type::menu_start;
             return;
         }
         if (is_pressed(input::Key::f1) || is_pressed(input::Key::equal)) {
@@ -74,12 +77,14 @@ namespace state {
                 }
                 console::log("state::Game::update camera focal point: ", camera::focal_point.x, " ", camera::focal_point.y, "\n");
             } else {
-                camera::focal_point = { WINDOW_W / 2.0F, WINDOW_H / 2.0F };
+                camera::focal_point = { app::config::window_size().x / 2.0F, app::config::window_size().y / 2.0F };
             }
             m_is_holding_ctrl = true;
         } else {
             m_is_holding_ctrl = false;
         }
+
+        //console::log("state::Game::update() window size: ", app::config::window_size().x, " ", app::config::window_size().y, "\n");
 
         //console::log("level transform: ", m_level_transform_id, " position: ", transform::get(m_level_transform_id)->position.x, "\n");
         //console::log("transforms: ", transform::size(), " unused: ", transform::unused_size(), "\n");
@@ -136,6 +141,10 @@ namespace state {
         if (is_pressed(input::Key::g)) {
             release(input::Key::g);
             m_is_drawing_debug = !m_is_drawing_debug;
+        }
+        if (is_pressed(input::Key::q)) {
+            release(input::Key::q);
+            m_is_drawing_quad_tree = !m_is_drawing_quad_tree;
         }
         /*if (is_pressed(input::Key::enter)) {
             release(input::Key::enter);
@@ -215,7 +224,7 @@ namespace state {
             release(input::Key::grave);
             m_is_to_change_view = true;
             if (view() == RectF{0.0F, 0.0F, 480.0F, 270.0F}) {
-                view(RectF{ 0.0F, 0.0F, 320.0F, 180.0F });
+                view(RectF{ 0.0F, 0.0F, (F32)app::config::window_size().x, (F32)app::config::window_size().y});
             } else {
                 view(RectF{ 0.0F, 0.0F, 480.0F, 270.0F });
             }

@@ -23,17 +23,19 @@ export namespace state {
 
         start::Info m_start_info = { start::Type::center, 0 };
 
-        RectF m_view = { 0.0F, 0.0F, 320.0F, 180.0F };
+        RectF m_view = { 0.0F, 0.0F, WINDOW_W, WINDOW_H };
 
         start::Type m_next_level = start::Type::center;
 
-        bool m_is_drawing_debug   = false,
-             m_is_to_change_view  = false,
-             m_is_to_player_save  = false;
+        bool m_is_drawing_debug     = false,
+             m_is_drawing_quad_tree = false,
+             m_is_to_change_view    = false,
+             m_is_to_player_save    = false;
     public:
-        bool is_drawing_debug()  const { return m_is_drawing_debug;  } void is_drawing_debug(bool q)   { m_is_drawing_debug   = q; }
-        bool is_to_change_view() const { return m_is_to_change_view; } void is_to_change_view(bool q)  { m_is_to_change_view  = q; }
-        bool is_to_player_save() const { return m_is_to_player_save; } void is_to_player_save(bool q)  { m_is_to_player_save  = q; }
+        bool is_drawing_debug()     const { return m_is_drawing_debug;     } void is_drawing_debug(bool q)     { m_is_drawing_debug     = q; }
+        bool is_drawing_quad_tree() const { return m_is_drawing_quad_tree; } void is_drawing_quad_tree(bool q) { m_is_drawing_quad_tree = q; }
+        bool is_to_change_view()    const { return m_is_to_change_view;    } void is_to_change_view(bool q)    { m_is_to_change_view    = q; }
+        bool is_to_player_save()    const { return m_is_to_player_save;    } void is_to_player_save(bool q)    { m_is_to_player_save    = q; }
 
         virtual std::filesystem::path level_path_to_save() { return {}; }
         virtual ~Object() {

@@ -42,11 +42,11 @@ namespace entity {
                 return false;
             }
             if (culprit->parent()->type() == Type::frog) {
-                health::add_amount(m_health_id, -16.0f);
+                health::amount_add(m_health_id, -16.0f);
             }
             console::log("entity::Player::hurt() culprit: ", to_string(culprit->parent()->type()), " health: ", health::amount(m_health_id), "\n");
         } else if (culprit->type() == Type::particle_shot) {            
-            health::add_amount(m_health_id, -16.0f);
+            health::amount_add(m_health_id, -16.0f);
             console::log("\n\nentity::Player::hurt() culprit: ", to_string(culprit->type()), " health: ", health::amount(m_health_id), "\n");
         }
         return true;

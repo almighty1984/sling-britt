@@ -23,11 +23,7 @@ namespace state {
                 sprite::save_level(m_level_path, m_grid_sprite_ids);
             }
         }
-        if (is_pressed(input::Key::esc)) {
-            release(input::Key::esc);
-            m_next_state = Type::menu;
-            return;
-        }
+        
         if (is_pressed(input::Key::f2) || is_pressed(input::Key::equal)) {
             release(input::Key::f2);
             release(input::Key::equal);
@@ -251,21 +247,26 @@ namespace state {
             m_is_hidden_menu_down  = !m_is_hidden_menu_down;
             m_is_hidden_menu_right = !m_is_hidden_menu_right;
         }
+        
+        m_is_hidden_menu_up = !is_pressed(input::Key::shift) && !m_is_mouse_on_menu_up_list;
+        
+        transform::position(m_menu_up_transform_id, { 0.0F, m_is_hidden_menu_up ? -8.0F : 0.0F });
+        
 
-        m_is_mouse_on_menu_up_bar = !is_pressed(input::Key::ctrl) &&
-                                    !m_is_showing_tile_set &&
-                                    input::mouse.y > 0 && input::mouse.y <= 8 &&
-                                    input::mouse.x <= m_menu_up_w ? true : false;
+        m_is_mouse_on_menu_up_bar = !m_is_hidden_menu_up           &&
+                                    !m_is_showing_tile_set         &&                                    
+                                    !is_pressed(input::Key::ctrl)  &&
+                                     input::mouse.y > 0 && input::mouse.y <= 8 &&
+                                     input::mouse.x <= m_menu_up_w ? true : false;
 
         if (m_is_mouse_on_menu_up_bar || m_is_mouse_on_menu_up_list) {
-            transform::position(m_menu_up_transform_id, { 0.0F, 0.0F });
             handle_menu_up();
             for (auto& i : m_mouse_sprite_ids) {
                 sprite::is_hidden(i, true);
             }
-        } else {
-            transform::position(m_menu_up_transform_id) = { 0.0F,-16.0F };
-            transform::position(m_menu_up_lists[m_menu_up_labels[0]].transform_id, {0.0F, m_menu_up_lists[m_menu_up_labels[0]].bg_h * -1.0F});
+        }
+        else {
+            transform::position(m_menu_up_lists[m_menu_up_labels[0]].transform_id, { 0.0F, m_menu_up_lists[m_menu_up_labels[0]].bg_h * -1.0F});
             transform::position(m_menu_up_lists[m_menu_up_labels[1]].transform_id, { 0.0F, m_menu_up_lists[m_menu_up_labels[1]].bg_h * -1.0F });
             for (auto& i : m_mouse_sprite_ids) {
                 sprite::is_hidden(i, false);
@@ -532,28 +533,25 @@ namespace state {
             release(input::Key::esc);  
             if (m_is_typing_text_bar) {
                 quit_typing_text_bar();
-                return;
             }
-            if (m_is_typing_text_bar) {
+            else if (m_is_typing_text_bar) {
                 quit_typing_text_bar();
-                return;
             }
-            if (m_is_moving) {
+            else if (m_is_moving) {
                 m_is_moving = false;
                 finish_moving_selected_on_level();
                 if (!m_selection_on_level_sprite_ids.empty()) {
                     deselect_all_on_level();
-                    return;
                 }
-            } else {
-                if (!m_selection_on_level_sprite_ids.empty()) {
-                    deselect_all_on_level();
-                    return;
-                }
-                if (!m_selection_on_tile_set_sprite_ids.empty()) {
-                    deselect_all_on_tile_set();
-                    return;
-                }
+            }
+            else if (!m_selection_on_level_sprite_ids.empty()) {
+                deselect_all_on_level();
+            }
+            else if (!m_selection_on_tile_set_sprite_ids.empty()) {
+                deselect_all_on_tile_set();
+            }
+            else {
+                m_next_state = Type::menu_start;
             }
         }
     }

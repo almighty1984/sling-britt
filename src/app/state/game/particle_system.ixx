@@ -43,10 +43,10 @@ export namespace particle {
             }
         }
     }
-    void draw_debug(std::unique_ptr<Window>& window, cU8 layer) {
+    void draw_aabb(std::unique_ptr<Window>& window, cU8 layer) {
         for (auto& i : s_particle_entities) {
             if (i && i->start_layer() == layer && !i->is_to_erase()) {
-                i->draw_debug(window);                
+                i->draw_aabb(window);                
             }
         }
     }

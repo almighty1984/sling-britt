@@ -181,12 +181,13 @@ namespace state {
         if (m_text_bar.get_text().empty()) return false;        
         m_is_typing_text_bar = false;
 
-        if (m_is_showing_tile_set) {            
+        if (m_is_showing_tile_set) {
             std::string text = m_text_bar.get_text();
             if (text.back() == '_') {
                 if (text.size() == 1) {
                     m_text_bar.clear_text();
-                } else {
+                }
+                else {
                     text.erase(m_typing_pos, 1);
                     m_text_bar.set_text(text);
                     console::log("state::Edit::save_typed_text_bar() text: ", text, "\n");
@@ -202,7 +203,8 @@ namespace state {
                 }
             }
             return true;
-        } else {
+        }
+        else if (!m_is_showing_tile_set) {
             if (m_text_bar.get_text().back() == '_' && m_text_bar.get_text().size() < 17 || m_text_bar.get_text().size() < 16) {
                 console::log("state::Edit::save_typed_text_bar() text size: ", m_text_bar.get_text().size(), "\n");
                 return false;
@@ -224,6 +226,7 @@ namespace state {
             load_menu_up_list(m_menu_up_labels[1], std::filesystem::current_path() / "res" / "prefab");
             return true;
         }
+        return false;
     }
     bool Edit::save_types_to_bin() {
         console::log("state::Edit::save_types_to_bin()\n");

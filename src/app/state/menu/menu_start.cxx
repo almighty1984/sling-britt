@@ -4,24 +4,25 @@ module;
 #include <cmath>
 
 module state.menu;
-import config;
+import app;
+import app.config;
 import console;
 import input;
 import line;
-
+import sprite;
 import transform;
 
 namespace state {
-    Menu::Menu(cU16 window_w, cU16 window_h) {
-        console::log("state::Menu::Menu() ", window_w, " ", window_h, "\n");
-        m_state = m_next_state = Type::menu;
+    MenuStart::MenuStart(cU16 window_w, cU16 window_h) {
+        console::log("state::MenuStart() ", window_w, " ", window_h, "\n");
+        m_state = m_next_state = Type::menu_start;
         m_input_id = input::make();
 
         m_transform_id = transform::make();
         transform::position(m_transform_id, { window_w / 2.0F, window_h / 2.0F });
         transform::deceleration(m_transform_id, { 0.05F, 0.05F });
 
-        m_line_id = line::make({ 0.0F, 0.0F }, { 32.0F, -8.0F });
+        m_line_id = line::make({ 0.0F, 0.0F }, { 32.0F, -16.0F });
         line::size(m_line_id, 2.0F);
         line::color(m_line_id, { 52, 206, 206 });
         line::layer(m_line_id, 0);
@@ -42,7 +43,7 @@ namespace state {
         console::log("state::Menu::Menu() normal length: ", normal_length, "\n");
 
         m_circle.radius(4.0F);
-        m_circle.position({ window_w / 2.0F - 16.0F, window_h / 2.0F - 64.0F });
+        m_circle.position({ window_w / 2.0F - 16.0F, window_h / 2.0F + 64.0F });
 
         m_circle.max_velocity({ 4.0F, 4.0F });
 
@@ -51,13 +52,18 @@ namespace state {
         line::color(m_proj_on_normal_id, { 255, 0, 0 });
         line::transform_id(m_proj_on_normal_id, m_transform_id);
 
-        m_enter_text.set_text("SLING-BRITT\n\nF1: Edit\nF2: Game");
-        m_enter_text.position({ view().w / 2.0F - 32.0F, view().h / 2.0F - 64.0F });
-        
+        m_game_text.set_text("Game");
+        m_game_text.position({ view().w / 2.0F - 32.0F, view().h / 2.0F - 64.0F });
+
+        m_edit_text.set_text("Edit");        
+        m_edit_text.position(m_game_text.position() + Vec2F{ 0.0F, 16.0F });
+
+        m_options_text.set_text("Options");
+        m_options_text.position(m_game_text.position() + Vec2F{ 0.0F, 32.0F });
 
         m_circle.update();
     }
-    Menu::~Menu() {
+    MenuStart::~MenuStart() {
         console::log("state::Menu::~Menu()\n");
         input::erase(m_input_id);
         transform::erase(m_transform_id);
@@ -66,30 +72,34 @@ namespace state {
         line::erase(m_proj_on_normal_id);
     }
 
-    void Menu::update(cF32 ts) {
-        
+    void MenuStart::update(cF32 ts) {
         //console::log("mouse: ", input::mouse.x, " ", input::mouse.y, "\n");
 
         //console::log("state::Game::update() delta: ", line::delta(m_normal).x, " ", line::delta(m_normal).y, "\n");
 
-
-        m_enter_text.position({ view().w / 2.0F - 32.0F, view().h / 2.0F - 64.0F });
-
-
+        if (is_pressed(input::Key::esc)) {
+            release(input::Key::esc);
+            app::shutdown();
+            return;
+        }
 
         if (is_pressed(input::Key::f1)) {
             release(input::Key::f1);
             m_next_state = Type::edit;
             return;
         }
-        if (is_pressed(input::Key::f2) || is_pressed(input::Key::enter)) {
-            release(input::Key::f2);
-            release(input::Key::enter);
+        if (is_pressed(input::Key::f2)) {
+            release(input::Key::f2);            
             console::log("state::Menu::update()\n");
 
             m_next_state = Type::game;
             m_start_info = { .type   = start::Type::center,
                              .number = 0 };
+            return;
+        }
+        if (is_pressed(input::Key::f3)) {
+            release(input::Key::f3);
+            m_next_state = Type::menu_options;
             return;
         }
 
@@ -170,17 +180,33 @@ namespace state {
 
         }
 
-        if (is_pressed(input::Key::up)) {            
-            transform::velocity_add_y(m_circle.transform_id(), -move_speed);
+        if (is_pressed(input::Key::ctrl)) {
+            if (is_pressed(input::Key::up)) {
+                transform::velocity_add_y(m_circle.transform_id(), -move_speed);
+            }
+            if (is_pressed(input::Key::down)) {
+                transform::velocity_add_y(m_circle.transform_id(), move_speed);
+            }
+            if (is_pressed(input::Key::left)) {
+                transform::velocity_add_x(m_circle.transform_id(), -move_speed);
+            }
+            if (is_pressed(input::Key::right)) {
+                transform::velocity_add_x(m_circle.transform_id(), move_speed);
+            }
         }
-        if (is_pressed(input::Key::down)) {
-            transform::velocity_add_y(m_circle.transform_id(), move_speed);
-        }
-        if (is_pressed(input::Key::left)) {
-            transform::velocity_add_x(m_circle.transform_id(), -move_speed);
-        }
-        if (is_pressed(input::Key::right)) {
-            transform::velocity_add_x(m_circle.transform_id(), move_speed);
+        else {
+            if (is_pressed(input::Key::up)) {
+                release(input::Key::up);
+                if (s_selection > 0) {
+                    s_selection -= 1;
+                }
+            }
+            if (is_pressed(input::Key::down)) {
+                release(input::Key::down);
+                if (s_selection < 2) {
+                    s_selection += 1;
+                }
+            }
         }
 
         
@@ -216,12 +242,6 @@ namespace state {
         m_circle.update();
 
 
-
-
-
-
-
-
         //console::log("state::Menu::update() circle position: ", m_circle.position().x, " ", m_circle.position().y, "\n");
         //console::log("line start: ", line::start(m_line).x, " ", line::start(m_line).y, " end: ", line::end(m_line).x, " ", line::end(m_line).y, "\n");
 
@@ -231,15 +251,47 @@ namespace state {
         //line::update(m_line);
         //line::update(m_normal);
 
+
+        
+        if (s_selection == 0) {
+            m_game_text.texture("res/texture/font_8_white.png");
+            m_edit_text.texture("res/texture/font_8_gray.png");
+            m_options_text.texture("res/texture/font_8_gray.png");
+        }
+        else if (s_selection == 1) {
+            m_game_text.texture("res/texture/font_8_gray.png");
+            m_edit_text.texture("res/texture/font_8_white.png");
+            m_options_text.texture("res/texture/font_8_gray.png");
+
+        }
+        else if (s_selection == 2) {
+            m_game_text.texture("res/texture/font_8_gray.png");
+            m_edit_text.texture("res/texture/font_8_gray.png");
+            m_options_text.texture("res/texture/font_8_white.png");
+        }
+
+        if (is_pressed(input::Key::enter)) {
+            release(input::Key::enter);
+            switch (s_selection) {
+                case 0: m_next_state = Type::game;         break;
+                case 1: m_next_state = Type::edit;         break;
+                case 2: m_next_state = Type::menu_options; break;
+                default:                                   break;
+            }
+        }
     }
-    void Menu::draw(std::unique_ptr<Window>& window, cU8 layer) {        
+    void MenuStart::draw(std::unique_ptr<Window>& window, cU8 layer) {
         line::draw(window, m_line_id);
         line::draw(window, m_normal_id);
         line::draw(window, m_proj_on_normal_id);
 
         m_circle.draw(window);
 
-        m_enter_text.draw(window);
+        
+
+        m_edit_text.draw(window);
+        m_game_text.draw(window);
+        m_options_text.draw(window);
 
     }
 }

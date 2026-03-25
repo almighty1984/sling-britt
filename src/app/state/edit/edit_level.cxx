@@ -181,7 +181,7 @@ namespace state {
         console::log("state::Edit::select_on_level offset: ", offset.x, " ", offset.y, "\n");
         m_selection_on_level_sprite_ids.push_back(sprite::make(m_mouse_texture_path));
         sprite::transform_id(m_selection_on_level_sprite_ids.back(), m_level_transform_id);
-        sprite::layer(m_selection_on_level_sprite_ids.back(), SELECTION_ON_level_LAYER);
+        sprite::layer(m_selection_on_level_sprite_ids.back(), SELECTION_ON_LEVEL_LAYER);
         sprite::offset(m_selection_on_level_sprite_ids.back(), offset);
         return true;
     }

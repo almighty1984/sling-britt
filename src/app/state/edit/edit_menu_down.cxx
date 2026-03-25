@@ -51,9 +51,11 @@ namespace state {
         input::Button button = input::Button::none;
         if (is_pressed(input::Button::left)) {
             button = input::Button::left;
-        } else if (is_pressed(input::Button::right)) {
+        }
+        else if (is_pressed(input::Button::right)) {
             button = input::Button::right;
-        } else if (is_pressed(input::Button::middle)) {
+        }
+        else if (is_pressed(input::Button::middle)) {
             button = input::Button::middle;
         }
 
@@ -66,22 +68,26 @@ namespace state {
                 if (button == input::Button::left) {
                     m_time_left_saving = m_time_to_save;
                     save_types_to_bin();
-                } else if (button == input::Button::right) {
+                }
+                else if (button == input::Button::right) {
                     release(button);
                     if (!m_is_typing_text_bar) {
                         init_typing_text_bar();
                         m_is_typing_text_bar = true;
-                    } else {
+                    }
+                    else {
                         quit_typing_text_bar();
                         save_typed_text_bar();
                         m_is_typing_text_bar = false;
                     }
-                } else if (button == input::Button::middle) {
+                }
+                else if (button == input::Button::middle) {
                     load_types_from_bin();
                 }
                 return;
             }            
-        } else if (!m_is_showing_tile_set) {
+        }
+        else if (!m_is_showing_tile_set) {
             if (position.x == transform::position(m_menu_down_transform_id).x + sprite::offset(m_grid_icon_sprite_id).x &&
                 position.y == transform::position(m_menu_down_transform_id).y + sprite::offset(m_grid_icon_sprite_id).y) {
 
@@ -94,7 +100,8 @@ namespace state {
                         sprite::is_hidden(i, m_is_hidden_grid_map);
                     }
                     sprite::is_hidden(m_position_on_grid_map_sprite_id, m_is_hidden_grid_map);
-                } else if (button == input::Button::left) {
+                }
+                else if (button == input::Button::left) {
                     m_is_hidden_grid = !m_is_hidden_grid;
                     for (auto& i : m_grid_sprite_ids) {
                         sprite::is_hidden(i, m_is_hidden_grid);
@@ -112,11 +119,13 @@ namespace state {
                     console::log("state::Edit::handle_menu_down() save\n");
                     m_time_left_saving = m_time_to_save;
                     save_typed_text_bar();
-                } else if (button == input::Button::right) {
+                }
+                else if (button == input::Button::right) {
                     if (!m_is_typing_text_bar) {
                         init_typing_text_bar();
                         m_is_typing_text_bar = true;
-                    } else {
+                    }
+                    else {
                         quit_typing_text_bar();
                     }
                 }

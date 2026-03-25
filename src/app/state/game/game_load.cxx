@@ -6,6 +6,7 @@ module;
 #include <map>
 
 module state.game;
+import state.game.save;
 import camera;
 import console;
 import entity.brick;
@@ -92,10 +93,16 @@ namespace state {
                 cU16 tile_y = i.source_y / 16;
                 cU16 tile_number = tile_x + tile_y * 32;
 
-                if (types_map.count(tile_number)) {
-                    entity::Type entity_type = entity::string_to_type(types_map.at(tile_number));
+                U16 entity_number = 0;
 
-                    //console::log("entity_type: ", types_map.at(tile_number), "\n");
+                if (types_map.count(tile_number)) {
+                    std::string type_str = types_map.at(tile_number);
+
+                    entity::Type entity_type = entity::string_to_type(type_str);
+
+                    if (type_str.substr(0, 4) == "coin") {
+                        entity_type = entity::Type::coin;
+                    }
 
                     if (start_info().type == start::Type::center && entity_type == entity::Type::level_center) {
                         console::log("\n\nstate::Game::load_level() start position: ", tile_offset.x, " ", tile_offset.y, "\n\n");
@@ -199,7 +206,7 @@ namespace state {
                             for (U8 i_create = 0; i_create < num_to_create; ++i_create) {
                                 //m_entity_objects.emplace_back(std::make_unique<entity::Grass>());
                                 m_entity_objects.emplace_back(new entity::Grass);
-                                m_entity_objects.back()->number(i_create);
+                                //m_entity_objects.back()->number(i_create);
                                 m_entity_objects.back()->transform_id(m_level_transform_id);                                
                             }
                              
@@ -267,7 +274,7 @@ namespace state {
 
                             for (U8 i_create = 0; i_create < num_to_create; ++i_create) {
                                 m_entity_objects.emplace_back(new entity::WaterLine);
-                                m_entity_objects.back()->number(i_create);
+                                //m_entity_objects.back()->number(i_create);
                                 m_water_entity_objects.emplace_back(m_entity_objects.back());
 
                                 //m_water_entity_objects.emplace_back(std::make_unique<entity::WaterLine>());
@@ -281,16 +288,21 @@ namespace state {
                             config_path = "res/entity/water_line.cfg";
                         }
                         else {
-                            //m_entity_objects.emplace_back(std::make_unique<entity::Object>());
-                            m_entity_objects.emplace_back(new entity::Object);
-                            m_entity_objects.back()->transform_id(m_level_transform_id);
-
-
-                            if (entity::is_coin(entity_type)) {
-                                console::log("\n\nCOIN\n\n");
+                            bool is_to_create = true;
+                            if (entity_type == entity::Type::coin) {                                
+                                entity_number = entity::number_in_type(type_str);                                
                                 config_path = "res/entity/coin.cfg";
+                                if (state::game::is_coin_picked(entity_number)) {
+                                    num_to_create = 0;
+                                }
+                                console::log("state::Game::load_level() coin ", entity_number, " to create: ", (int)num_to_create, "\n\n");
                             }
 
+                            if (num_to_create != 0) {
+                                //m_entity_objects.emplace_back(std::make_unique<entity::Object>());
+                                m_entity_objects.emplace_back(new entity::Object);
+                                m_entity_objects.back()->transform_id(m_level_transform_id);
+                            }
                         }
 
                         
@@ -302,11 +314,12 @@ namespace state {
                             // only keep L and R type at the very edge
                             entity::Type changed_entity_type = entity_type;
                             if (entity_type == entity::Type::water_line_L && i_created > 0 ||
-                                entity_type == entity::Type::water_line_R && i_created < num_to_create - 1) {                                
+                                entity_type == entity::Type::water_line_R && i_created < num_to_create - 1) {                     
                                 changed_entity_type = entity::Type::water_line;
                             }
 
                             m_entity_objects.at(entity_i)->type(changed_entity_type);
+                            m_entity_objects.at(entity_i)->number(entity_number);
                             m_entity_objects.at(entity_i)->start_layer(i.layer);
 
                             if (transform::is_level(m_entity_objects.at(entity_i)->transform_id())) {

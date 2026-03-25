@@ -6,23 +6,18 @@ import console;
 import types;
 
 struct Transform {
-    I32   id;
-    Vec2F position, start_position,
-        velocity, moved_velocity,
-        acceleration, start_acceleration,
-        deceleration, start_deceleration,
-        max_velocity, start_max_velocity;
+    I32   id = -1;
+    Vec2F position           = {   0.0F, 0.0F },
+          start_position     = {   0.0F, 0.0F },
+          velocity           = {   0.0F, 0.0F },
+          moved_velocity     = {   0.0F, 0.0F },
+          acceleration       = {   0.0F, 0.0F },
+          start_acceleration = {   0.0F, 0.0F },
+          deceleration       = {   0.0F, 0.0F },
+          start_deceleration = {   0.0F, 0.0F },
+          max_velocity       = { 10.0F, 10.0F },
+          start_max_velocity = { 10.0F, 10.0F };
 
-    Transform() : id(-1),
-        position({ 0.0F, 0.0F }), start_position({ 0.0F, 0.0F }),
-        velocity({ 0.0F, 0.0F }), moved_velocity({ 0.0F, 0.0F }),
-        acceleration({ 0.0F, 0.0F }),   start_acceleration({ 0.0F, 0.0F }),
-        deceleration({ 0.0F, 0.0F }),   start_deceleration({ 0.0F, 0.0F }),
-        max_velocity({ 10.0F, 10.0F }), start_max_velocity({ 10.0F, 10.0F }) {
-    }
-    /*Transform(cVec2F p) : Transform() {
-        start_position = p;
-    }*/
     void update() {
         //moved_velocity = decelerate(moved_velocity, deceleration);
         if (moved_velocity != Vec2F(0.0F, 0.0F)) {

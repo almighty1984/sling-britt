@@ -2,13 +2,13 @@ module;
 #include <SFML/Graphics.hpp>
 
 export module circle;
-import config;
 import console;
 import transform;
 import transform.trait;
 import types;
 import window;
 
+static U8 s_scale = 1;
 
 export namespace circle {
     class Object : public transform::Trait {
@@ -36,14 +36,16 @@ export namespace circle {
         void update() {
             //console::log("circle::Object::update() transform_id: ", m_transform_id, "\n");
 
-            sf::Vector2f pos = { transform::position(m_transform_id).x * Config::scale(),
-                                 transform::position(m_transform_id).y * Config::scale() };
+            sf::Vector2f pos = { transform::position(m_transform_id).x * s_scale,
+                                 transform::position(m_transform_id).y * s_scale };
 
             m_circle_shape.setPosition(pos);
 
             //m_circle_shape.setPosition(sf::Vector2f{32.0F, 32.0F});
         }
-        void draw(std::unique_ptr<Window>& window) {            
+        void draw(std::unique_ptr<Window>& window) {
+            s_scale = window->scale();
+
             window->draw_circle(m_circle_shape);
         }
 

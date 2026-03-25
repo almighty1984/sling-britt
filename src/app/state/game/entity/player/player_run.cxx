@@ -53,12 +53,12 @@ namespace entity {
 
         if (is_pressed(input::Key::h)) {
             release(input::Key::h);
-            health::add_amount(m_health_id, -8.0f);
+            health::amount_add(m_health_id, -8.0f);
             console::log("heath: ", health::amount(m_health_id), "\n");
         }
         if (is_pressed(input::Key::j)) {
             release(input::Key::j);
-            health::add_amount(m_health_id, 8.0f);
+            health::amount_add(m_health_id, 8.0f);
             //console::log("heath: ", health::get(m_health_id)->amount, "\n");
         }
         if (is_pressed(input::Key::b)) {

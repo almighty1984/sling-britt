@@ -8,46 +8,43 @@ module;
 #include <set>
 
 export module sprite;
-import config;
 import console;
 import texture;
 import transform;
 import types;
 import window;
 
+static U8 s_scale = 1;
+
 struct Sprite {
 private:
-    I32   m_id, m_transform_id;
-    U8    m_layer, m_tile_set;
-    F32   m_angle, m_start_angle;
-    Vec2F m_origin;
-    bool  m_is_bg, m_is_debug, m_is_hidden, m_is_leftward, m_is_upended;
-    Vec2F m_offset, m_start_offset, m_prev_position, m_level, m_center;
-    Color m_color, m_start_color;
-    RectI m_source_rect;
+    I32   m_id            = -1,
+          m_transform_id  = -1;
+    U8    m_layer         = 0,
+          m_tile_set      = 0;
+    F32   m_angle         = 0.0F,
+          m_start_angle   = 0.0F;
+    Vec2F m_origin        = { 0.0F, 0.0F };
+    bool  m_is_bg         = false,
+          m_is_debug      = false,
+          m_is_hidden     = false,
+          m_is_leftward   = false,
+          m_is_upended    = false;
+    Vec2F m_offset        = { 0.0F, 0.0F },
+          m_start_offset  = { 0.0F, 0.0F },
+          m_prev_position = { 0.0F, 0.0F },
+          m_level         = { 0.0F, 0.0F },
+          m_center        = { 0.0F, 0.0F };
+    Color m_color         = { 127, 127, 127 },
+          m_start_color   = { 127, 127, 127 };
+    RectI m_source_rect   = { 0, 0, 16, 16 };
     std::filesystem::path m_texture_path;
     sf::Sprite m_sf_sprite;
     sf::Texture* m_sf_texture;
 public:
     Sprite() = delete;
-    Sprite(std::filesystem::path path) : //m_transformed_position(),
-        m_id(-1), m_transform_id(-1),
-        m_layer(0), m_tile_set(0),
-        m_angle(0.0F), m_start_angle(0.0F),
-        m_origin(),
-        m_is_bg(false), m_is_debug(false), m_is_hidden(false), m_is_leftward(false), m_is_upended(false),
-        m_offset(), m_start_offset(), m_prev_position(-1.0F, -1.0F), m_level(), m_center(),
-        m_color({ 127, 127, 127 }), m_start_color({ 127, 127, 127 }),
-        m_source_rect({ 0, 0, 16, 16 }),
-        m_texture_path(path),
-        m_sf_sprite(*texture::load(path)),
-        m_sf_texture(texture::load(path)) {
-    }
-    ~Sprite() {
-        //console::log("~Sprite layer: ", layer, " id: ", id, "\n");
-        m_id = -1;
-        m_transform_id = -1;
-    }
+    Sprite(std::filesystem::path path) : m_texture_path(path), m_sf_sprite(*texture::load(path)), m_sf_texture(texture::load(path)) { }
+    
     Sprite& operator=(const Sprite& other) {
         m_transform_id = other.m_transform_id;
         m_layer        = other.m_layer;
@@ -71,8 +68,8 @@ public:
         m_sf_texture   = other.m_sf_texture;
         return *this;
     }
-    I32 id()              const { return m_id;            } void id(cI32 i)              { m_id            = i; }
-    I32 transform_id()    const { return m_transform_id;  } void transform_id(cI32 i)    { m_transform_id  = i; }
+    I32 id()              const { return m_id;            } void id(cI32 id)             { m_id            = id;}
+    I32 transform_id()    const { return m_transform_id;  } void transform_id(cI32 id)   { m_transform_id  = id;}
     U8 layer()            const { return m_layer;         } void layer(cU8 l)            { m_layer         = l; }
     U8 tile_set()         const { return m_tile_set;      } void tile_set(cU8 t)         { m_tile_set      = t; }
     bool is_bg()          const { return m_is_bg;         } void is_bg(bool b)           { m_is_bg         = b; }
@@ -83,7 +80,6 @@ public:
     Vec2F prev_position() const { return m_prev_position; } void prev_position(cVec2F p) { m_prev_position = p; }
     Vec2F level()         const { return m_level;         } void level(cVec2F l)         { m_level         = l; }
     Vec2F center()        const { return m_center;        } void center(cVec2F c)        { m_center        = c; }
-
     Vec2F offset()        const { return m_offset;        } void offset(cVec2F o)        { m_offset        = o; }
     void offset_x(cF32 x)     { m_offset.x  = x; }    
     void offset_y(cF32 y)     { m_offset.y  = y; }
@@ -91,14 +87,10 @@ public:
     void add_offset_x(cF32 x) { m_offset.x += x; }
     void add_offset_y(cF32 y) { m_offset.y += y; }
     Vec2F start_offset()  const { return m_start_offset;  } void start_offset(cVec2F s)  { m_start_offset  = s; }
-
     Color color()       const { return m_color;       } void color(Color c)       { m_color       = c; }
     Color start_color() const { return m_start_color; } void start_color(Color c) { m_start_color = c; }
-
     Vec2U texture_size() { return { m_sf_sprite.getTexture().getSize().x, m_sf_sprite.getTexture().getSize().y }; }
-
     sf::Sprite& sf_sprite() { return m_sf_sprite; }
-
     Vec2F origin() const { return m_origin; }
     void origin(cVec2F o) {
         m_origin = o;
@@ -154,21 +146,17 @@ public:
     }
     void update() {
         source_rect(m_source_rect);
-        //sf_sprite.setOrigin({ origin.x * Config::scale(), origin.y * Config::scale() });
         m_sf_sprite.setOrigin({ m_origin.x, m_origin.y });
 
-        //cF32 flip_x = is_leftward ? source_rect.w * 1.0F : 0.0F;
-        //cF32 flip_y = is_upended  ? source_rect.h * 1.0F : 0.0F;
-
-        m_sf_sprite.setScale({ (m_is_leftward ? -1.0F : 1.0F) * Config::scale(), (m_is_upended ? -1.0F : 1.0F) * Config::scale()});
+        m_sf_sprite.setScale({ (m_is_leftward ? -1.0F : 1.0F) * s_scale, (m_is_upended ? -1.0F : 1.0F) * s_scale});
 
         //if (position != prev_position) {
             //m_transformed_position = position + position();
             //prev_position = position;
             //center = { position.x + source_rect.w / 2.0F, position.y + source_rect.h / 2.0F };
             //console::log("sprite::Sprite::update position: ", prev_position.x, " ", position().x, "  ", prev_position.y, " ", position().y, "\n");        
-        m_sf_sprite.setPosition({ (transform::position(m_transform_id).x + m_offset.x + m_origin.x) * Config::scale(),
-                                  (transform::position(m_transform_id).y + m_offset.y + m_origin.y) * Config::scale() });
+        m_sf_sprite.setPosition({ (transform::position(m_transform_id).x + m_offset.x + m_origin.x) * s_scale,
+                                  (transform::position(m_transform_id).y + m_offset.y + m_origin.y) * s_scale });
         //}
     }
 };
@@ -274,7 +262,8 @@ export namespace sprite {
                 //s_sprites.at(object->id) = nullptr;
             }
             s_sprites.at(object->id()) = object;
-        } else {
+        }
+        else {
             object->id(s_sprites.size());
             //console::log("sprite::make id: ", object->id, "\n");
             s_sprites.emplace_back(object);
@@ -306,6 +295,8 @@ export namespace sprite {
     }    
     void draw(std::unique_ptr<Window>& window, cI32 i) {
         if (!window || !(is_valid(i)) || s_sprites.at(i)->is_hidden()) return;
+
+        s_scale = window->scale();
 
         if (transform::position(s_sprites.at(i)->transform_id()).x + s_sprites.at(i)->offset().x < window->view().x - s_sprites.at(i)->source_rect().w ||
             transform::position(s_sprites.at(i)->transform_id()).x + s_sprites.at(i)->offset().x > window->view().w ||

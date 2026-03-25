@@ -56,10 +56,10 @@ struct AABB {
         line::transform_id(down_line_id, transform_id);
         line::transform_id(left_line_id, transform_id);
         line::transform_id(right_line_id, transform_id);
-        line::is_debug(up_line_id, true);
-        line::is_debug(down_line_id, true);
-        line::is_debug(left_line_id, true);
-        line::is_debug(right_line_id, true);        
+        line::is_aabb(up_line_id, true);
+        line::is_aabb(down_line_id, true);
+        line::is_aabb(left_line_id, true);
+        line::is_aabb(right_line_id, true);        
     }
     ~AABB() {
         line::erase(up_line_id);

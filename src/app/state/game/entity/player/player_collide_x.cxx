@@ -3,6 +3,7 @@ module;
 module entity.player;
 import console;
 import particle_system;
+import state.game.save;
 
 namespace entity {
     void Player::collide_x(aabb::cInfo our, aabb::cInfo other) {
@@ -28,6 +29,8 @@ namespace entity {
         cVec2F our_velocity   = velocity();
         cVec2F other_velocity = other.owner->velocity();
 
+        cU16 other_number = other.owner->number();
+
         cF32 overlap_x = our_rect.x < other_rect.x ? our_rect.w - other_rect.x : -(other_rect.w - our_rect.x);
 
         if (m_state == State::sling) {
@@ -36,7 +39,8 @@ namespace entity {
 
             if (is_arch(other_type)) {
                 collide_y(our, other);
-            } else if (is_clip(other_type)) {
+            }
+            else if (is_clip(other_type)) {
                 if (!sound_is_playing("bump_head")) {
                     sound_stop("bump_head");
                     sound_position("bump_head", { position().x / (WINDOW_W / 2.0F), position().y / (WINDOW_H / 2.0F) });
@@ -195,7 +199,7 @@ namespace entity {
             if (our_velocity.y > 0.0F && !m_is_carrying && !m_is_hovering) {
                 if (m_is_wall_to_left && is_pressed(key_left) ||
                     !m_is_wall_to_left && is_pressed(key_right)) {
-                    if (m_state != State::ledge && our_rect.y < other_rect.y - 2.0F && our_rect.y + 16 > other_rect.y) {
+                    if (m_state != State::ledge && our_rect.y < other_rect.y - 1.0F && our_rect.y + 16 > other_rect.y) {
                         
                         m_next_state = State::ledge;
                         m_is_sliding_wall = false;
@@ -354,13 +358,18 @@ namespace entity {
             velocity_x(0.0F);
             moved_velocity_x(0.0F);
         }
-        else if (is_coin(other_type)) {
-            if (!other.owner->is_dead()) {
-                sound::position(other.owner->sound_id("dead"), { (other_rect.x + 4.0F) / WINDOW_W / 2.0F, (other_rect.y + 4.0F) / WINDOW_H / 2.0F });
-                sound::play(other.owner->sound_id("dead"));
-            }
+        else if (other_type == Type::coin) {
+            if (other.owner->is_dead()) return;
+            
+            sound::position(other.owner->sound_id("dead"), { (other_rect.x + 4.0F) / WINDOW_W / 2.0F, (other_rect.y + 4.0F) / WINDOW_H / 2.0F });
+            sound::play(other.owner->sound_id("dead"));
+            
             other.owner->time_left_alive(0);
             other.owner->time_left_dead(U16_MAX);
+
+            console::log(class_name(), "::collide_x() coin: ", other_number, "\n");
+
+            state::game::add_picked_coin(other_number);
         }
         else if (other_type == Type::frog) {
             if (m_state == State::sling) {

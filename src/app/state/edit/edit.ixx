@@ -90,11 +90,12 @@ namespace menu {
 export namespace state {
     constexpr U8 GRID_LAYER                  = 10,
                  GRID_MAP_LAYER              = 10,
-                 SELECTION_ON_level_LAYER    = 10,
-                 TILE_SET_BG_LAYER           = 11,
+                 SELECTION_ON_LEVEL_LAYER    = 10,
+                 TILE_SET_BG_LAYER           = 10,
                  TILE_SET_LAYER              = 11,
                  SELECTION_ON_TILE_SET_LAYER = 11,
-                 MENU_LAYER                  = 12,
+                 MENU_BG_LAYER               = 12,
+                 MENU_TEXT_LAYER             = 13,
                  MOUSE_LAYER                 = 13;
 
     class Edit : public Object {
@@ -142,10 +143,9 @@ export namespace state {
 
         std::vector<I32> m_menu_up_bar_bg_sprite_ids;
 
-        std::string                     m_menu_up_labels[2] = { "Open ", "Import" };
+        std::string      m_menu_up_labels[2] = { "Open ", "Import" };
 
         //std::vector<menu::Label> m_menu_labels;
-
 
         std::map<std::string, menu::List> m_menu_up_lists;
 
@@ -162,7 +162,7 @@ export namespace state {
         
         bool m_is_moving               = false,
              m_is_mouse_on_menu_up_bar = false, m_is_mouse_on_menu_up_list = false, m_is_mouse_on_menu_down = false,
-             m_is_hidden_menu_down     = false, m_is_hidden_menu_right     = false,
+             m_is_hidden_menu_up       =  true, m_is_hidden_menu_down      = false, m_is_hidden_menu_right  = false,
              m_is_hidden_grid          = false, m_is_hidden_grid_map       = true,
              m_is_showing_tile_set     = false,
              m_is_typing_text_bar      = false;
@@ -269,54 +269,6 @@ export namespace state {
 
         void update(cF32 ts) override;
 
-        void draw(std::unique_ptr<Window>& window, cU8 layer) override {
-            if (sprite::layer(m_menu_down_bg_sprite_id) == layer)             sprite::draw(window, m_menu_down_bg_sprite_id);
-            if (sprite::layer(m_menu_right_bg_sprite_id) == layer)            sprite::draw(window, m_menu_right_bg_sprite_id);
-            if (sprite::layer(m_position_on_grid_map_sprite_id) == layer)     sprite::draw(window, m_position_on_grid_map_sprite_id);
-            if (sprite::layer(m_save_sprite_id) == layer)                     sprite::draw(window, m_save_sprite_id);
-            if (sprite::layer(m_tile_set_bg_sprite_id) == layer)              sprite::draw(window, m_tile_set_bg_sprite_id);
-            if (sprite::layer(m_tile_set_sprite_id) == layer)                 sprite::draw(window, m_tile_set_sprite_id);
-            if (sprite::layer(m_current_tile_sprite_id) == layer)             sprite::draw(window, m_current_tile_sprite_id);
-            if (sprite::layer(m_grid_icon_sprite_id) == layer)                sprite::draw(window, m_grid_icon_sprite_id);
-            if (sprite::layer(m_active_layer_sprite_id) == layer)             sprite::draw(window, m_active_layer_sprite_id);
-            if (sprite::layer(m_text_bar_bg_sprite_id) == layer)              sprite::draw(window, m_text_bar_bg_sprite_id);
-            if (sprite::layer(m_text_current_tile_set_bg_sprite_id) == layer) sprite::draw(window, m_text_current_tile_set_bg_sprite_id);
-
-            for (auto& i : m_is_hidden_layer_sprite_ids)       if (sprite::layer(i) == layer) sprite::draw(window, i);            
-            for (auto& i : m_mouse_sprite_ids)                 if (sprite::layer(i) == layer) sprite::draw(window, i);            
-            for (auto& i : m_selection_on_tile_set_sprite_ids) if (sprite::layer(i) == layer) sprite::draw(window, i);            
-            for (auto& i : m_selection_on_level_sprite_ids)    if (sprite::layer(i) == layer) sprite::draw(window, i);            
-            for (auto& i : m_moving_sprite_ids)                if (sprite::layer(i) == layer) sprite::draw(window, i);            
-            for (auto& i : m_grid_sprite_ids)                  if (sprite::layer(i) == layer) sprite::draw(window, i);
-            for (auto& i : m_grid_map_sprite_ids)              if (sprite::layer(i) == layer) sprite::draw(window, i);
-
-            if (m_is_mouse_on_menu_up_bar || m_is_mouse_on_menu_up_list) {
-                for (auto& i : m_menu_up_bar_bg_sprite_ids) {
-                    if (sprite::layer(i) == layer) sprite::draw(window, i);
-                }
-                for (auto& text_label : m_menu_up_bar) {
-                    if (text_label && text_label->layer() == layer) {
-                        text_label->draw(window);
-                    }
-                }
-            }
-            if (m_text_current_tile_set.layer() == layer) {
-                m_text_current_tile_set.draw(window);
-            }
-            if (m_text_bar.layer() == layer) {
-                m_text_bar.draw(window);
-            }
-            if (m_info_message.layer() == layer) {
-                m_info_message.draw(window);
-            }
-
-            for (auto& i : m_level_sprite_ids) {
-                if (sprite::layer(i) == layer) sprite::draw(window, i);
-            }
-
-            for (auto& i : m_menu_up_lists) {
-                i.second.draw(window);
-            }
-        }
+        void draw(std::unique_ptr<Window>& window, cU8 layer) override;
     };
 }

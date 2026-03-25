@@ -61,7 +61,8 @@ namespace entity {
                     other_type == Type::clip ||
                     other_type == Type::clip_D ||
                     other_type == Type::clip_LD ||
-                    other_type == Type::clip_RD) {
+                    other_type == Type::clip_RD ||
+                    other_type == Type::clip_ledge) {
                     sound_position("bump_head", { position().x / (WINDOW_W / 2.0F), position().y / (WINDOW_H / 2.0F) });
                     sound_play("bump_head");
                 }
@@ -388,7 +389,7 @@ namespace entity {
             m_is_on_ground = true;
             m_is_on_slope = other_type == Type::slope_U;
         }
-        else if (is_coin(other_type)) {
+        else if (other_type == Type::coin) {
             collide_x(our, other);
         }
         else if (is_conduit(other_type)) { }
@@ -795,12 +796,36 @@ namespace entity {
 
             if (is_to_splash) {
                 console::log(class_name(), "::collide_y() is upwards: ", is_upwards, " velocity y: ", velocity().y, "\n");
-                Vec2F pos = Vec2F{ our_rect.x, other_rect.y };
+                Vec2F pos = Vec2F{ our_rect.x + 4.0F, other_rect.y };
+                particle::spawn_fan(this,
+                                    205.0F, 335.0F, 12,
+                                    particle::Type::drop, pos + Vec2F{ 0.0F, is_upwards ? -15.0F : -8.0F },
+                                    Vec2F{ velocity().x * 0.9F, -std::abs(velocity().y * 0.1F) },
+                                    is_upwards ? 2.3F : 2.1F);
+
+                particle::spawn_fan(this,
+                                    205.0F, 335.0F, 11,
+                                    particle::Type::drop, pos + Vec2F{ 0.0F, is_upwards ? -14.0F : -7.0F },
+                                    Vec2F{ velocity().x * 0.9F, -std::abs(velocity().y * 0.1F) },
+                                    is_upwards ? 2.2F : 2.0F);
+
+                particle::spawn_fan(this,
+                                    215.0F, 325.0F, 10,
+                                    particle::Type::drop, pos + Vec2F{ 0.0F, is_upwards ? -13.0F : -6.0F },
+                                    Vec2F{ velocity().x * 0.9F, -std::abs(velocity().y * 0.1F) },
+                                    is_upwards ? 2.1F : 1.9F);
+
+                particle::spawn_fan(this,
+                                    225.0F, 315.0F, 9,
+                                    particle::Type::drop, pos + Vec2F{ 0.0F, is_upwards ? -12.0F : -5.0F },
+                                    Vec2F{ velocity().x * 0.9F, -std::abs(velocity().y * 0.1F) },
+                                    is_upwards ? 2.0F : 1.8F);
+
                 particle::spawn_fan(this,
                                     225.0F, 315.0F, 8,
-                                    particle::Type::drop, pos + Vec2F{ 0.0F, is_upwards ? -14.0F : -12.0F },
+                                    particle::Type::drop, pos + Vec2F{ 0.0F, is_upwards ? -11.0F : -4.0F },
                                     Vec2F{ velocity().x * 0.9F, -std::abs(velocity().y * 0.1F) },
-                                    is_upwards ? 2.0F : 1.75F);
+                                    is_upwards ? 1.9F : 1.7F);
             }
 
         }

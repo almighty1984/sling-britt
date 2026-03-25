@@ -152,7 +152,7 @@ export namespace entity {
         virtual void draw(std::unique_ptr<Window>& window) {
             sprite::draw(window, m_sprite_id);
         }
-        virtual void draw_debug(std::unique_ptr<Window>& window);
+        virtual void draw_aabb(std::unique_ptr<Window>& window);
 
         bool add_input(Object* object) {
             if (m_input_objects.size() >= m_input_limit ||

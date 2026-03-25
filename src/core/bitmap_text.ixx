@@ -13,21 +13,36 @@ import types;
 import window;
 
 export class BitmapText : public transform::Trait {
-    U8  m_layer = 0,
+    bool m_is_hidden = false;
+
+    U8  m_layer     = 0,
         m_font_size = 8;
 
     Vec2F               m_offset        = {  0.0F,  0.0F },
                         m_start_offset  = { -1.0F, -1.0F };
     std::string         m_text;
-    std::vector<I32>    m_sprite_ids;
 
     std::filesystem::path m_texture_path = "res/texture/font_8_gray.png";
+    std::vector<I32>    m_sprite_ids;
 
-    bool   m_is_hidden = false;
 public:
     BitmapText() {
         m_transform_id = transform::make();
     }
+    //BitmapText(const BitmapText& other) {
+    //    m_is_hidden = other.m_is_hidden;
+    //    m_layer = other.m_layer;
+    //    m_font_size = other.m_font_size;
+    //    m_offset = other.m_offset;
+    //    m_start_offset = other.m_start_offset;
+    //    m_text = other.m_text;
+    //    m_texture_path = other.m_texture_path;
+    //    m_sprite_ids = other.m_sprite_ids; // TODO: create new sprites
+    //}
+    //BitmapText(const BitmapText&& other) {
+    //    m_sprite_ids = other.m_sprite_ids;
+    //    //other.m_sprite_ids.clear();
+    //}
     ~BitmapText() {
         clear_text();
         transform::erase(m_transform_id);
@@ -35,13 +50,13 @@ public:
     U8 layer()         const { return m_layer;        } void layer(cU8 l)         { m_layer        = l; }
     U8 font_size()     const { return m_font_size;    } void font_size(cU8 s)     { m_font_size    = s; }
     
-    void transform_id(cI32 id) override {
+    /*void transform_id(cI32 id) override {
         transform::erase(m_transform_id);
         m_transform_id = id;
         for (auto& i : m_sprite_ids) {
             sprite::transform_id(i, id);
         }
-    }
+    }*/
     std::filesystem::path texture_path() const { return m_texture_path; }
     void texture(const std::filesystem::path path) {
         if (path == m_texture_path) return;

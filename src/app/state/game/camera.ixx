@@ -1,6 +1,7 @@
 module;
 #include <set>
 export module camera;
+import app.config;
 import console;
 import random;
 import transform;
@@ -17,7 +18,7 @@ U16 time_to_shake = 0;
 
 export namespace camera {
     I32   focus_transform = -1;
-    Vec2F focal_point = { WINDOW_W / 2.0F, WINDOW_H / 2.0F };
+    Vec2F focal_point = { app::config::window_size().x / 2.0F, app::config::window_size().y / 2.0F };
     Vec2F speed = { 0.0625f, 0.0625f };
     Vec2F position = { 0.0F, 0.0F };
     Vec2F difference = { 0.0F, 0.0F };
@@ -44,12 +45,14 @@ export namespace camera {
         position = p;
         if (position.x < 0.0F) {
             position.x = 0.0F;
-        } else if (position.x > level_scroll_limit.x) {
+        }
+        else if (position.x > level_scroll_limit.x) {
             position.x = level_scroll_limit.x;
         }
         if (position.y < 0.0F) {
             position.y = 0.0F;
-        } else if (position.y > level_scroll_limit.y) {
+        }
+        else if (position.y > level_scroll_limit.y) {
             position.y = level_scroll_limit.y;
         }
 
@@ -83,7 +86,7 @@ export namespace camera {
         shake_min.y *= (1.0F - sum_shake_dec);
         shake_max.y *= (1.0F - sum_shake_dec);
 
-        console::log("sum_shake_dec: ", sum_shake_dec, "\n");
+        console::log("camera::shake() sum_shake_dec: ", sum_shake_dec, "\n");
         sum_shake_dec += shake_dec;
         if (sum_shake_dec > 1.0F) {
             sum_shake_dec = 1.0F;
@@ -109,19 +112,22 @@ export namespace camera {
             --time_left_shaking;
 
             
-        } else {
+        }
+        else {
             focus_offset *= {0.5F, 0.5F};
         }
 
         if (focal_point.x < 80.0F) {
             focal_point.x = 80.0F;
-        } else if (focal_point.x > WINDOW_W - 80.0F) {
-            focal_point.x = WINDOW_W - 80.0F;
+        }
+        else if (focal_point.x > app::config::window_size().x - 80.0F) {
+            focal_point.x = app::config::window_size().x - 80.0F;
         }
         if (focal_point.y < 48.0F) {
             focal_point.y = 48.0F;
-        } else if (focal_point.y > WINDOW_H - 48.0F) {
-            focal_point.y = WINDOW_H - 48.0F;
+        }
+        else if (focal_point.y > app::config::window_size().y - 48.0F) {
+            focal_point.y = app::config::window_size().y - 48.0F;
         }
 
         //difference = { 0.0F, 0.0F };
@@ -139,7 +145,8 @@ export namespace camera {
                 // slow down at level edges
                 if (difference.x < 0.0F && position.x < difference.x * -10.0F) {
                     difference.x = -position.x / 20.0F;
-                } else if (difference.x > 0.0F && position.x > level_scroll_limit.x - difference.x * 10.0F) {
+                }
+                else if (difference.x > 0.0F && position.x > level_scroll_limit.x - difference.x * 10.0F) {
                     difference.x = -(position.x - level_scroll_limit.x) / 20.0F;
                 }
             }
@@ -155,13 +162,16 @@ export namespace camera {
 
             if (difference.y < 0.0F && position.y <= 0.0F) {
                 difference.y = -position.y;
-            } else if (difference.y > 0.0F && position.y >= level_scroll_limit.y) {
+            }
+            else if (difference.y > 0.0F && position.y >= level_scroll_limit.y) {
                 difference.y = level_scroll_limit.y - position.y;
-            } else {
+            }
+            else {
                 // slow down at level edges
                 if (difference.y < 0.0F && position.y < difference.y * -10.0F) {
                     difference.y = -position.y / 20.0F;
-                } else if (difference.y > 0.0F && position.y > level_scroll_limit.y - difference.y * 10.0F) {
+                }
+                else if (difference.y > 0.0F && position.y > level_scroll_limit.y - difference.y * 10.0F) {
                     difference.y = -(position.y - level_scroll_limit.y) / 20.0F;
                 }
             }

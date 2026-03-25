@@ -53,17 +53,18 @@ namespace entity {
                 velocity_x(velocity().x * -0.9F);
                 hurt(other.owner);
             }
-        } else if (other_type == Type::brick) {
+        }
+        else if (other_type == Type::brick) {
             position_add_x(-overlap_x);
             moved_velocity_x(0.0F);
 
             if (m_state == State::tossed) {
                 //if (!m_is_on_ground && std::abs(our_velocity.x - other_velocity.x) >= m_break_velocity.x) {
+                other.owner->hurt(this);
+                hurt(other.owner);
                 velocity_x(our_velocity.x * -0.5F);
                 other.owner->velocity_x(our_velocity.x * 0.5F);
 
-                hurt(other.owner);
-                other.owner->hurt(this);
                 return;
             }
             if (std::abs(other_velocity.x) > std::abs(our_velocity.x)) {

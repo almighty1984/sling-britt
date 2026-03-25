@@ -19,8 +19,7 @@ import aabb.config;
 import anim.config;
 
 namespace entity {
-    void Object::draw_debug(std::unique_ptr<Window>& window) {
-        sprite::draw(window, m_sprite_id);
+    void Object::draw_aabb(std::unique_ptr<Window>& window) {        
         for (auto& i : m_aabb_ids) {
             aabb::draw(window, i);
         }

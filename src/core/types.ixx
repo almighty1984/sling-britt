@@ -4,7 +4,6 @@ module;
 #include <map>
 
 export module types;
-
 export using   U8 =       unsigned char;
 export using  cU8 = const unsigned char;
 export using  U16 =       unsigned short;
@@ -13,7 +12,6 @@ export using  U32 =       unsigned int;
 export using cU32 = const unsigned int;
 export using  U64 =       unsigned long;
 export using cU64 = const unsigned long;
-
 export using   I8 =       char;
 export using  cI8 = const char;
 export using  I16 =       short;
@@ -22,20 +20,16 @@ export using  I32 =       int;
 export using cI32 = const int;
 export using  I64 =       long;
 export using cI64 = const long;
-
 export using  F32 =       float;
 export using cF32 = const float;
 export using  F64 =       double;
 export using cF64 = const double;
 
-export constexpr U16 WINDOW_W = 320;
-export constexpr U16 WINDOW_H = 180;
-
-export constexpr U16 U16_MAX = -1;
-//export constexpr cU8 NUM_LAYERS = 2;
-
-export constexpr U8 NUM_VISIBLE_LAYERS = 15;
-export constexpr U8 NUM_LEVEL_LAYERS = 10;
+export constexpr U16 WINDOW_W           =   320;
+export constexpr U16 WINDOW_H           =   240;
+export constexpr U16 U16_MAX            = 65535;
+export constexpr  U8 NUM_VISIBLE_LAYERS =    15;
+export constexpr  U8 NUM_LEVEL_LAYERS   =    10;
 
 export namespace aabb {
     enum class Name {
@@ -189,7 +183,7 @@ export namespace entity {
         arch_L_1x1, arch_R_1x1, arch_L_2x1_0, arch_L_2x1_1, arch_R_2x1_0, arch_R_2x1_1,
         brick, bridge, bug,
         clip, clip_D, clip_LD, clip_RD, clip_L, clip_R, clip_ledge, clip_U,
-        coin_0,
+        coin,
         conduit_UD, conduit_LR,
         conduit_corner_UL, conduit_corner_UR, conduit_corner_DL, conduit_corner_DR,
         conduit_L_1x1_0, conduit_L_1x1_1, conduit_R_1x1_0, conduit_R_1x1_1,
@@ -248,10 +242,7 @@ export namespace entity {
             t == Type::conduit_L_2x1_0 || t == Type::conduit_L_2x1_1 || t == Type::conduit_R_2x1_0 || t == Type::conduit_R_2x1_1
             ;
     }
-    bool is_coin(cType t) {
-        return t == Type::coin_0;
-    }
-
+    
     bool is_grass_0(cType t) { return t == Type::grass_0 || t == Type::grass_0_L_1x1 || t == Type::grass_0_R_1x1 || t == Type::grass_0_L_2x1_0 || t == Type::grass_0_L_2x1_1 || t == Type::grass_0_R_2x1_0 || t == Type::grass_0_R_2x1_1; }
     bool is_grass_1(cType t) { return t == Type::grass_1 || t == Type::grass_1_L_1x1 || t == Type::grass_1_R_1x1 || t == Type::grass_1_L_2x1_0 || t == Type::grass_1_L_2x1_1 || t == Type::grass_1_R_2x1_0 || t == Type::grass_1_R_2x1_1; }
     bool is_grass_2(cType t) { return t == Type::grass_2 || t == Type::grass_2_L_1x1 || t == Type::grass_2_R_1x1 || t == Type::grass_2_L_2x1_0 || t == Type::grass_2_L_2x1_1 || t == Type::grass_2_R_2x1_0 || t == Type::grass_2_R_2x1_1; }
@@ -271,6 +262,10 @@ export namespace entity {
     }
     bool is_water_line(cType t) { return t == Type::water_line || t == Type::water_line_L || t == Type::water_line_R; }
 
+    bool is_coin(const std::string& s) {
+        return !s.empty() && s.size() > 3 && s.substr(0, 4) == "coin";
+    }
+
     const std::map<std::string, Type> string_to_entity_type_map{
         { "arch_L_1x1"           , Type::arch_L_1x1           },
         { "arch_R_1x1"           , Type::arch_R_1x1           },
@@ -289,7 +284,7 @@ export namespace entity {
         { "clip_RD"              , Type::clip_RD              },
         { "clip_ledge"           , Type::clip_ledge           },
         { "clip_U"               , Type::clip_U               },
-        { "coin_0"               , Type::coin_0               },
+        { "coin"                 , Type::coin                 },
         { "conduit_trigger_UL"   , Type::conduit_trigger_UL   },
         { "conduit_trigger_UR"   , Type::conduit_trigger_UR   },
         { "conduit_UD"           , Type::conduit_UD           },
@@ -414,7 +409,7 @@ export namespace entity {
             case Type::clip_RD:              return "clip_RD";
             case Type::clip_ledge:           return "clip_ledge";
             case Type::clip_U:               return "clip_U";
-            case Type::coin_0:               return "coin_0";
+            case Type::coin:                 return "coin";
             case Type::conduit_trigger_UL:   return "conduit_trigger_UL";
             case Type::conduit_trigger_UR:   return "conduit_trigger_UR";
             case Type::conduit_UD:           return "conduit_UD";
@@ -516,6 +511,22 @@ export namespace entity {
             default:                         return "";
         }
     }
+    U16 number_in_type(cType t) {
+        auto type_str = to_string(t);
+        while (type_str.find('_') != std::string::npos) {
+            size_t pos = type_str.find('_');
+            type_str.erase(0, pos + 1);
+        }
+        return std::stoi(type_str);
+    }
+    U16 number_in_type(std::string& t) {        
+        while (t.find('_') != std::string::npos) {
+            size_t pos = t.find('_');
+            t.erase(0, pos + 1);
+        }
+        return std::stoi(t);
+    }
+
     enum class State {
         none = 0,
         blocked, bounce,
@@ -640,23 +651,25 @@ export namespace input {
 
 export namespace state {
     enum class Type {
-        none = 0, edit, game, menu, overlay
+        none = 0, edit, game, menu_options, menu_start, overlay
     };
     using cType = const Type;
     Type type_from(const std::string_view& s) {
-        if      (s == "edit")    return Type::edit;
-        else if (s == "game")    return Type::game;
-        else if (s == "menu")    return Type::menu;
-        else if (s == "overlay") return Type::overlay;
+        if      (s == "edit")         return Type::edit;
+        else if (s == "game")         return Type::game;
+        else if (s == "menu_options") return Type::menu_options;
+        else if (s == "menu_start")   return Type::menu_start;
+        else if (s == "overlay")      return Type::overlay;
         return Type::none;
     }
     const std::string to_string(cType t) {
         switch (t) {
-        case Type::edit:    return "edit";    break;
-        case Type::game:    return "game";    break;
-        case Type::menu:    return "menu";    break;
-        case Type::overlay: return "overlay"; break;
-        default:            return "";        break;
+        case Type::edit:         return "edit";         break;
+        case Type::game:         return "game";         break;
+        case Type::menu_options: return "menu_options"; break;
+        case Type::menu_start:   return "menu_start";   break;
+        case Type::overlay:      return "overlay";      break;
+        default:                 return "";             break;
         }
     }
 }

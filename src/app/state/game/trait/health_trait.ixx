@@ -15,6 +15,6 @@ export namespace health {
         F32 health_amount() const { return health::amount(m_health_id); } void health_amount(cF32 a) { health::amount(m_health_id, a); }
         F32 health_max()    const { return health::max(m_health_id);    } void health_max(cF32 m)    { health::max(m_health_id, m);    }
         void health_reset()            { health::reset(m_health_id); }
-        void health_add_amount(cF32 a) { health::add_amount(m_health_id, a); }
+        void health_amount_add(cF32 a) { health::amount_add(m_health_id, a); }
     };
 }

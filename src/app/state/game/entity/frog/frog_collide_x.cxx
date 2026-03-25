@@ -101,7 +101,7 @@ namespace entity {
             }
         }
         else if (other_type == Type::particle_health) {
-            if (health::is_full(m_health_id) || m_state == State::heal) return;
+            if (health::is_max(m_health_id) || m_state == State::heal) return;
 
             m_next_state = State::heal;
             m_time_left_in_next_state = 200;

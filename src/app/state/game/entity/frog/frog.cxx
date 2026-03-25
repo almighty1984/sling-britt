@@ -17,10 +17,13 @@ namespace entity {
             m_sensed_objects.emplace_back(culprit);
 
             //velocity() = culprit->velocity() * 0.25F;
-            cF32 amount = std::abs(culprit->velocity().x) * 4.0F;
-            health::add_amount(m_health_id, -amount);
+            cF32 amount = std::abs(culprit->velocity().x * culprit->velocity().y) * 2.0F;
+
+            console::warning("entity::Frog::hurt() amount: ", amount, "\n");
+            health_amount_add(-amount);
             //health::get(m_health_id)->amount -= 32.0F;
-            m_next_state = State::hurt;
+
+            m_next_state = health_amount() > 0.0F ? State::hurt : State::dead;
         }
         else if (culprit->type() == Type::particle_brick) {
             m_sensed_objects.clear();
@@ -29,7 +32,7 @@ namespace entity {
             cF32 amount = std::sqrtf(std::abs(culprit->velocity().x * culprit->velocity().y));
             //console::log("amount: ", amount, "\n");
 
-            health::add_amount(m_health_id, -amount);
+            health_amount_add(-amount);
             m_next_state = State::hurt;
         }
         else if (culprit->type() == Type::particle_down_thrust) {
@@ -44,7 +47,7 @@ namespace entity {
             m_sensed_objects.emplace_back(culprit->parent());
 
             velocity(culprit->velocity() * 0.25F);
-            health::add_amount(m_health_id, -8.0f);
+            health_amount_add(-8.0f);
             m_next_state = State::hurt;
         }
         else if (culprit->type() == Type::player) {
@@ -64,7 +67,7 @@ namespace entity {
             }
             else if (culprit->state() == State::sling) {
                 m_sensed_objects.clear();
-                health_add_amount(-8.0f);
+                health_amount_add(-8.0f);
                 m_next_state = State::stunned;
                 m_time_to_be_in_state = 20;
 
@@ -172,7 +175,7 @@ namespace entity {
         //console::log("entity::Frog::state_heal() health: ", health::amount(m_health_id), " ", m_time_left_in_state, "\n");
         if (m_time_left_in_state > 0) {
             --m_time_left_in_state;
-            health::add_amount(m_health_id, 0.1F);
+            health::amount_add(m_health_id, 0.1F);
 
             cVec2F tounge_vector = m_tounge_end - m_tounge_start;
             cF32 tounge_length = line::length(tounge_vector);
@@ -183,7 +186,7 @@ namespace entity {
                 line::set(m_tounge_line_id, m_tounge_start, m_tounge_end);
             }
         }
-        if (m_time_left_in_state == 0 || health::is_full(m_health_id)) {
+        if (m_time_left_in_state == 0 || health::is_max(m_health_id)) {
             m_next_state = State::idle;
         }
     }

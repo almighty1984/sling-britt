@@ -149,7 +149,7 @@ namespace state {
         m_text_current_tile_set.is_hidden(true);
            
         for (auto& i : m_is_hidden_layer_sprite_ids) {
-            sprite::layer(i, MENU_LAYER);
+            sprite::layer(i, MENU_TEXT_LAYER);
         }
         sprite::is_hidden(m_active_layer_sprite_id, false);
         sprite::is_hidden(m_save_sprite_id, false);

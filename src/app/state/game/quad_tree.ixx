@@ -26,7 +26,7 @@ cF32 size_at_depth(cU8 d) {
 export class QuadTreeNode {
     static inline U16 s_max_depth   = 4, s_max_objects = 4,
                       s_window_w    = 0, s_window_h    = 0;
-    static inline U8  s_layer       = 0;
+    static inline U8  s_layer       = NUM_VISIBLE_LAYERS - 1;
     
     bool m_is_parent = false;
     
@@ -117,6 +117,24 @@ public:
                 m_child[i]->draw(window);
             }
         }
+
+        Color c = { 0 };
+        for (int i = 0; i < depth; ++i) {
+            c.r += 5;
+            c.g += 5;
+            c.b += 5;
+        }
+        line::color(m_up_line_id,    c);
+        line::color(m_down_line_id,  c);
+        line::color(m_left_line_id,  c);
+        line::color(m_right_line_id, c);
+
+        line::update(m_up_line_id);
+        line::update(m_down_line_id);
+        line::update(m_left_line_id);
+        line::update(m_right_line_id);
+
+
         line::draw(window, m_up_line_id);
         line::draw(window, m_down_line_id);
         line::draw(window, m_left_line_id);
@@ -210,10 +228,6 @@ public:
         line::layer(m_down_line_id, s_layer);
         line::layer(m_left_line_id, s_layer);
         line::layer(m_right_line_id, s_layer);
-        line::is_debug(m_up_line_id, true);
-        line::is_debug(m_down_line_id, true);
-        line::is_debug(m_left_line_id, true);
-        line::is_debug(m_right_line_id, true);
         
         //console::log("layer: ", (int)layer, "\n");
     }    

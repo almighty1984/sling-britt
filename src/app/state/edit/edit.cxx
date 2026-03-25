@@ -58,12 +58,12 @@ namespace state {
 
         console::log("state::Edit::Edit bg_h: ", m_menu_up_lists[m_menu_up_labels[0]].bg_h, "\n");
 
-        sprite::layer(m_menu_up_lists[m_menu_up_labels[0]].bg_sprite_id, MENU_LAYER);
+        sprite::layer(m_menu_up_lists[m_menu_up_labels[0]].bg_sprite_id, MENU_BG_LAYER);
         sprite::transform_id(m_menu_up_lists[m_menu_up_labels[0]].bg_sprite_id, m_menu_up_lists[m_menu_up_labels[0]].transform_id);
 
         m_menu_up_lists[m_menu_up_labels[1]].transform_id = transform::make();
         m_menu_up_lists[m_menu_up_labels[1]].bg_sprite_id = sprite::make("res/texture/editor_menu_bg.png");        
-        sprite::layer(m_menu_up_lists[m_menu_up_labels[1]].bg_sprite_id, MENU_LAYER);
+        sprite::layer(m_menu_up_lists[m_menu_up_labels[1]].bg_sprite_id, MENU_TEXT_LAYER);
         sprite::transform_id(m_menu_up_lists[m_menu_up_labels[1]].bg_sprite_id, m_menu_up_lists[m_menu_up_labels[1]].transform_id);
 
         load_menu_up_list(m_menu_up_labels[0], std::filesystem::current_path() / "res" / "level");
@@ -74,18 +74,18 @@ namespace state {
         m_menu_down_bg_sprite_id = sprite::make("res/texture/editor_menu_bg.png");
         sprite::offset(m_menu_down_bg_sprite_id, { 0.0F, 0.0F });
         sprite::source_rect(m_menu_down_bg_sprite_id, { 0, 0, 512, 32 });
-        sprite::layer(m_menu_down_bg_sprite_id, MENU_LAYER);
+        sprite::layer(m_menu_down_bg_sprite_id, MENU_BG_LAYER);
         sprite::transform_id(m_menu_down_bg_sprite_id, m_menu_down_transform_id);
 
         m_current_tile_sprite_id = sprite::make(tile_set_texture_path(0));
         sprite::source_rect(m_current_tile_sprite_id, { 0, 0, 16, 16 });
-        sprite::layer(m_current_tile_sprite_id, MENU_LAYER + 1);
+        sprite::layer(m_current_tile_sprite_id, MENU_TEXT_LAYER);
         sprite::transform_id(m_current_tile_sprite_id, m_menu_down_transform_id);
         sprite::offset_x(m_current_tile_sprite_id, view().w - 32.0f);
 
         m_grid_icon_sprite_id = sprite::make("res/texture/editor_tile_grid.png");
         sprite::source_rect(m_grid_icon_sprite_id, { 0, 0, 16, 16 });
-        sprite::layer(m_grid_icon_sprite_id, MENU_LAYER + 1);
+        sprite::layer(m_grid_icon_sprite_id, MENU_TEXT_LAYER);
         sprite::transform_id(m_grid_icon_sprite_id, m_menu_down_transform_id);
 
         m_menu_right_transform_id = transform::make();
@@ -93,25 +93,25 @@ namespace state {
         m_menu_right_bg_sprite_id = sprite::make("res/texture/editor_menu_bg.png");
         sprite::offset(m_menu_right_bg_sprite_id, { 0, 0 });
         sprite::source_rect(m_menu_right_bg_sprite_id, { 0, 0, 32, 512 });
-        sprite::layer(m_menu_right_bg_sprite_id, MENU_LAYER);
+        sprite::layer(m_menu_right_bg_sprite_id, MENU_BG_LAYER);
         sprite::transform_id(m_menu_right_bg_sprite_id, m_menu_right_transform_id);
 
         m_save_sprite_id = sprite::make("res/texture/editor_save.png");
         sprite::offset(m_save_sprite_id, { 272.0F, 0.0F });
-        sprite::layer(m_save_sprite_id, MENU_LAYER);
+        sprite::layer(m_save_sprite_id, MENU_TEXT_LAYER);
         sprite::transform_id(m_save_sprite_id, m_menu_down_transform_id);
 
         m_active_layer_sprite_id = sprite::make("res/texture/editor_layer_active.png");
         sprite::offset(m_active_layer_sprite_id, { 0.0F, 0.0F });
         sprite::source_rect(m_active_layer_sprite_id, { 0, 0, 16, 16 });
-        sprite::layer(m_active_layer_sprite_id, MENU_LAYER);
+        sprite::layer(m_active_layer_sprite_id, MENU_TEXT_LAYER);
         sprite::transform_id(m_active_layer_sprite_id, m_menu_right_transform_id);
 
         for (U8 i = 0; i < 10; ++i) {
             m_is_hidden_layer_sprite_ids.emplace_back(sprite::make("res/texture/editor_layer_hidden.png"));
             sprite::offset(m_is_hidden_layer_sprite_ids.back(), { 16.0F, i * 16.0F });
             sprite::source_rect(m_is_hidden_layer_sprite_ids.back(), { 0, 0, 16, 16 });
-            sprite::layer(m_is_hidden_layer_sprite_ids.back(), MENU_LAYER);
+            sprite::layer(m_is_hidden_layer_sprite_ids.back(), MENU_TEXT_LAYER);
             sprite::transform_id(m_is_hidden_layer_sprite_ids.back(), m_menu_right_transform_id);
         }
 
@@ -119,12 +119,12 @@ namespace state {
         m_text_bar_bg_sprite_id = sprite::make("res/texture/editor_text_bar_bg.png");
         sprite::offset(m_text_bar_bg_sprite_id, { 0.0F, 0.0F });
         sprite::source_rect(m_text_bar_bg_sprite_id, { 0, 0, 272, 16 });
-        sprite::layer(m_text_bar_bg_sprite_id, MENU_LAYER);
+        sprite::layer(m_text_bar_bg_sprite_id, MENU_TEXT_LAYER);
         sprite::transform_id(m_text_bar_bg_sprite_id, m_menu_down_transform_id);
 
         m_text_bar.transform_id(m_menu_down_transform_id);
         m_text_bar.offset({ 0.0F, 4.0F });
-        m_text_bar.layer(MENU_LAYER + 1);
+        m_text_bar.layer(MENU_TEXT_LAYER);
         m_text_bar.texture("res/texture/font_8_black.png");
         m_text_bar.is_hidden(false);
         //m_text_bar.clear_text();
@@ -133,12 +133,12 @@ namespace state {
         m_text_current_tile_set_bg_sprite_id = sprite::make("res/texture/editor_text_current_tile_set_bg.png");
         sprite::offset(m_text_current_tile_set_bg_sprite_id, { 0.0F, 0.0F });
         sprite::source_rect(m_text_current_tile_set_bg_sprite_id, { 0, 0, 32, 16 });
-        sprite::layer(m_text_current_tile_set_bg_sprite_id, MENU_LAYER);
+        sprite::layer(m_text_current_tile_set_bg_sprite_id, MENU_BG_LAYER);
         sprite::transform_id(m_text_current_tile_set_bg_sprite_id, m_menu_right_transform_id);
         sprite::is_hidden(m_text_current_tile_set_bg_sprite_id, true);
 
         m_text_current_tile_set.transform_id(m_menu_right_transform_id);
-        m_text_current_tile_set.layer(MENU_LAYER);
+        m_text_current_tile_set.layer(MENU_TEXT_LAYER);
         m_text_current_tile_set.texture("res/texture/font_8_black.png");
         m_text_current_tile_set.is_hidden(true);
         m_text_current_tile_set.offset( {4.0F, 4.0F} );

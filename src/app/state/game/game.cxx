@@ -7,6 +7,7 @@ module;
 #include <mutex>
 
 module state.game;
+import state.game.save;
 import camera;
 import aabb;
 import console;
@@ -26,10 +27,13 @@ namespace state {
         m_state = m_next_state = Type::game;
         m_window_w = window_w, m_window_h = window_h;
 
+        console::warning("state::Game::Game() window extent: ", window_w, " ", window_h, "\n");
+        console::warning("state::Game::Game() view: ", view().w, " ", view().h, "\n");
+
         start_info(start);
 
-        console::log("state::Game() transform::size: ", transform::size(), "\n");
-        console::log("state::Game() transform::unused_size: ", transform::unused_size(), "\n");
+        console::log("state::Game::Game() transform::size: ", transform::size(), "\n");
+        console::log("state::Game::Game() transform::unused_size: ", transform::unused_size(), "\n");
 
         m_bg_planes.create(3, 1);
 
@@ -41,7 +45,7 @@ namespace state {
 
         transform::level_id(m_level_transform_id);
 
-        console::log("state::Game() m_level_transform_id: ", m_level_transform_id, "\n");
+        console::log("state::Game::Game() m_level_transform_id: ", m_level_transform_id, "\n");
 
         //console::log("level transform_id: ", m_level_transform_id, "\n");
 
@@ -49,8 +53,22 @@ namespace state {
         //m_entity_objects.back()->level_transform_id = m_level_transform_id;
         //m_entity_objects.back()->position(m_start_position);
 
+
+        state::game::current_level_path(level_path);
+        state::game::add_visited_level(level_path);
+
         load_level(level_path);
         m_level_path = level_path;
+
+        
+
+        for (auto& i : state::game::visited_levels()) {
+            console::log("state::Game::Game() visited level: ", i, "\n");
+        }
+
+        for (auto& i : state::game::picked_coins_in_current_level()) {
+            console::log("state::Game::Game() picked coins in current level: ", i, "\n");
+        }
 
         /*for (U8 i = 0; i < NUM_VISIBLE_LAYERS; ++i) {
             add_visible_layer(i);

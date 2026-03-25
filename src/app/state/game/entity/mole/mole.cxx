@@ -15,11 +15,11 @@ namespace entity {
         m_time_left_hurt = m_time_to_hurt;
 
         if (culprit->type() == Type::brick) {
-            health_add_amount(-health_max());
+            health_amount_add(-health_max());
             m_next_state = State::enter;
         }
         else if (culprit->type() == Type::particle_brick) {
-            health_add_amount(-1.0f);
+            health_amount_add(-1.0f);
             m_next_state = State::enter;
         }
         else if (culprit->type() == Type::particle_down_thrust) {
@@ -31,7 +31,7 @@ namespace entity {
 
                 velocity_x(vel_x);
             }
-            health_add_amount(-1.0f);
+            health_amount_add(-1.0f);
             m_next_state = State::jump;
         }
         else if (culprit->type() == Type::particle_melee) {
@@ -45,10 +45,10 @@ namespace entity {
                 }
                 //velocity_y(-1.0F);
             }
-            health_add_amount(-16.0f);
+            health_amount_add(-16.0f);
         }
         else {
-            health_add_amount(-8.0f);
+            health_amount_add(-8.0f);
             m_next_state = State::enter;
         }
         sprite_is_leftward(!sprite_is_leftward());
@@ -187,7 +187,7 @@ namespace entity {
                     } else {
                         m_time_left_to_react = random::number(10, 40);
                     }
-                    console::log(class_name(), "::idle() sensed: ", to_string(i->type()), " time left to react : ", m_time_left_to_react, "\n");
+                    //console::log(class_name(), "::idle() sensed: ", to_string(i->type()), " time left to react : ", m_time_left_to_react, "\n");
                 }
             }
         }
