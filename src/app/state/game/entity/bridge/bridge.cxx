@@ -1,6 +1,3 @@
-module;
-#include <sstream>
-
 module entity.bridge;
 import aabb;
 import console;
@@ -27,7 +24,7 @@ namespace entity {
         cVec2F other_velocity = other.owner->velocity() + other.owner->moved_velocity();
 
 
-        if (other_type == Type::player || other_type == Type::brick || other_type == Type::bug || other_type == Type::frog) {
+        if (other_type == Type::player or other_type == Type::brick or other_type == Type::bug or other_type == Type::frog) {
             if (other.owner->velocity().y > 0.0F) {
                                 
                 //console::log("start position: ", start_position_on_level().y, "\n");
@@ -38,22 +35,22 @@ namespace entity {
                 
                 m_start_offset.y = 2.0F;
                 
-                /*if (m_is_near_wall_L || m_is_near_wall_R) {
+                /*if (m_is_near_wall_L or m_is_near_wall_R) {
                     m_start_offset.y *= 0.5F;
                 }
                 else {
                     for (auto& i : m_input_objects) {
-                        if (!i || i->is_near_wall_L() || i->is_near_wall_R()) continue;
+                        if (!i or i->is_near_wall_L() or i->is_near_wall_R()) continue;
                         i->start_offset({ 0.0F, m_start_offset.y * 1.0F });
                         i->time_in_state(0);
 
                         for (auto& ii : i->m_input_objects) {
-                            if (!ii || ii->is_near_wall_L() || ii->is_near_wall_R()) continue;
+                            if (!ii or ii->is_near_wall_L() or ii->is_near_wall_R()) continue;
                             ii->start_offset({ 0.0F, m_start_offset.y * 0.9F });
                             ii->time_in_state(0);
 
                             for (auto& iii : ii->m_input_objects) {
-                                if (!iii || iii->is_near_wall_L() || iii->is_near_wall_R()) continue;
+                                if (!iii or iii->is_near_wall_L() or iii->is_near_wall_R()) continue;
                                 iii->start_offset({ 0.0F, m_start_offset.y * 0.8F });
                                 iii->time_in_state(0);
                             }
@@ -106,7 +103,7 @@ namespace entity {
 
         
 
-        //if (m_is_near_wall_L || m_is_near_wall_R) {
+        //if (m_is_near_wall_L or m_is_near_wall_R) {
             //m_start_offset.y = 0.0F;
         //    //sprite::is_hidden(m_sprite_id, true);
         //}

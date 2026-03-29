@@ -1,6 +1,3 @@
-module;
-#include <sstream>
-
 export module entity.particle.down_thrust;
 import camera;
 import console;

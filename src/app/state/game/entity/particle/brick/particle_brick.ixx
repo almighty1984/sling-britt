@@ -1,8 +1,5 @@
-module;
-#include <cmath>
-#include <sstream>
-
 export module entity.particle.brick;
+import app.config;
 import console;
 import entity.particle;
 import aabb;
@@ -37,8 +34,8 @@ export namespace entity {
                 }
             }
 
-            if (velocity().x > acceleration().x || velocity().x < -acceleration().x ||
-                velocity().y > acceleration().y || velocity().y < -acceleration().y) {
+            if (velocity().x > acceleration().x or velocity().x < -acceleration().x or
+                velocity().y > acceleration().y or velocity().y < -acceleration().y) {
                 F32 radians = std::atan2(velocity().y, velocity().x);
                 if (radians < 0.0F) radians += (3.1415926535F * 2.0F);
 
@@ -47,8 +44,8 @@ export namespace entity {
                 sprite::angle(m_sprite_id, degrees);
             }
             
-            if (position().x < -8.0F || position().x > WINDOW_W ||
-                position().y < -8.0F || position().y > WINDOW_H) {
+            if (position().x < -8.0F or position().x > app::config::extent().x or
+                position().y < -8.0F or position().y > app::config::extent().y) {
                 m_is_to_erase = true;
             }
         }

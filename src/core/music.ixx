@@ -22,11 +22,11 @@ public:
 
 std::vector<std::unique_ptr<Music>> s_music;
 
-#define IS_VALID(i) i >= 0 && i < s_music.size() && s_music.at(i)
+#define IS_VALID(i) i >= 0 and i < s_music.size() and s_music.at(i)
 
 export namespace music {
     //std::unique_ptr<Music>& get(size_t i) { return s_music.at(i); }
-    bool    is_valid(size_t i) { return (i >= 0 && i < s_music.size() && s_music.at(i)) ? true : false; }
+    bool    is_valid(size_t i) { return (i >= 0 and i < s_music.size() and s_music.at(i)) ? true : false; }
     size_t  size() { return s_music.size(); }
 
     cI32 make(const std::filesystem::path& path) {
@@ -38,18 +38,18 @@ export namespace music {
     void play(cI32 i)               { if (IS_VALID(i))  s_music.at(i)->play();           }
     void stop(cI32 i)               { if (IS_VALID(i)) s_music.at(i)->stop();            }
     void pause(cI32 i)              { if (IS_VALID(i)) s_music.at(i)->pause();           }
-    bool is_looped(cI32 i)          { return IS_VALID(i) && s_music.at(i)->is_looped();  }
+    bool is_looped(cI32 i)          { return IS_VALID(i) and s_music.at(i)->is_looped();  }
     void is_looped(cI32 i, bool is) { if (IS_VALID(i)) s_music.at(i)->is_looped(is);     }
-    bool is_playing(cI32 i)         { return IS_VALID(i) && s_music.at(i)->is_playing(); }
+    bool is_playing(cI32 i)         { return IS_VALID(i) and s_music.at(i)->is_playing(); }
     void volume(cI32 i, cF32 v)     { if (IS_VALID(i)) s_music.at(i)->volume(v);         }
 
     bool erase(cI32 i) {
         if (i < 0) return false;
         console::log("music::erase ", i, "\n");
-        if (s_music.empty() || i > s_music.size() - 1 || !s_music.at(i)) {
+        if (s_music.empty() or i > s_music.size() - 1 or !s_music.at(i)) {
             return false;
         }
-        if (s_music.at(i) && s_music.at(i)->is_playing()) {
+        if (s_music.at(i) and s_music.at(i)->is_playing()) {
             s_music.at(i)->stop();
         }
         s_music.at(i).release();
@@ -57,7 +57,7 @@ export namespace music {
     }
     void clear() {  
         for (auto& i : s_music) {
-            if (i && i->is_playing()) {
+            if (i and i->is_playing()) {
                 i->stop();
             }
             i.release();

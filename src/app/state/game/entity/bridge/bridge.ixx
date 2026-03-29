@@ -1,6 +1,3 @@
-module;
-#include <cmath>
-#include <sstream>
 export module entity.bridge;
 import anim;
 import console;
@@ -12,7 +9,7 @@ export namespace entity {
     class Bridge : public Object {
     public:
         Bridge() {
-            m_state = m_next_state = m_start_state = State::idle;
+            m_state = m_next_state = m_start_state = state::Type::idle;
         }        
         void collide_x(aabb::cInfo our, aabb::cInfo other) override;
         void collide_y(aabb::cInfo our, aabb::cInfo other) override;
@@ -24,16 +21,7 @@ export namespace entity {
                 m_is_first_update = false;
             }
 
-            if (m_next_state != m_state) {
-                m_prev_state = m_state;
-                m_state = m_next_state;
-                m_is_first_state_update = true;
-            }
-
-            switch (m_state) {
-                case State::idle: state_idle(); break;
-                default:                        break;
-            }
+            state_update();
         }
     };
 }

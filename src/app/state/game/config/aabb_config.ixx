@@ -1,10 +1,8 @@
-module;
-#include <vector>
-#include <string>
 export module aabb.config;
 import aabb;
 import entity;
 import types;
+import std;
 
 export namespace aabb {
     bool parse_config(const std::string& text, entity::Object* owner) {
@@ -38,17 +36,17 @@ export namespace aabb {
                         // See if there's a name in front
                         size_t name_end = text.rfind("=", aabb_open);
 
-                        if (name_end > prev_endl && name_end != std::string::npos) {
+                        if (name_end > prev_endl and name_end != std::string::npos) {
                             //console::log("\n\nname end: ", text.at(name_end), "\n\n");
                             //--name_end;
-                            while (text.at(name_end - 1) == '	' || text.at(name_end - 1) == ' ') {
+                            while (text.at(name_end - 1) == '	' or text.at(name_end - 1) == ' ') {
                                 --name_end;
                                 //console::log("\nname end: ", text.at(name_end), "\n");
                                 //console::log("name_end: ", name_end, "\n");
                             }
                             if (name_end > prev_endl) {
                                 size_t name_start = name_end;
-                                while (text.at(name_start - 1) != '	' && text.at(name_start - 1) != ' ' && name_start > prev_endl) {
+                                while (text.at(name_start - 1) != '	' and text.at(name_start - 1) != ' ' and name_start > prev_endl) {
                                     --name_start;
                                 }
                                 const std::string aabb_name_str = text.substr(name_start, name_end - name_start);
@@ -59,22 +57,22 @@ export namespace aabb {
                             }
                         }
                         size_t value_0 = aabb_open + 1;
-                        while (text.at(value_0) == '	' || text.at(value_0) == ' ') ++value_0;
+                        while (text.at(value_0) == '	' or text.at(value_0) == ' ') ++value_0;
                         size_t comma_0 = text.find(",", value_0);
                         aabb_rect.x = std::stof(text.substr(value_0, comma_0 - value_0));
 
                         size_t value_1 = comma_0 + 1;
-                        while (text.at(value_1) == '	' || text.at(value_1) == ' ') ++value_1;
+                        while (text.at(value_1) == '	' or text.at(value_1) == ' ') ++value_1;
                         size_t comma_1 = text.find(",", value_1);
                         aabb_rect.y = std::stof(text.substr(value_1, comma_1 - value_1));
 
                         size_t value_2 = comma_1 + 1;
-                        while (text.at(value_2) == '	' || text.at(value_2) == ' ') ++value_2;
+                        while (text.at(value_2) == '	' or text.at(value_2) == ' ') ++value_2;
                         size_t comma_2 = text.find(",", value_2);
                         aabb_rect.w = std::stof(text.substr(value_2, comma_2 - value_2));
 
                         size_t value_3 = comma_2 + 1;
-                        while (text.at(value_3) == '	' || text.at(value_3) == ' ') ++value_3;
+                        while (text.at(value_3) == '	' or text.at(value_3) == ' ') ++value_3;
                         size_t comma_3 = text.find(",", value_3);
                         aabb_rect.h = std::stof(text.substr(value_3, comma_3 - value_3));
 
@@ -120,17 +118,17 @@ export namespace aabb {
                     if (color_close < end_line) {
                         size_t name_end = text.rfind("=", color_open);
 
-                        if (name_end > prev_endl && name_end != std::string::npos) {
+                        if (name_end > prev_endl and name_end != std::string::npos) {
                             //console::log("\n\nname end: ", text.at(name_end), "\n\n");
                             //--name_end;
-                            while (text.at(name_end - 1) == '	' || text.at(name_end - 1) == ' ') {
+                            while (text.at(name_end - 1) == '	' or text.at(name_end - 1) == ' ') {
                                 --name_end;
                                 //console::log("\nname end: ", text.at(name_end), "\n");
                                 //console::log("name_end: ", name_end, "\n");
                             }
                             if (name_end > prev_endl) {
                                 size_t name_start = name_end;
-                                while (text.at(name_start - 1) != '	' && text.at(name_start - 1) != ' ' && name_start > prev_endl) {
+                                while (text.at(name_start - 1) != '	' and text.at(name_start - 1) != ' ' and name_start > prev_endl) {
                                     --name_start;
                                 }
 
@@ -143,17 +141,17 @@ export namespace aabb {
                         }
 
                         size_t value_0 = color_open + 1;
-                        while (text.at(value_0) == '	' || text.at(value_0) == ' ') ++value_0;
+                        while (text.at(value_0) == '	' or text.at(value_0) == ' ') ++value_0;
                         size_t comma_0 = text.find(",", value_0);
                         aabb_color.r = std::stoi(text.substr(value_0, comma_0 - value_0));
 
                         size_t value_1 = comma_0 + 1;
-                        while (text.at(value_1) == '	' || text.at(value_1) == ' ') ++value_1;
+                        while (text.at(value_1) == '	' or text.at(value_1) == ' ') ++value_1;
                         size_t comma_1 = text.find(",", value_1);
                         aabb_color.g = std::stoi(text.substr(value_1, comma_1 - value_1));
 
                         size_t value_2 = comma_1 + 1;
-                        while (text.at(value_2) == '	' || text.at(value_2) == ' ') ++value_2;
+                        while (text.at(value_2) == '	' or text.at(value_2) == ' ') ++value_2;
                         size_t comma_2 = text.find(",", value_2);
                         aabb_color.b = std::stoi(text.substr(value_2, comma_2 - value_2));
 
@@ -163,7 +161,7 @@ export namespace aabb {
                     for (auto& aabb_id : owner->aabb_ids()) {
                         if (aabb::name(aabb_id) == aabb_name) {
                             aabb::color(aabb_id, aabb_color);
-                            aabb::start_color(aabb_id, aabb_color);
+                            //aabb::start_color(aabb_id, aabb_color);
                         }
                     }
                     //aabb_set_label = aabb_colors_close;

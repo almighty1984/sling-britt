@@ -61,16 +61,16 @@ private:
         return v;
     }
     Vec2F decelerate(Vec2F v, Vec2F amount) {
-        if (v.x != 0.0F && amount.x != 0.0F) {
-            if (v.x > 0.0F && v.x < amount.x || v.x < 0.0F && v.x > -amount.x) {
+        if (v.x != 0.0F and amount.x != 0.0F) {
+            if (v.x > 0.0F and v.x < amount.x or v.x < 0.0F and v.x > -amount.x) {
                 v.x = 0.0F;
             } else {
                 if (v.x > 0.0F) v.x -= amount.x;
                 else if (v.x < 0.0F) v.x += amount.x;
             }
         }
-        if (v.y != 0.0F && amount.y != 0.0F) {
-            if (v.y > 0.0F && v.y < amount.y || v.y < 0.0F && v.y > -amount.y) {
+        if (v.y != 0.0F and amount.y != 0.0F) {
+            if (v.y > 0.0F and v.y < amount.y or v.y < 0.0F and v.y > -amount.y) {
                 v.y = 0.0F;
             } else {
                 if (v.y > 0.0F) v.y -= amount.y;
@@ -87,13 +87,13 @@ std::vector<size_t>     s_unused_ids;
 I32 s_level_transform_id = -1;
 
 export namespace transform {
-    constexpr bool    is_valid(size_t i) { return (i >= 0 && i < s_transforms.size() && s_transforms.at(i)) ? true : false; }
+    constexpr bool    is_valid(size_t i) { return (i >= 0 and i < s_transforms.size() and s_transforms.at(i)) ? true : false; }
     size_t  size()        { return s_transforms.size(); }
     size_t  unused_size() { return s_unused_ids.size(); }
 
     I32  level_id()       { return s_level_transform_id; }
     void level_id(cI32 i) { s_level_transform_id = i; }
-    bool is_level(cI32 i) { return is_valid(i) && i == s_level_transform_id; }
+    bool is_level(cI32 i) { return is_valid(i) and i == s_level_transform_id; }
 
     I32 make() {
         Transform* object = new Transform;
@@ -101,7 +101,7 @@ export namespace transform {
             object->id = s_unused_ids.back();
             s_unused_ids.pop_back();
             //console::log("transform::make unused: ", object->id, "\n");
-            if (!s_transforms.empty() && object->id >= 0 && object->id < s_transforms.size() && s_transforms.at(object->id)) {
+            if (!s_transforms.empty() and object->id >= 0 and object->id < s_transforms.size() and s_transforms.at(object->id)) {
                 delete s_transforms.at(object->id);
                 //s_transforms.at(object->id) = nullptr;
             }

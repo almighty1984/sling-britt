@@ -1,7 +1,3 @@
-module;
-#include <cmath>
-#include <sstream>
-
 module entity.particle.bubble;
 import console;
 
@@ -57,10 +53,10 @@ namespace entity {
             else if (other_type == Type::arch_R_1x1) {
                 amount = -1.0F;
             }
-            else if (other_type == Type::arch_L_2x1_0 || other_type == Type::arch_L_2x1_1) {
+            else if (other_type == Type::arch_L_2x1_0 or other_type == Type::arch_L_2x1_1) {
                 amount = 1.0F;
             }
-            else if (other_type == Type::arch_R_2x1_0 || other_type == Type::arch_R_2x1_1) {
+            else if (other_type == Type::arch_R_2x1_0 or other_type == Type::arch_R_2x1_1) {
                 amount = -1.0F;
             }
             velocity_x(velocity().y * amount);

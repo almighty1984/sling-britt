@@ -1,13 +1,12 @@
-module;
-#include <string>
 export module entity.config;
 import entity;
 import types;
+import std;
 
 export namespace entity {
     bool parse_config(const std::string& text, Object* owner) {
         const size_t config_label = text.find("Config", 0);
-        if (config_label == std::string::npos || text.find("{", config_label) == std::string::npos) {
+        if (config_label == std::string::npos or text.find("{", config_label) == std::string::npos) {
             return false;
         }
         const size_t config_open = text.find("{", config_label) + 1;
@@ -19,7 +18,7 @@ export namespace entity {
                 size_t value_start = text.find("=", time_to_be_alive_label);
                 if (value_start < end_line) {
                     ++value_start;
-                    while (text.at(value_start) == '	' || text.at(value_start) == ' ') ++value_start;
+                    while (text.at(value_start) == '	' or text.at(value_start) == ' ') ++value_start;
                     owner->time_to_be_alive(std::stoi(text.substr(value_start, end_line - value_start)));
                     owner->time_left_alive(owner->time_to_be_alive());
                 }
@@ -30,7 +29,7 @@ export namespace entity {
                 size_t value_start = text.find("=", time_to_be_dead_label);
                 if (value_start < end_line) {
                     ++value_start;
-                    while (text.at(value_start) == '	' || text.at(value_start) == ' ') ++value_start;
+                    while (text.at(value_start) == '	' or text.at(value_start) == ' ') ++value_start;
                     owner->time_to_be_dead(std::stoi(text.substr(value_start, end_line - value_start)));
                     //m_time_left_dead = m_time_to_be_dead;
                 }
@@ -41,7 +40,7 @@ export namespace entity {
                 size_t value_start = text.find("=", time_to_hurt_label);
                 if (value_start < end_line) {
                     ++value_start;
-                    while (text.at(value_start) == '	' || text.at(value_start) == ' ') ++value_start;
+                    while (text.at(value_start) == '	' or text.at(value_start) == ' ') ++value_start;
                     owner->time_to_hurt(std::stoi(text.substr(value_start, end_line - value_start)));
                 }
             }
@@ -51,7 +50,7 @@ export namespace entity {
                 size_t value_start = text.find("=", time_to_spawn_sense_label);
                 if (value_start < end_line) {
                     ++value_start;
-                    while (text.at(value_start) == '	' || text.at(value_start) == ' ') ++value_start;
+                    while (text.at(value_start) == '	' or text.at(value_start) == ' ') ++value_start;
                     owner->time_to_spawn_sense(std::stoi(text.substr(value_start, end_line - value_start)));
                 }
             }

@@ -1,13 +1,6 @@
-module;
-#include <filesystem>
-#include <fstream>
-#include <vector>
-#include <sstream>
-#include <thread>
-#include <mutex>
-
-module state.game;
-import state.game.save;
+module sheet.game;
+import std;
+import sheet.game.save;
 import camera;
 import aabb;
 import console;
@@ -21,10 +14,10 @@ import types;
 
 std::mutex quad_tree_node_mutex;
 
-namespace state {
+namespace sheet {
     Game::Game(cU16 window_w, cU16 window_h, std::filesystem::path level_path, start::Info start) {
         //console::log("Game::Game level: ", level_path, " start: ", start_position.x, " ", start_position.y, "\n");
-        m_state = m_next_state = Type::game;
+        m_sheet = m_next_sheet = Type::game;
         m_window_w = window_w, m_window_h = window_h;
 
         console::warning("state::Game::Game() window extent: ", window_w, " ", window_h, "\n");
@@ -54,19 +47,19 @@ namespace state {
         //m_entity_objects.back()->position(m_start_position);
 
 
-        state::game::current_level_path(level_path);
-        state::game::add_visited_level(level_path);
+        sheet::game::current_level_path(level_path);
+        sheet::game::add_visited_level(level_path);
 
         load_level(level_path);
         m_level_path = level_path;
 
         
 
-        for (auto& i : state::game::visited_levels()) {
+        for (auto& i : sheet::game::visited_levels()) {
             console::log("state::Game::Game() visited level: ", i, "\n");
         }
 
-        for (auto& i : state::game::picked_coins_in_current_level()) {
+        for (auto& i : sheet::game::picked_coins_in_current_level()) {
             console::log("state::Game::Game() picked coins in current level: ", i, "\n");
         }
 
@@ -88,7 +81,7 @@ namespace state {
 
         
 
-        console::log("state::Game() start position: ", m_start_position.x, " ", m_start_position.y, "\n");
+        console::log("sheet::Game() start position: ", m_start_position.x, " ", m_start_position.y, "\n");
 
         //m_player.position() = Vec2F{ 320.0F, 0.0F };
         
@@ -165,14 +158,14 @@ namespace state {
         Vec2F offset_to_next, offset_to_next2;
         for (auto& entity : m_unlocked_entity_objects) {
             if (entity->start_offset() == trigger_entity->start_offset() + Vec2F{ 0.0F,-16.0F }) {
-                console::log("check_to_add_input_from() entity above trigger: ", entity::to_string(entity->type()), "\n");
+                console::log("sheet::Game::check_to_add_input_from() entity above trigger: ", entity::to_string(entity->type()), "\n");
                 //current_offset = trigger_entity->start_offset() + Vec2F{ 0.0F,-16.0F };
 
                 entity::cType type = entity->type();
-                if (type == entity::Type::conduit_corner_UR || type == entity::Type::conduit_trigger_UL || type == entity::Type::track_trigger_UL) {
+                if (type == entity::Type::conduit_corner_UR or type == entity::Type::conduit_trigger_UL or type == entity::Type::track_trigger_UL) {
                     offset_to_next = { -16.0F, 0.0F };
                 }
-                else if (type == entity::Type::conduit_corner_UL || type == entity::Type::conduit_trigger_UR || type == entity::Type::track_trigger_UR) {
+                else if (type == entity::Type::conduit_corner_UL or type == entity::Type::conduit_trigger_UR or type == entity::Type::track_trigger_UR) {
                     offset_to_next = { 16.0F, 0.0F };
                 }
                 else {
@@ -189,18 +182,18 @@ namespace state {
     restart_loop:
 
         for (auto& entity : m_unlocked_entity_objects) {
-            if (!entity::is_track(entity->type()) && !entity::is_conduit(entity->type())
-                && !entity::is_logic(entity->type())) {
+            if (!entity::is_track(entity->type()) and !entity::is_conduit(entity->type())
+                and !entity::is_logic(entity->type())) {
                 continue;
             }
             if (entity == prev_entity) continue;
 
-            if (entity->start_offset() == prev_entity->start_offset() + offset_to_next ||
-                (offset_to_next2 != Vec2F{ 0.0F, 0.0F } && entity->start_offset() == prev_entity->start_offset() + offset_to_next2)) {
+            if (entity->start_offset() == prev_entity->start_offset() + offset_to_next or
+                (offset_to_next2 != Vec2F{ 0.0F, 0.0F } and entity->start_offset() == prev_entity->start_offset() + offset_to_next2)) {
                 if (entity == start_entity) break;
 
-                if (entity->type() == entity::Type::conduit_trigger_UL || entity->type() == entity::Type::conduit_trigger_UR ||
-                    entity->type() == entity::Type::track_trigger_UL || entity->type() == entity::Type::track_trigger_UR) {
+                if (entity->type() == entity::Type::conduit_trigger_UL or entity->type() == entity::Type::conduit_trigger_UR or
+                    entity->type() == entity::Type::track_trigger_UL or entity->type() == entity::Type::track_trigger_UR) {
                     break;
                 }
 
@@ -217,46 +210,46 @@ namespace state {
                 //}
                 offset_to_next2 = {};
 
-                if (type == entity::Type::conduit_UD || type == entity::Type::track_UD) {
+                if (type == entity::Type::conduit_UD or type == entity::Type::track_UD) {
                     offset_to_next = prev_pos.y < pos.y ? Vec2F{   0.0F,  16.0F } : Vec2F{   0.0F, -16.0F };
-                } else if (type == entity::Type::conduit_LR || type == entity::Type::track_LR) {
+                } else if (type == entity::Type::conduit_LR or type == entity::Type::track_LR) {
                     offset_to_next = prev_pos.x < pos.x ? Vec2F{  16.0F,   0.0F } : Vec2F{ -16.0F,   0.0F };
-                } else if (type == entity::Type::conduit_corner_DL || type == entity::Type::track_corner_DL) {
+                } else if (type == entity::Type::conduit_corner_DL or type == entity::Type::track_corner_DL) {
                     offset_to_next = prev_pos.x > pos.x ? Vec2F{   0.0F, -16.0F } : Vec2F{  16.0F,   0.0F };
-                } else if (type == entity::Type::conduit_corner_UL || type == entity::Type::track_corner_UL) {
+                } else if (type == entity::Type::conduit_corner_UL or type == entity::Type::track_corner_UL) {
                     offset_to_next = prev_pos.x > pos.x ? Vec2F{   0.0F,  16.0F } : Vec2F{  16.0F,   0.0F };
-                } else if (type == entity::Type::conduit_corner_UR || type == entity::Type::track_corner_UR) {
+                } else if (type == entity::Type::conduit_corner_UR or type == entity::Type::track_corner_UR) {
                     offset_to_next = prev_pos.x < pos.x ? Vec2F{   0.0F,  16.0F } : Vec2F{ -16.0F,   0.0F };
-                } else if (type == entity::Type::conduit_corner_DR || type == entity::Type::track_corner_DR) {
+                } else if (type == entity::Type::conduit_corner_DR or type == entity::Type::track_corner_DR) {
                     offset_to_next = prev_pos.x < pos.x ? Vec2F{   0.0F, -16.0F } : Vec2F{ -16.0F,   0.0F };
-                } else if (type == entity::Type::conduit_L_1x1_0 || type == entity::Type::track_L_1x1_0) {
+                } else if (type == entity::Type::conduit_L_1x1_0 or type == entity::Type::track_L_1x1_0) {
                     offset_to_next = prev_pos.x < pos.x ? Vec2F{   0.0F,  16.0F } : Vec2F{ -16.0F,   0.0F };
-                } else if (type == entity::Type::conduit_L_1x1_1 || type == entity::Type::track_L_1x1_1) {
+                } else if (type == entity::Type::conduit_L_1x1_1 or type == entity::Type::track_L_1x1_1) {
                     offset_to_next = prev_pos.y < pos.y ? Vec2F{  16.0F,   0.0F } : Vec2F{   0.0F, -16.0F };
-                } else if (type == entity::Type::conduit_R_1x1_0 || type == entity::Type::track_R_1x1_0) {
+                } else if (type == entity::Type::conduit_R_1x1_0 or type == entity::Type::track_R_1x1_0) {
                     offset_to_next = prev_pos.y > pos.y ? Vec2F{  16.0F,   0.0F } : Vec2F{   0.0F,  16.0F };
-                } else if (type == entity::Type::conduit_R_1x1_1 || type == entity::Type::track_R_1x1_1) {
+                } else if (type == entity::Type::conduit_R_1x1_1 or type == entity::Type::track_R_1x1_1) {
                     offset_to_next = prev_pos.y < pos.y ? Vec2F{ -16.0F,   0.0F } : Vec2F{   0.0F, -16.0F };
-                } else if (type == entity::Type::conduit_L_1x2_0 || type == entity::Type::track_L_1x2_0) {
+                } else if (type == entity::Type::conduit_L_1x2_0 or type == entity::Type::track_L_1x2_0) {
                     offset_to_next = prev_pos.y < pos.y ? Vec2F{   0.0F,  16.0F } : Vec2F{ -16.0F, -16.0F };
-                } else if (type == entity::Type::conduit_L_1x2_1 || type == entity::Type::track_L_1x2_1) {
+                } else if (type == entity::Type::conduit_L_1x2_1 or type == entity::Type::track_L_1x2_1) {
                     offset_to_next = prev_pos.y < pos.y ? Vec2F{  16.0F,  16.0F } : Vec2F{   0.0F, -16.0F };
-                } else if (type == entity::Type::conduit_R_1x2_0 || type == entity::Type::track_R_1x2_0) {
+                } else if (type == entity::Type::conduit_R_1x2_0 or type == entity::Type::track_R_1x2_0) {
                     offset_to_next = prev_pos.y < pos.y ? Vec2F{  0.0F,   16.0F } : Vec2F{  16.0F, -16.0F };
-                } else if (type == entity::Type::conduit_R_1x2_1 || type == entity::Type::track_R_1x2_1) {
+                } else if (type == entity::Type::conduit_R_1x2_1 or type == entity::Type::track_R_1x2_1) {
                     if (prev_pos.y < pos.y) {
                         offset_to_next = { -16.0F,  16.0F };
                         offset_to_next2 = {  0.0F,  16.0F };
                     } else {
                         offset_to_next  = {  0.0F, -16.0F };
                     }
-                } else if (type == entity::Type::conduit_L_2x1_0 || type == entity::Type::track_L_2x1_0) {
+                } else if (type == entity::Type::conduit_L_2x1_0 or type == entity::Type::track_L_2x1_0) {
                     offset_to_next = prev_pos.x < pos.x ? Vec2F{  16.0F,  16.0F } : Vec2F{ -16.0F,   0.0F };                    
-                } else if (type == entity::Type::conduit_L_2x1_1 || type == entity::Type::track_L_2x1_1) {
+                } else if (type == entity::Type::conduit_L_2x1_1 or type == entity::Type::track_L_2x1_1) {
                     offset_to_next = prev_pos.x < pos.x ? Vec2F{  16.0F,   0.0F } : Vec2F{ -16.0F, -16.0F };
-                } else if (type == entity::Type::conduit_R_2x1_0 || type == entity::Type::track_R_2x1_0) {
+                } else if (type == entity::Type::conduit_R_2x1_0 or type == entity::Type::track_R_2x1_0) {
                     offset_to_next = prev_pos.y > pos.y ? Vec2F{  16.0F,   0.0F } : Vec2F{ -16.0F,  16.0F };
-                } else if (type == entity::Type::conduit_R_2x1_1 || type == entity::Type::track_R_2x1_1) {
+                } else if (type == entity::Type::conduit_R_2x1_1 or type == entity::Type::track_R_2x1_1) {
                     if (prev_pos.x < pos.x) {
                         offset_to_next  = {  16.0F, -16.0F };
                         offset_to_next2 = {  16.0F,   0.0F };

@@ -1,17 +1,11 @@
-module;
-#include <cmath>
-#include <filesystem>
-#include <sstream>
-
-module state.edit;
-
+module sheet.edit;
 import console;
 import input;
 import sprite;
 import transform;
 import types;
 
-namespace state {
+namespace sheet {
     void Edit::update(cF32 ts) {
         if (m_time_left_saving > 0) {
             sprite::source_rect_x(m_save_sprite_id, 16);
@@ -19,18 +13,18 @@ namespace state {
             if (m_time_left_saving == 0) {
                 sprite::source_rect_x(m_save_sprite_id, 0);
             }
-            if (!m_is_showing_tile_set && m_time_left_saving == m_time_to_save - 2) {
+            if (!m_is_showing_tile_set and m_time_left_saving == m_time_to_save - 2) {
                 sprite::save_level(m_level_path, m_grid_sprite_ids);
             }
         }
         
-        if (is_pressed(input::Key::f2) || is_pressed(input::Key::equal)) {
+        if (is_pressed(input::Key::f2) or is_pressed(input::Key::equal)) {
             release(input::Key::f2);
             release(input::Key::equal);
 
             m_start_info = { .type   = start::Type::center,
                              .number = 0 };
-            m_next_state = Type::game;
+            m_next_sheet = Type::game;
             return;
         }
 
@@ -46,17 +40,20 @@ namespace state {
         if (is_pressed(input::Key::grave)) {
             release(input::Key::grave);
             m_is_to_change_view = true;
-            if (view() == RectF{ 0.0F, 0.0F, 480.0F, 270.0F }) {
-                view({ 0.0F, 0.0F, 320.0F, 180.0F });
+            if (view() == RectU{ 0, 0, 480, 270 }) {
+                view({ 0, 0, 320, 180 });
                 //move_selection_on_tile_set({})
-            } else {
-                view({ 0.0F, 0.0F, 480.0F, 270.0F });
             }
+            else {
+                view({ 0, 0, 480, 270 });
+            }
+        
             
             //if (m_is_showing_tile_set) {
             //    //transform::get(m_tile_set_transform_id)->position = { 0.0F, 0.0F };
 
-            //} else {
+            //}
+            // else {
             //    transform::get(m_tile_set_transform_id)->position.x = view().w - 32.0F;
             //    transform::get(m_tile_set_transform_id)->position.y = view().w == 480.0F ? 240.0F : 160.0F;
             //}
@@ -77,7 +74,7 @@ namespace state {
         }
 
         if (!m_is_moving) {
-            if (is_pressed(input::Key::ctrl) && is_pressed(input::Key::z)) {
+            if (is_pressed(input::Key::ctrl) and is_pressed(input::Key::z)) {
                 release(input::Key::z);
                 is_pressed(input::Key::shift) ? redo_last_act() : undo_last_act();
                 return;
@@ -96,7 +93,8 @@ namespace state {
                 m_menu_up_lists[m_menu_up_labels[0]].text_items.clear();
                 load_menu_up_list(m_menu_up_labels[0], std::filesystem::current_path() / "res" / "level");
                 m_is_asked_to_remove_level = { false, 0 };
-            } else if (is_pressed(input::Key::n)) {
+            }
+            else if (is_pressed(input::Key::n)) {
                 release(input::Key::n);
                 m_info_message.is_hidden(true);
                 m_is_asked_to_remove_level = { false, 0 };
@@ -109,7 +107,8 @@ namespace state {
                 if (is_pressed(input::Key::shift)) {
                     init_typing_text_bar();
                     m_is_typing_text_bar = true;
-                } else {
+                }
+                else {
                     if (m_is_typing_text_bar) {                        
                         quit_typing_text_bar();
                         m_is_typing_text_bar = false;
@@ -125,7 +124,7 @@ namespace state {
         transform::position(m_mouse_transform_id, m_mouse_tile_position);
         //console::log("mouse tile: ", m_mouse_tile_position.x, " ", m_mouse_tile_position.y, "\n");
 
-        if (!m_is_hidden_grid_map && is_pressed(input::Key::ctrl)) {
+        if (!m_is_hidden_grid_map and is_pressed(input::Key::ctrl)) {
             for (auto& i : m_grid_map_sprite_ids) {
                 if (m_mouse_tile_position != sprite::offset(i)) continue;
                 if (is_pressed(input::Button::left)) {
@@ -163,12 +162,13 @@ namespace state {
             return;
         }
         
-        m_is_mouse_on_menu_down = !m_is_hidden_menu_down && (m_mouse_tile_position.x > view().w - 48.0F || m_mouse_tile_position.y > view().h - 32.0F) ? true : false;
+        m_is_mouse_on_menu_down = !m_is_hidden_menu_down and (m_mouse_tile_position.x > view().w - 48.0F or m_mouse_tile_position.y > view().h - 32.0F) ? true : false;
         if (m_is_mouse_on_menu_down) {
             if (m_mouse_sprite_ids.size() != 1) {
                 init_brush(1);
             }
-        } else {
+        }
+        else {
             if (m_mouse_sprite_ids.size() == 1) {
                 m_is_showing_tile_set ? init_brush(m_tile_set_brush_size) : init_brush(m_level_brush_size);
             }
@@ -214,19 +214,22 @@ namespace state {
 
         if (input::scroll < 0.0F) {
             input::scroll = 0.0F;
-            if (m_is_showing_tile_set && m_tile_set_brush_size > 1) {
+            if (m_is_showing_tile_set and m_tile_set_brush_size > 1) {
                 m_tile_set_brush_size -= 1;
                 init_brush(m_tile_set_brush_size);
-            } else if (!m_is_showing_tile_set && m_level_brush_size > 1) {
+            }
+            else if (!m_is_showing_tile_set and m_level_brush_size > 1) {
                 m_level_brush_size -= 1;
                 init_brush(m_level_brush_size);
             }
-        } else if (input::scroll > 0.0F) {
+        }
+        else if (input::scroll > 0.0F) {
             input::scroll = 0.0F;
-            if (m_is_showing_tile_set && m_tile_set_brush_size < 5) {
+            if (m_is_showing_tile_set and m_tile_set_brush_size < 5) {
                 m_tile_set_brush_size += 1;
                 init_brush(m_tile_set_brush_size);
-            } else if (!m_is_showing_tile_set && m_level_brush_size < 5) {
+            }
+            else if (!m_is_showing_tile_set and m_level_brush_size < 5) {
                 m_level_brush_size += 1;
                 init_brush(m_level_brush_size);
             }
@@ -236,7 +239,8 @@ namespace state {
             m_is_showing_tile_set = !m_is_showing_tile_set;
             if (m_is_showing_tile_set) {
                 enter_tile_set();
-            } else {
+            }
+            else {
                 exit_tile_set();
             }
             m_is_showing_tile_set ? init_brush(m_tile_set_brush_size) : init_brush(m_level_brush_size);
@@ -248,18 +252,17 @@ namespace state {
             m_is_hidden_menu_right = !m_is_hidden_menu_right;
         }
         
-        m_is_hidden_menu_up = !is_pressed(input::Key::shift) && !m_is_mouse_on_menu_up_list;
+        m_is_hidden_menu_up = !is_pressed(input::Key::shift);
         
         transform::position(m_menu_up_transform_id, { 0.0F, m_is_hidden_menu_up ? -8.0F : 0.0F });
-        
 
-        m_is_mouse_on_menu_up_bar = !m_is_hidden_menu_up           &&
-                                    !m_is_showing_tile_set         &&                                    
-                                    !is_pressed(input::Key::ctrl)  &&
-                                     input::mouse.y > 0 && input::mouse.y <= 8 &&
+        m_is_mouse_on_menu_up_bar = !m_is_hidden_menu_up           and
+                                    !m_is_showing_tile_set         and                                    
+                                    !is_pressed(input::Key::ctrl)  and
+                                     input::mouse.y > 0 and input::mouse.y <= 8 and
                                      input::mouse.x <= m_menu_up_w ? true : false;
 
-        if (m_is_mouse_on_menu_up_bar || m_is_mouse_on_menu_up_list) {
+        if (!m_is_hidden_menu_up) {
             handle_menu_up();
             for (auto& i : m_mouse_sprite_ids) {
                 sprite::is_hidden(i, true);
@@ -283,10 +286,12 @@ namespace state {
             if (is_pressed(input::Key::shift)) {
                 release(input::Key::a);
                 move_selection_on_tile_set({ -16, 0 });
-            } else {
+            }
+            else {
                 if (m_is_showing_tile_set) {
                     move_tile_set({ 16, 0 });
-                } else {
+                }
+                else {
                     move_level({ 16, 0 });                    
                 }
             }
@@ -300,10 +305,12 @@ namespace state {
             if (is_pressed(input::Key::shift)) {
                 release(input::Key::d);
                 move_selection_on_tile_set({ 16, 0 });
-            } else {
+            }
+            else {
                 if (m_is_showing_tile_set) {
                     move_tile_set({ -16, 0 });
-                } else {
+                }
+                else {
                     move_level({ -16, 0 });
                 }
             }
@@ -317,10 +324,12 @@ namespace state {
             if (is_pressed(input::Key::shift)) {
                 release(input::Key::w);
                 move_selection_on_tile_set({ 0,-16 });
-            } else {
+            }
+            else {
                 if (m_is_showing_tile_set) {
                     move_tile_set({ 0, 16 });                    
-                } else {
+                }
+                else {
                     move_level({ 0, 16 });                    
                 }
             }
@@ -334,10 +343,12 @@ namespace state {
             if (is_pressed(input::Key::shift)) {
                 release(input::Key::s);   
                 move_selection_on_tile_set({ 0, 16 });
-            } else {
+            }
+            else {
                 if (m_is_showing_tile_set) {
                     move_tile_set({ 0, -16 });
-                } else {
+                }
+                else {
                     move_level({ 0, -16 });
                 }
             }
@@ -354,12 +365,14 @@ namespace state {
             release(input::Key::tab);
             if (m_is_showing_tile_set) {
                 m_tile_set == 255 ? init_tile_set(m_prev_tile_set) : init_tile_set(255);
-            } else {
-                if (is_pressed(input::Key::shift) && m_layer > 0) {
-                    sprite::add_offset(m_active_layer_sprite_id, { 0.0F, -16.0F });
+            }
+            else {
+                if (is_pressed(input::Key::shift) and m_layer > 0) {
+                    sprite::offset_add(m_active_layer_sprite_id, { 0.0F, -16.0F });
                     m_layer -= 1;
-                } else if (!is_pressed(input::Key::shift) && m_layer < 9) {
-                    sprite::add_offset(m_active_layer_sprite_id, { 0.0F,  16.0F });
+                }
+                else if (!is_pressed(input::Key::shift) and m_layer < 9) {
+                    sprite::offset_add(m_active_layer_sprite_id, { 0.0F,  16.0F });
                     m_layer += 1;
                 }
             }
@@ -367,10 +380,10 @@ namespace state {
 
         //console::log("state::Edit::update() m_layer: ", (int)m_layer, "\n");
         
-        if (!m_is_hidden_menu_down &&
-            m_mouse_tile_position.y >= transform::position(m_menu_down_transform_id).y &&
-            m_mouse_tile_position.y <= transform::position(m_menu_down_transform_id).y + sprite::source_rect(m_menu_down_bg_sprite_id).h &&
-            m_mouse_tile_position.x >= transform::position(m_menu_down_transform_id).x &&
+        if (!m_is_hidden_menu_down and
+            m_mouse_tile_position.y >= transform::position(m_menu_down_transform_id).y and
+            m_mouse_tile_position.y <= transform::position(m_menu_down_transform_id).y + sprite::source_rect(m_menu_down_bg_sprite_id).h and
+            m_mouse_tile_position.x >= transform::position(m_menu_down_transform_id).x and
             m_mouse_tile_position.x <= transform::position(m_menu_down_transform_id).x + sprite::source_rect(m_menu_down_bg_sprite_id).w
             ) {
             //console::log("state::Edit::handle_menu_down\n");
@@ -378,10 +391,10 @@ namespace state {
             return;
         }
         //console::log("is_showing_menu_right: ", m_is_hidden_menu_right, " ", m_mouse_tile_position.x, " ", m_mouse_tile_position.y, "\n");
-        if (!m_is_hidden_menu_right &&
-            m_mouse_tile_position.x >= transform::position(m_menu_right_transform_id).x &&            
-            m_mouse_tile_position.x <= transform::position(m_menu_right_transform_id).x + sprite::source_rect(m_menu_right_bg_sprite_id).w &&
-            m_mouse_tile_position.y >= transform::position(m_menu_right_transform_id).y &&
+        if (!m_is_hidden_menu_right and
+            m_mouse_tile_position.x >= transform::position(m_menu_right_transform_id).x and            
+            m_mouse_tile_position.x <= transform::position(m_menu_right_transform_id).x + sprite::source_rect(m_menu_right_bg_sprite_id).w and
+            m_mouse_tile_position.y >= transform::position(m_menu_right_transform_id).y and
             m_mouse_tile_position.y <= transform::position(m_menu_right_transform_id).y + sprite::source_rect(m_menu_right_bg_sprite_id).h) {
             handle_menu_right();
             return;
@@ -389,9 +402,9 @@ namespace state {
         
         bool is_placing_on_level = false;
         if (is_pressed(input::Button::left)) {
-            if (m_is_showing_tile_set &&
-                (m_is_hidden_menu_down || !(m_mouse_tile_position.x >= transform::position(m_menu_right_transform_id).x &&
-                                            m_mouse_tile_position.x <= transform::position(m_menu_right_transform_id).x + sprite::source_rect(m_menu_right_bg_sprite_id).w &&
+            if (m_is_showing_tile_set and
+                (m_is_hidden_menu_down or !(m_mouse_tile_position.x >= transform::position(m_menu_right_transform_id).x and
+                                            m_mouse_tile_position.x <= transform::position(m_menu_right_transform_id).x + sprite::source_rect(m_menu_right_bg_sprite_id).w and
                                             m_mouse_tile_position.y >= transform::position(m_menu_down_transform_id).y)
                 )
                 ) {
@@ -405,7 +418,8 @@ namespace state {
                                     sprite::offset(mouse_id);
                     select_on_tile_set(offset);
                 }
-            } else {
+            }
+            else {
                 //release(input::Button::left);
 
                 if (is_pressed(input::Key::ctrl)) {
@@ -415,7 +429,8 @@ namespace state {
                                         sprite::offset(mouse_id);
                         select_on_level(offset);
                     }
-                } else {
+                }
+                else {
                     deselect_all_on_level();
 
                     is_placing_on_level = true;
@@ -445,7 +460,7 @@ namespace state {
         }
        
         if (is_pressed(input::Button::right)) {
-            if (m_is_showing_tile_set && (m_is_hidden_menu_down || (m_mouse_tile_position.x < 288 && m_mouse_tile_position.y < 160))) {
+            if (m_is_showing_tile_set and (m_is_hidden_menu_down or (m_mouse_tile_position.x < 288 and m_mouse_tile_position.y < 160))) {
                 for (auto& mouse_sprite_id : m_mouse_sprite_ids) {
                     Vec2F offset = transform::position(m_mouse_transform_id) -
                                    transform::position(m_tile_set_transform_id) +
@@ -465,7 +480,8 @@ namespace state {
                                sprite::offset(mouse_sprite_id);
                 if (is_pressed(input::Key::ctrl)) {
                     deselect_on_level(offset);
-                } else {
+                }
+                else {
                     deselect_all_on_level();
                     history::Act undo_act = erase_sprite_on_level(m_layer, offset);
                     if (undo_act != history::Act::none) {
@@ -476,7 +492,7 @@ namespace state {
             }
             m_last_undo_count += num_erased;
         }
-        if (!is_placing_on_level && !is_erasing_on_level) {
+        if (!is_placing_on_level and !is_erasing_on_level) {
             if (m_last_undo_count > 0) {
                 m_undo_counts.emplace_back(m_last_undo_count);
                 m_last_undo_count = 0;
@@ -551,7 +567,7 @@ namespace state {
                 deselect_all_on_tile_set();
             }
             else {
-                m_next_state = Type::menu_start;
+                m_next_sheet = Type::menu_start;
             }
         }
     }

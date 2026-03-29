@@ -1,13 +1,12 @@
-module;
-#include <cmath>
 module entity.player;
+import app.config;
 import console;
 import sprite;
 import transform;
 
 void entity::Player::state_sling() {
     if (!m_parent) {
-        m_next_state = entity::State::run;
+        m_next_state = state::Type::run;
         return;
     }
     
@@ -24,7 +23,7 @@ void entity::Player::state_sling() {
 
         for (auto& i : m_aabb_ids) {
             aabb::is_active(i, false);
-            if (!aabb::is_active(i) && aabb::name(i) == aabb::Name::body) {
+            if (!aabb::is_active(i) and aabb::name(i) == aabb::Name::body) {
                 aabb::is_active(i, true);
             }
         }
@@ -61,12 +60,12 @@ void entity::Player::state_sling() {
         cF32 angle = radians * 180.0F / 3.1415926535F;
 
 
-        console::log("entity::Player::state_sling angle: ", angle, "\n");
+        console::log(class_name(), "::state_sling angle: ", angle, "\n");
 
         sprite::origin(m_sprite_id, { 32.0F, 20.0F });
         sprite::angle(m_sprite_id, angle - 90.0F);
 
-        //console::log("entity::Player::state_sling() offset from sling: ", offset_from_sling.x, " ", " ", offset_from_sling.y, "\n");
+        //console::log(class_name(), "::state_sling() offset from sling: ", offset_from_sling.x, " ", " ", offset_from_sling.y, "\n");
 
         velocity( { 0.0F, 0.0F } );
         acceleration({ 0.1F, 0.1F });
@@ -84,7 +83,7 @@ void entity::Player::state_sling() {
     cF32 rotate_acc = 0.25f;
     m_rotation_speed += rotate_dec;
     
-    sprite::add_angle(m_sprite_id, m_rotation_speed);
+    sprite::angle_add(m_sprite_id, m_rotation_speed);
 
     if (is_pressed(key_left)) {
         m_rotation_speed += rotate_acc;
@@ -101,7 +100,7 @@ void entity::Player::state_sling() {
 
     if (!is_pressed(key_melee)) {
         //release(key_melee);        
-        m_next_state = entity::State::run;
+        m_next_state = state::Type::run;
 
         
         m_time_left_jump_again = m_time_to_jump_again;
@@ -119,7 +118,7 @@ void entity::Player::state_sling() {
         
         sprite_is_leftward(velocity().x < 0.0F);
 
-        sound_position("sling_detach", { position().x / (WINDOW_W / 2.0F), position().y / (WINDOW_H / 2.0F) });
+        sound_position("sling_detach", { position().x / (app::config::extent().x / 2.0F), position().y / (app::config::extent().y / 2.0F) });
         sound_play("sling_detach");
     }
 
@@ -132,5 +131,5 @@ void entity::Player::state_sling() {
         m_rotation_speed = 13.0F;
     }
 
-    //console::log("entity::Player::sling() rotation_speed: ", rotation_speed, "\n");
+    //console::log(class_name(), "::sling() rotation_speed: ", rotation_speed, "\n");
 }

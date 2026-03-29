@@ -15,31 +15,37 @@ public:
 
     Shader() : m_w(0), m_h(0), m_position(0.0F, 0.0F) {
         m_sfml_shader.setUniform("texture", sf::Shader::CurrentTexture);
-    }        
+    }
     void color(Color c) {
-        m_sfml_shader.setUniform("color", sf::Vector3i(c.r, c.g, c.b));
+        m_sfml_shader.setUniform("color", sf::Vector3f((F32)c.r, (F32)c.g, (F32)c.b));
     }
     void set_position(cVec2F p) {
         m_position = p;
     }
-    void set_width(cU16 w) { m_w = w; }
+    void set_width(cU16 w)  { m_w = w; }
     void set_height(cU16 h) { m_h = h; }
 
+    void set_uniform(const std::string& name, Vec2F v) {
+        m_sfml_shader.setUniform(name, sf::Vector2f{ sf::Vector2f{v.x, v.y} });
+    }
+
     bool load(const std::filesystem::path& path_0, const std::filesystem::path& path_1) {
-        if (path_0.empty() || path_1.empty()) return false;
+        if (path_0.empty() or path_1.empty()) return false;
 
         std::filesystem::path path_vert, path_frag;
-        if (!path_0.empty() && path_0.string().size() > 4) {
+        if (!path_0.empty() and path_0.string().size() > 4) {
             if (path_0.string().substr(path_0.string().size() - 4, 4) == "vert") {
                 path_vert = path_0;
-            } else if (path_0.string().substr(path_0.string().size() - 4, 4) == "frag") {
+            }
+            else if (path_0.string().substr(path_0.string().size() - 4, 4) == "frag") {
                 path_frag = path_0;
             }
         }
-        if (!path_1.empty() && path_1.string().size() > 4) {
+        if (!path_1.empty() and path_1.string().size() > 4) {
             if (path_1.string().substr(path_1.string().size() - 4, 4) == "vert") {
                 path_vert = path_1;
-            } else if (path_1.string().substr(path_1.string().size() - 4, 4) == "frag") {
+            }
+            else if (path_1.string().substr(path_1.string().size() - 4, 4) == "frag") {
                 path_frag = path_1;
             }
         }

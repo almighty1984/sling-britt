@@ -1,10 +1,3 @@
-module;
-#include <vector>
-#include <string>
-#include <list>
-#include <memory>
-#include <sstream>
-
 export module particle_system;
 import console;
 import entity;
@@ -22,13 +15,14 @@ import sprite;
 import transform;
 import types;
 import window;
+import std;
 
 struct Spawn {
     entity::Object* parent   = nullptr;
     particle::Type  type     = particle::Type::none;
     Vec2F           position = { 0.0F, 0.0F },
                     velocity = { 0.0F, 0.0F };
-    entity::State   state    = entity::State::none;
+    state::Type     state    = state::Type::none;
 };
 using cSpawn = const Spawn;
 
@@ -38,14 +32,14 @@ std::list<entity::Particle*> s_particle_entities;
 export namespace particle {
     void draw(std::unique_ptr<Window>& window, cU8 layer) {
         for (auto& i : s_particle_entities) {
-            if (i && i->start_layer() == layer && !i->is_to_erase()) {
+            if (i and i->start_layer() == layer and !i->is_to_erase()) {
                 i->draw(window);
             }
         }
     }
     void draw_aabb(std::unique_ptr<Window>& window, cU8 layer) {
         for (auto& i : s_particle_entities) {
-            if (i && i->start_layer() == layer && !i->is_to_erase()) {
+            if (i and i->start_layer() == layer and !i->is_to_erase()) {
                 i->draw_aabb(window);                
             }
         }
@@ -61,14 +55,14 @@ export namespace particle {
     void spawn(cSpawn to_spawn) {
         s_to_spawn.emplace_back(to_spawn);
     }
-    void spawn(entity::Object* parent, particle::cType type, cVec2F position, cVec2F velocity, entity::cState state = entity::State::none) {
+    void spawn(entity::Object* parent, particle::cType type, cVec2F position, cVec2F velocity, state::cType state = state::Type::none) {
         spawn(Spawn{ .parent   = parent,
                 .type     = type,
                 .position = position,
                 .velocity = velocity,
                 .state    = state });
     }
-    void spawn_fan(entity::Object* parent, cF32 start_angle, cF32 end_angle, cU8 num, particle::cType type, cVec2F position, cVec2F velocity, cF32 speed, entity::cState state = entity::State::none) {
+    void spawn_fan(entity::Object* parent, cF32 start_angle, cF32 end_angle, cU8 num, particle::cType type, cVec2F position, cVec2F velocity, cF32 speed, state::cType state = state::Type::none) {
         cF32 end_angle_adjusted = start_angle > end_angle ? end_angle + 360.0F : end_angle;
         cF32 angle_to_radians = (3.1415926535F / 180.0F);
         cF32 end_radian = end_angle_adjusted * angle_to_radians;
@@ -85,6 +79,39 @@ export namespace particle {
             radians += (radian_range / num);
         }
     }
+
+    void splash_water(entity::Object* parent, cVec2F position, cVec2F velocity, cF32 speed) {
+        spawn_fan(parent,
+                  205.0F, 335.0F, 14,
+                  particle::Type::drop_water, position + Vec2F{ 0.0F, -4.0F },
+                  Vec2F{ velocity.x * 0.9F, -std::abs(velocity.y * 0.1F) },
+                  speed + 0.4F);
+
+        spawn_fan(parent,
+                  205.0F, 335.0F, 13,
+                  particle::Type::drop_water, position + Vec2F{ 0.0F, -3.0F },
+                  Vec2F{ velocity.x * 0.9F, -std::abs(velocity.y * 0.1F) },
+                  speed + 0.3F);
+
+        spawn_fan(parent,
+                  215.0F, 325.0F, 12,
+                  particle::Type::drop_water, position + Vec2F{ 0.0F, -2.0F },
+                  Vec2F{ velocity.x * 0.9F, -std::abs(velocity.y * 0.1F) },
+                  speed + 0.2F);
+
+        spawn_fan(parent,
+                  225.0F, 315.0F, 10,
+                  particle::Type::drop_water, position + Vec2F{ 0.0F, -1.0F },
+                  Vec2F{ velocity.x * 0.9F, -std::abs(velocity.y * 0.1F) },
+                  speed + 0.1F);
+
+        spawn_fan(parent,
+                  225.0F, 315.0F, 9,
+                  particle::Type::drop_water, position + Vec2F{ 0.0F, 0.0F },
+                  Vec2F{ velocity.x * 0.9F, -std::abs(velocity.y * 0.1F) },
+                  speed + 0.0F);
+    }
+
     void update() {
         for (auto& i : s_particle_entities) {
             if (i) i->update();
@@ -92,7 +119,7 @@ export namespace particle {
     }
     void check_to_erase() {  
         for (auto it = s_particle_entities.begin(); it != s_particle_entities.end(); ++it) {            
-            if (*it && (*it)->is_to_erase()) {
+            if (*it and (*it)->is_to_erase()) {
                 delete (*it);
                 it = s_particle_entities.erase(it);
                 if (it == s_particle_entities.end()) {
@@ -110,9 +137,9 @@ export namespace particle {
                 continue;
             }
 
-            Vec2F position      = to_spawn.position;
-            Vec2F velocity      = to_spawn.velocity;
-            entity::State state = to_spawn.state;
+            Vec2F position    = to_spawn.position;
+            Vec2F velocity    = to_spawn.velocity;
+            state::Type state = to_spawn.state;
 
             if (to_spawn.type == Type::bubble) {
                 console::log("spawn bubble\n");
@@ -149,21 +176,21 @@ export namespace particle {
                 s_particle_entities.emplace_back(new entity::ParticleShot);
                 s_particle_entities.back()->load_config("res/entity/particle/shot_" + entity::to_string(to_spawn.parent->type()) + ".cfg");                                
             }
-            else if (to_spawn.type == Type::brick       ||
-                     to_spawn.type == Type::down_thrust ||
-                     to_spawn.type == Type::drop        ||
-                     to_spawn.type == Type::drop_blood  ||
-                     to_spawn.type == Type::dust        ||
-                     to_spawn.type == Type::dust_L      ||
+            else if (to_spawn.type == Type::brick       or
+                     to_spawn.type == Type::down_thrust or
+                     to_spawn.type == Type::drop_blood  or
+                     to_spawn.type == Type::drop_water  or
+                     to_spawn.type == Type::dust        or
+                     to_spawn.type == Type::dust_L      or
                      to_spawn.type == Type::dust_R) {
                 if (to_spawn.type == Type::brick) {
-                    //state = entity::State::idle;
+                    //state = state::Type::idle;
                     s_particle_entities.emplace_back(new entity::ParticleBrick);
                 }
                 else if (to_spawn.type == Type::down_thrust) {
                     s_particle_entities.emplace_back(new entity::ParticleDownThrust);
                 }
-                else if (to_spawn.type == Type::drop_blood || to_spawn.type == Type::drop) {
+                else if (to_spawn.type == Type::drop_blood or to_spawn.type == Type::drop_water) {
                     s_particle_entities.emplace_back(new entity::ParticleDrop);
                 }
                 else {
@@ -182,7 +209,7 @@ export namespace particle {
                 sprite::layer(s_particle_entities.back()->sprite_id(), NUM_VISIBLE_LAYERS - 1);
                 s_particle_entities.back()->start_layer(NUM_VISIBLE_LAYERS - 1);
 
-                if (to_spawn.parent->prev_state() == entity::State::swim) {
+                if (to_spawn.parent->prev_state() == state::Type::swim) {
                     s_particle_entities.back()->acceleration(to_spawn.parent->acceleration());
                     s_particle_entities.back()->max_velocity(to_spawn.parent->max_velocity());
                 }

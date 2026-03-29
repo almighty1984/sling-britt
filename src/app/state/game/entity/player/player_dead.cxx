@@ -17,7 +17,7 @@ namespace entity {
             sprite::offset(m_sprite_id, sprite::start_offset(m_sprite_id));
             sprite::angle(m_sprite_id, 0.0F);
 
-            m_state = m_next_state = State::dead;
+            m_state = m_next_state = state::Type::dead;
             //reset_anim(anim_id("dead"));
             particle::spawn_fan(this, 0.0F, 360.0F, 8, particle::Type::drop_blood, position() + Vec2F{ 0.0F, -8.0F }, velocity(), 3.0F);
             particle::spawn(this, particle::Type::health, position() + Vec2F{ 4.0F, 4.0F }, {});
@@ -36,7 +36,7 @@ namespace entity {
 
         --m_time_left_dead;
         if (m_time_left_dead == 0) {
-            m_next_state = State::run;
+            m_next_state = state::Type::run;
             health::reset(m_health_id);
         }
     }

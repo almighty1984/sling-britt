@@ -1,5 +1,3 @@
-module;
-#include <cmath>
 module entity.player;
 import console;
 import random;
@@ -53,13 +51,13 @@ namespace entity {
         anim::speed(m_current_anim_id, 0.0F);
         anim::source_x(m_current_anim_id, anim::source(m_current_anim_id).w * 7);
 
-        if (velocity().y >= 0.0F && (m_is_on_ground || is_pressed(key_jump) || is_pressed(key_melee))
-            &&
-            m_next_state != State::run) {
-            console::log("entity::Player::state_dive() landed on ground\n");
-            m_next_state = State::run;
+        if (velocity().y >= 0.0F and (m_is_on_ground or is_pressed(key_jump) or is_pressed(key_melee))
+            and
+            m_next_state != state::Type::run) {
+            console::log(class_name(), "::state_dive() landed on ground\n");
+            m_next_state = state::Type::run;
             return;
-            //next_state(State::run);
+            //next_state(state::Type::run);
             //console::log("is_on_ground: ", m_is_on_ground, "\n");
         }
 
@@ -73,28 +71,31 @@ namespace entity {
         //console::log("degrees: ", degrees, "\n");
         sprite::origin(m_sprite_id, { sprite::source_rect(m_sprite_id).w / 2.0F, 48.0F });
 
-        if (is_pressed(key_jump) && m_num_jumps == 0) {
+        if (is_pressed(key_jump) and m_num_jumps == 0) {
             return;
         }
 
-        if (std::abs(velocity().x) > acceleration().x ||
-            std::abs(velocity().y) > acceleration().y ||
-            is_pressed(key_left) || is_pressed(key_right) ||
-            is_pressed(key_up) || is_pressed(key_down)
+        if (std::abs(velocity().x) > acceleration().x or
+            std::abs(velocity().y) > acceleration().y or
+            is_pressed(key_left) or is_pressed(key_right) or
+            is_pressed(key_up) or is_pressed(key_down)
             ) {
 
             //if (degree_diff > 10.0F) {
-                //sprite::add_angle(m_sprite_id, degree_diff * 0.1F);
+                //sprite::angle_add(m_sprite_id, degree_diff * 0.1F);
             //} else {
             sprite_angle(degrees);
             //}
         }
 
-        sprite_is_leftward(false);
-        if (velocity().x < 0.0F) {
-            sprite_is_upended(true);
-        } else if (velocity().x > 0.0F) {
-            sprite_is_upended(false);
+        if (!is_pressed(key_jump)) {
+            sprite_is_leftward(false);
+            if (velocity().x < 0.0F) {
+                sprite_is_upended(true);
+            }
+            else if (velocity().x > 0.0F) {
+                sprite_is_upended(false);
+            }
         }
     }
 }

@@ -1,11 +1,8 @@
-module;
-#include <cmath>
-
 module entity.water_line;
 
 namespace entity {
     void WaterLine::collide_x(aabb::cInfo our, aabb::cInfo other) {
-        //if (other.owner && other.owner->type() == Type::player) {
+        //if (other.owner and other.owner->type() == Type::player) {
         collide_y(our, other);
         //}
     }
@@ -21,8 +18,8 @@ namespace entity {
         cRectF other_rect = { aabb::point(other.id, 0).x, aabb::point(other.id, 0).y,
                               aabb::point(other.id, 3).x, aabb::point(other.id, 3).y };
 
-        if (other_type != Type::player &&
-            other_type != Type::bug &&
+        if (other_type != Type::player and
+            other_type != Type::bug and
             other_type != Type::mole) {
             return;
         }
@@ -33,7 +30,7 @@ namespace entity {
 
         cF32 overlap_y = our_rect.y < other_rect.y ? our_rect.h - other_rect.y : -(other_rect.h - our_rect.y);
         if (other_type == Type::bug) {
-            if (m_type == Type::water_line_L || m_type == Type::water_line_R) return;
+            if (m_type == Type::water_line_L or m_type == Type::water_line_R) return;
 
             other.owner->velocity_x(m_force.x * 0.1F + other_velocity.x * 0.9F);
             m_force.x = m_force.x * 0.5F + other_velocity.x * 0.5F;
@@ -44,8 +41,8 @@ namespace entity {
             }
         }
         else if (other_type == Type::mole) {
-            if (other.owner->state() == State::swim) {
-                if (m_type == Type::water_line_L || m_type == Type::water_line_R) return;
+            if (other.owner->state() == state::Type::swim) {
+                if (m_type == Type::water_line_L or m_type == Type::water_line_R) return;
 
                 //if (other.owner->time_left_colliding_with(Type::water_line) > 0) {
                 //    m_force.x = other_velocity.x * 0.5F;
@@ -64,7 +61,7 @@ namespace entity {
         }
         else if (other_type == Type::player) {
             cF32 start_diff_y = start_offset().y - position_on_level().y;
-            if (std::abs(start_diff_y) > 8.0F || std::abs(other_velocity.y) < 1.0F) {
+            if (std::abs(start_diff_y) > 8.0F or std::abs(other_velocity.y) < 1.0F) {
                 return;
             }
             //console::log("start_diff_y: ", start_diff_y, "\n");
@@ -76,7 +73,7 @@ namespace entity {
 
             //console::log("WaterLine::collide_y velocity y: ", velocity().y, "\n");
 
-        //if (std::abs(start_diff_y) < 8.0F/* && std::abs(other.owner->velocity().y) > 0.5F*/) {
+        //if (std::abs(start_diff_y) < 8.0F/* and std::abs(other.owner->velocity().y) > 0.5F*/) {
             //velocity_y(other.owner->velocity().y * 0.9F;
             //moved_velocity_y(other.owner->velocity().y * 1.0F;
         //}
@@ -148,14 +145,14 @@ namespace entity {
             velocity_y(velocity().y * 0.93f);
         }
         else {
-            /*if (diff_y < 0.0F && diff_y > -0.04f) {
+            /*if (diff_y < 0.0F and diff_y > -0.04f) {
                 diff_y = -0.04f;
-            } else if (diff_y >= 0.0F && diff_y < 0.04f) {
+            } else if (diff_y >= 0.0F and diff_y < 0.04f) {
                 diff_y = 0.04f;
             }*/
         }
 
-        //if (m_force.x > -0.1F && m_force.x < 0.1F) {
+        //if (m_force.x > -0.1F and m_force.x < 0.1F) {
             //m_force.x = 0.0F;
         //}
         /*if (inputs.size() == 2) {            
@@ -208,10 +205,10 @@ namespace entity {
                 //m_force.x *= 0.5F;
                 m_force.x = m_input_objects.back()->force().x * 0.8F + m_force.x * 0.2F;
                 if (m_input_objects.size() == 1) {
-                    //if (m_input_objects.back()->force().x < 0.0F && m_input_objects.back()->position().x > position().x) {
+                    //if (m_input_objects.back()->force().x < 0.0F and m_input_objects.back()->position().x > position().x) {
                     //    m_force.x -= m_input_objects.back()->force().x * 10.0F;
                     //}
-                    //else if (m_input_objects.back()->force().x > 0.0F && m_input_objects.back()->position().x < position().x) {
+                    //else if (m_input_objects.back()->force().x > 0.0F and m_input_objects.back()->position().x < position().x) {
                     //    m_force.x -= m_input_objects.back()->force().x * 10.0F;
                     //}
                     //// high value so wave bounces back
@@ -236,7 +233,7 @@ namespace entity {
         if (m_force.x < -1.0F) m_force.x = -1.0F;
         if (m_force.x > 1.0F)  m_force.x = 1.0F;
 
-        if (m_force.x > -0.01F && m_force.x < 0.01F) {
+        if (m_force.x > -0.01F and m_force.x < 0.01F) {
             m_force.x = 0.0F;
         }
 
@@ -270,8 +267,8 @@ namespace entity {
             aabb::color(m_aabb_ids.back(), { 255,   0,   0 });
         }
 
-        /*if (m_type == Type::water_line_L && m_number == 0 || 
-            m_type == Type::water_line_R && m_number == 3) {
+        /*if (m_type == Type::water_line_L and m_number == 0 or 
+            m_type == Type::water_line_R and m_number == 3) {
             aabb::color(m_aabb_ids.back(), { 255, 255, 255 });
         }*/
 

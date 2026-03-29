@@ -1,11 +1,10 @@
-module state.edit;
-
+module sheet.edit;
 import console;
 import input;
 import sprite;
 import types;
 
-namespace state {
+namespace sheet {
     void Edit::handle_menu_right() {
         //console::log("handle_menu_right\n");
         cVec2F position = m_mouse_tile_position;
@@ -27,7 +26,7 @@ namespace state {
                 m_layer = (U8)(position.y / 16.0F);
             } else if (position.x == transform::position(m_menu_right_transform_id).x + 16.0F) {
                 U8 layer = (U8)(position.y / 16.0F);
-                if (layer < m_is_hidden_layer_sprite_ids.size() && m_is_hidden_layer_sprite_ids.at(layer)) {
+                if (layer < m_is_hidden_layer_sprite_ids.size() and m_is_hidden_layer_sprite_ids.at(layer)) {
                     sprite::is_hidden(m_is_hidden_layer_sprite_ids.at(layer), !sprite::is_hidden(m_is_hidden_layer_sprite_ids.at(layer)));
                 }
                 if (sprite::is_hidden(m_is_hidden_layer_sprite_ids.at(layer))) {
@@ -43,8 +42,8 @@ namespace state {
                                    sprite::offset(m_text_current_tile_set_bg_sprite_id);
             cRectI bg_sprite_rect = sprite::source_rect(m_text_current_tile_set_bg_sprite_id);
 
-            if (position.x >= bg_sprite_pos.x && position.x <= bg_sprite_pos.x + bg_sprite_rect.w &&
-                position.y >= bg_sprite_pos.y && position.y <= bg_sprite_pos.y + bg_sprite_rect.h) {
+            if (position.x >= bg_sprite_pos.x and position.x <= bg_sprite_pos.x + bg_sprite_rect.w and
+                position.y >= bg_sprite_pos.y and position.y <= bg_sprite_pos.y + bg_sprite_rect.h) {
                 //console::log("state::Edit::handle_menu_down position: ", position.x, " ", position.y, "\n");
                 console::log("state::Edit::handle_menu_down sprite pos: ", bg_sprite_pos.x, " ", bg_sprite_pos.y, "\n");
 

@@ -1,9 +1,8 @@
-module;
-#include <sstream>
 module entity.player;
+import app.config;
 import console;
 import particle_system;
-import state.game.save;
+import sheet.game.save;
 
 namespace entity {
     void Player::collide_x(aabb::cInfo our, aabb::cInfo other) {
@@ -21,10 +20,10 @@ namespace entity {
         cRectF other_rect = { aabb::point(other.id, 0).x, aabb::point(other.id, 0).y,
                               aabb::point(other.id, 3).x, aabb::point(other.id, 3).y };
 
-        /*if (other_rect.x < our_rect.x && velocity().x > 0.0F ||
-            other_rect.x > our_rect.x && velocity().x < 0.0F) return;*/
+        /*if (other_rect.x < our_rect.x and velocity().x > 0.0F or
+            other_rect.x > our_rect.x and velocity().x < 0.0F) return;*/
 
-        cState other_state    = other.owner->state();
+        state::cType other_state    = other.owner->state();
 
         cVec2F our_velocity   = velocity();
         cVec2F other_velocity = other.owner->velocity();
@@ -33,7 +32,7 @@ namespace entity {
 
         cF32 overlap_x = our_rect.x < other_rect.x ? our_rect.w - other_rect.x : -(other_rect.w - our_rect.x);
 
-        if (m_state == State::sling) {
+        if (m_state == state::Type::sling) {
             //position_add_x( -overlap_x );
             //velocity_x(-velocity().x;
 
@@ -43,7 +42,7 @@ namespace entity {
             else if (is_clip(other_type)) {
                 if (!sound_is_playing("bump_head")) {
                     sound_stop("bump_head");
-                    sound_position("bump_head", { position().x / (WINDOW_W / 2.0F), position().y / (WINDOW_H / 2.0F) });
+                    sound_position("bump_head", { position().x / (app::config::extent().x / 2.0F), position().y / (app::config::extent().y / 2.0F) });
                     sound_play("bump_head");
 
                     m_rotation_speed *= -1.0F;
@@ -59,14 +58,14 @@ namespace entity {
             //if (m_is_climbing_ledge) {
             //    return;
             //}
-            //if (m_is_on_ground && m_is_on_slope) {
+            //if (m_is_on_ground and m_is_on_slope) {
             //    position_add_x(-overlap_x);
             //    velocity_x(velocity().x * 0.0F);
             //    //return;
             //}
             //collide_y(our, other);
         }
-        else if (is_slope(other_type) && other_type != Type::slope_U && m_state == State::swim) {
+        else if (is_slope(other_type) and other_type != Type::slope_U and m_state == state::Type::swim) {
             collide_y(our, other);
         }
         else if (other_type == Type::brick) {
@@ -74,7 +73,7 @@ namespace entity {
                 collide_y(our, other);
                 return;
             }
-            if (our_rect.h < other_rect.y + 2.0F ||
+            if (our_rect.h < other_rect.y + 2.0F or
                 our_rect.y > other_rect.h - 2.0F) {
                 //collide_y(our, other);
                 return;
@@ -100,28 +99,28 @@ namespace entity {
                 velocity().y -= 2.0F;
                 position_add_x( -overlap_x );
             }*/
-            /*if (our_rect.h < other_rect.y + 2.0F ||
+            /*if (our_rect.h < other_rect.y + 2.0F or
                 our_rect.y > other_rect.h - 2.0F) {
                 return;
             }
             position_add_x( -overlap_x );*/
         }
         else if (other_type == Type::clip) {
-            if (our_rect.h > other_rect.y && our_rect.h - other_rect.y < 2.0F) return;
+            if (our_rect.h > other_rect.y and our_rect.h - other_rect.y < 2.0F) return;
             m_is_wall_to_left = other_rect.x < our_rect.x;
             position_add_x(-overlap_x);
             velocity_x(0.0F);
             moved_velocity_x(0.0F);
 
-            if (m_state == State::dive) {
-                if (our_velocity.y > 0.0F &&
-                    (m_is_wall_to_left && is_pressed(key_left)) || is_pressed(key_right)) {
-                    next_state(State::run);
+            if (m_state == state::Type::dive) {
+                if (our_velocity.y > 0.0F and
+                    (m_is_wall_to_left and is_pressed(key_left)) or is_pressed(key_right)) {
+                    next_state(state::Type::run);
                     return;
                 }
             }
-            if (m_time_left_jumping_wall == 0 && our_velocity.y > 0.0F &&
-                (m_is_wall_to_left && is_pressed(key_left) || !m_is_wall_to_left && is_pressed(key_right))) {
+            if (m_time_left_jumping_wall == 0 and our_velocity.y > 0.0F and
+                (m_is_wall_to_left and is_pressed(key_left) or !m_is_wall_to_left and is_pressed(key_right))) {
                 m_is_sliding_wall = true;
                 if (velocity().y > 1.0F) {
                     velocity_y(1.0F);
@@ -129,14 +128,14 @@ namespace entity {
                 sprite::is_leftward(m_sprite_id, !m_is_wall_to_left);
             }
         }
-        else if (other_type == Type::clip_U || other_type == Type::slope_U) { }
+        else if (other_type == Type::clip_U or other_type == Type::slope_U) { }
         else if (other_type == Type::clip_D) {
-            if ((/*other_rect.h < our_rect.y &&*/ m_is_on_ground) || m_is_climbing_ledge) {
+            if ((/*other_rect.h < our_rect.y and*/ m_is_on_ground) or m_is_climbing_ledge) {
                 m_time_left_rising = m_time_to_rise;
                 m_time_left_ducking = m_time_to_duck;
                 if (!is_pressed(key_down)) {
-                    if (velocity().x < 0.0F && velocity().x < -m_slide_ground_velocity_limit.x ||
-                        velocity().x > 0.0F && velocity().x > m_slide_ground_velocity_limit.x) {
+                    if (velocity().x < 0.0F and velocity().x < -m_slide_ground_velocity_limit.x or
+                        velocity().x > 0.0F and velocity().x > m_slide_ground_velocity_limit.x) {
                         velocity_x(velocity().x * 0.5F);
                     }
                 }
@@ -144,23 +143,23 @@ namespace entity {
             }
         }
         else if (other_type == Type::clip_ledge) {
-            if (m_state == State::ledge) return;
-            if (our_rect.h > other_rect.y && our_rect.h - other_rect.y < 2.0F) return;
+            if (m_state == state::Type::ledge) return;
+            if (our_rect.h > other_rect.y and our_rect.h - other_rect.y < 2.0F) return;
             if (our_rect.y > other_rect.h - 2.0F) {
-                //console::log("entity::Player::collide_x clip_ledge skip\n");
+                //console::log(class_name(), "::collide_x clip_ledge skip\n");
                 return;
             }
             if (our_rect.h < other_rect.y + 2.0F) {
-                //console::log("entity::Player::collide_x clip_ledge above skip\n");
+                //console::log(class_name(), "::collide_x clip_ledge above skip\n");
                 return;
             }
-            if (our_velocity.x < 0.0F && our_rect.w < other_rect.x + our_velocity.x ||
-                our_velocity.x > 0.0F && our_rect.x > other_rect.w + our_velocity.x) {
+            if (our_velocity.x < 0.0F and our_rect.w < other_rect.x + our_velocity.x or
+                our_velocity.x > 0.0F and our_rect.x > other_rect.w + our_velocity.x) {
                 return;
             }
 
             position_add_x(-overlap_x);
-            if (m_state == State::swim) {
+            if (m_state == state::Type::swim) {
                 return;
             }
             velocity_x(0.0F);
@@ -168,70 +167,71 @@ namespace entity {
             moved_velocity_y(0.0F);
             m_is_wall_to_left = other_rect.x < our_rect.x;
 
-            if (m_state == State::dive) {
-                if (velocity().y > 0.0F &&
-                    (m_is_wall_to_left && is_pressed(key_left)) || is_pressed(key_right)) {
-                    next_state(State::run);
+            if (m_state == state::Type::dive) {
+                if (velocity().y > 0.0F and
+                    (m_is_wall_to_left and is_pressed(key_left)) or is_pressed(key_right)) {
+                    next_state(state::Type::run);
                     return;
                 }
             }
             m_is_on_slope = false;
-            if (m_is_hovering || is_locked(key_jump) || m_is_carrying) return;
-            //if (m_is_on_ground && !is_pressed(key_up)) return;
+            if (m_is_hovering or is_locked(key_jump) or m_is_carrying) return;
+            //if (m_is_on_ground and !is_pressed(key_up)) return;
 
-            if ((m_is_wall_to_left && our_velocity.x > 0.0F) ||
-                (!m_is_wall_to_left && our_velocity.x < 0.0F)) {                
+            if ((m_is_wall_to_left and our_velocity.x > 0.0F) or
+                (!m_is_wall_to_left and our_velocity.x < 0.0F)) {                
                 return;
             }
 
-            if (m_time_left_jumping_wall == 0 && our_velocity.y > 0.0F &&
-                (m_is_wall_to_left && is_pressed(key_left) || !m_is_wall_to_left && is_pressed(key_right))) {
+            if (m_time_left_jumping_wall == 0 and our_velocity.y > 0.0F and
+                (m_is_wall_to_left and is_pressed(key_left) or !m_is_wall_to_left and is_pressed(key_right))) {
                 m_is_sliding_wall = true;
                 if (our_velocity.y > 1.0F) {
                     velocity_y(1.0F);
                 }
                 sprite_is_leftward(!m_is_wall_to_left);
             }
-            if (is_pressed(key_jump) && !is_locked(key_jump) && m_time_left_jumping_wall <= 0.0F && !m_is_carrying && !m_is_hovering) {
+            if (is_pressed(key_jump) and !is_locked(key_jump) and m_time_left_jumping_wall <= 0.0F and !m_is_carrying and !m_is_hovering) {
                 m_time_left_jumping_wall = m_time_to_jump_wall;
                 m_num_jumps = 0;
             }
-            if (our_velocity.y > 0.0F && !m_is_carrying && !m_is_hovering) {
-                if (m_is_wall_to_left && is_pressed(key_left) ||
-                    !m_is_wall_to_left && is_pressed(key_right)) {
-                    if (m_state != State::ledge && our_rect.y < other_rect.y - 1.0F && our_rect.y + 16 > other_rect.y) {
+            if (our_velocity.y > 0.0F and !m_is_carrying and !m_is_hovering) {
+                if (m_is_wall_to_left and is_pressed(key_left) or
+                    !m_is_wall_to_left and is_pressed(key_right)) {
+                    if (m_state != state::Type::ledge and our_rect.y < other_rect.y - 1.0F and our_rect.y + 16 > other_rect.y) {
                         
-                        m_next_state = State::ledge;
+                        m_next_state = state::Type::ledge;
                         m_is_sliding_wall = false;
                         position_y(other_rect.y - 6);
                         velocity_y(0.0F);
 
                         reset_anim("ledge_grab");
 
-                        sound_position("ledge_grab", { position().x / (WINDOW_W / 2.0F), position().y / (WINDOW_H / 2.0F) });
+                        sound_position("ledge_grab", { position().x / (app::config::extent().x / 2.0F),
+                                                       position().y / (app::config::extent().y / 2.0F) });
                         sound_play("ledge_grab");
                     }
                 }
             }
         }
         else if (other_type == Type::clip_L) {
-            if (our_velocity.x < 0.0F || m_state == State::ledge) return;
+            if (our_velocity.x < 0.0F or m_state == state::Type::ledge) return;
             position_add_x(-overlap_x);            
             velocity_x(0.0F);
             moved_velocity_x(0.0F);
             moved_velocity_y(0.0F);
             m_is_wall_to_left = false;
-            if (m_state == State::dive && velocity().y > 0.0F && is_pressed(key_right)) {
-                m_next_state = State::run;
+            if (m_state == state::Type::dive and velocity().y > 0.0F and is_pressed(key_right)) {
+                m_next_state = state::Type::run;
                 return;
             }
             m_is_on_slope = false;
             
             if (m_is_on_ground) return;
 
-            if (m_state != State::run) return;
+            if (m_state != state::Type::run) return;
 
-            if (our_velocity.y > 0.0F && is_pressed(key_right) && m_time_left_jumping_wall == 0 && !m_is_on_ground && !m_is_carrying && !m_is_hovering) {
+            if (our_velocity.y > 0.0F and is_pressed(key_right) and m_time_left_jumping_wall == 0 and !m_is_on_ground and !m_is_carrying and !m_is_hovering) {
                 m_is_sliding_wall = true;
                 sprite::is_leftward(m_sprite_id, true);
                 if (velocity().y > 1.0F) {
@@ -239,40 +239,40 @@ namespace entity {
                 }
                 //set_anim(m_anim_ids["slide_wall"]);
             }
-            if (is_pressed(key_jump) && !is_locked(key_jump) && m_time_left_jumping_wall <= 0.0F) {
+            if (is_pressed(key_jump) and !is_locked(key_jump) and m_time_left_jumping_wall <= 0.0F) {
                 m_time_left_jumping_wall = m_time_to_jump_wall;
                 m_num_jumps = 0;
             }
         }
         else if (other_type == Type::clip_LD) {
-            if ((/*other_rect.h < our_rect.y &&*/ m_is_on_ground) || m_is_climbing_ledge) {
+            if ((/*other_rect.h < our_rect.y and*/ m_is_on_ground) or m_is_climbing_ledge) {
                 m_time_left_rising = m_time_to_rise;
                 m_time_left_ducking = m_time_to_duck;
                 if (!is_pressed(key_down)) {
-                    if (velocity().x < 0.0F && velocity().x < -m_slide_ground_velocity_limit.x ||
-                        velocity().x > 0.0F && velocity().x > m_slide_ground_velocity_limit.x) {
+                    if (velocity().x < 0.0F and velocity().x < -m_slide_ground_velocity_limit.x or
+                        velocity().x > 0.0F and velocity().x > m_slide_ground_velocity_limit.x) {
                         velocity_x(velocity().x * 0.5F);
                     }
                 }
                 return;
             }
 
-            if (our_velocity.x <= 0.0F || m_state == State::ledge) return;
+            if (our_velocity.x <= 0.0F or m_state == state::Type::ledge) return;
 
             position_add_x(-overlap_x);            
             velocity_x(0.0F);
             moved_velocity_x(0.0F);
             moved_velocity_y(0.0F);
             m_is_wall_to_left = false;
-            if (m_state == State::dive && our_velocity.y > 0.0F) {
-                m_next_state = State::run;
+            if (m_state == state::Type::dive and our_velocity.y > 0.0F) {
+                m_next_state = state::Type::run;
                 return;
             }
             m_is_on_slope = false;
             
             if (m_is_on_ground) return;
 
-            if (our_velocity.y > 0.0F && is_pressed(key_right) && m_time_left_jumping_wall == 0 && !m_is_on_ground && !m_is_carrying && !m_is_hovering) {
+            if (our_velocity.y > 0.0F and is_pressed(key_right) and m_time_left_jumping_wall == 0 and !m_is_on_ground and !m_is_carrying and !m_is_hovering) {
                 m_is_sliding_wall = true;
                 sprite::is_leftward(m_sprite_id, true);
                 if (our_velocity.y > 1.0F) {
@@ -280,25 +280,25 @@ namespace entity {
                 }
                 //set_anim(m_anim_ids["slide_wall"]);
             }
-            if (is_pressed(key_jump) && !is_locked(key_jump) && m_time_left_jumping_wall <= 0.0F) {
+            if (is_pressed(key_jump) and !is_locked(key_jump) and m_time_left_jumping_wall <= 0.0F) {
                 m_time_left_jumping_wall = m_time_to_jump_wall;
                 m_num_jumps = 0;
             }
         }
         else if (other_type == Type::clip_R) {
-            if (our_velocity.x >= 0.0F || m_state == State::ledge) return;
+            if (our_velocity.x >= 0.0F or m_state == state::Type::ledge) return;
             position_add_x(-overlap_x);            
             velocity_x(0.0F);
             moved_velocity_x(0.0F);
             moved_velocity_y(0.0F);
             m_is_wall_to_left = true;
-            if (m_state == State::dive && our_velocity.y > 0.0F && is_pressed(key_left)) {
-                m_next_state = State::run;
+            if (m_state == state::Type::dive and our_velocity.y > 0.0F and is_pressed(key_left)) {
+                m_next_state = state::Type::run;
                 return;
             }
             m_is_on_slope = false;
             if (m_is_on_ground) return;
-            if (our_velocity.y > 0.0F && is_pressed(key_left) && m_time_left_jumping_wall == 0 && !m_is_on_ground && !m_is_carrying && !m_is_hovering) {
+            if (our_velocity.y > 0.0F and is_pressed(key_left) and m_time_left_jumping_wall == 0 and !m_is_on_ground and !m_is_carrying and !m_is_hovering) {
                 m_is_sliding_wall = true;
                 sprite::is_leftward(m_sprite_id, false);
                 if (our_velocity.y > 1.0F) {
@@ -306,39 +306,39 @@ namespace entity {
                 }
                 //set_anim(m_anim_ids["slide_wall"]);
             }
-            if (is_pressed(key_jump) && !is_locked(key_jump) && m_time_left_jumping_wall <= 0.0F && !m_is_carrying && !m_is_hovering) {
+            if (is_pressed(key_jump) and !is_locked(key_jump) and m_time_left_jumping_wall <= 0.0F and !m_is_carrying and !m_is_hovering) {
                 m_time_left_jumping_wall = m_time_to_jump_wall;
                 m_num_jumps = 0;
             }
         }
         else if (other_type == Type::clip_RD) {
-            if ((/*other_rect.h < our_rect.y &&*/ m_is_on_ground) || m_is_climbing_ledge) {
+            if ((/*other_rect.h < our_rect.y and*/ m_is_on_ground) or m_is_climbing_ledge) {
                 m_time_left_rising = m_time_to_rise;
                 m_time_left_ducking = m_time_to_duck;
-                if (!is_pressed(key_down)) {
-                    if (velocity().x < 0.0F && velocity().x < -m_slide_ground_velocity_limit.x ||
-                        velocity().x > 0.0F && velocity().x > m_slide_ground_velocity_limit.x) {
+                if (not is_pressed(key_down)) {
+                    if (velocity().x < 0.0F and velocity().x < -m_slide_ground_velocity_limit.x or
+                        velocity().x > 0.0F and velocity().x > m_slide_ground_velocity_limit.x) {
                         velocity_x(velocity().x * 0.5F);
                     }
                 }
                 return;
             }
 
-            if (our_velocity.x >= 0.0F || m_state == State::ledge) return;
+            if (our_velocity.x >= 0.0F or m_state == state::Type::ledge) return;
 
             position_add_x(-overlap_x);            
             velocity_x(0.0F);
             moved_velocity_x(0.0F);
             moved_velocity_y(0.0F);
-            if (m_state == State::dive && our_velocity.y > 0.0F) {
-                m_next_state = State::run;
+            if (m_state == state::Type::dive and our_velocity.y > 0.0F) {
+                m_next_state = state::Type::run;
                 return;
             }
             m_is_wall_to_left = true;
             m_is_on_slope = false;
             
             if (m_is_on_ground) return;
-            if (our_velocity.y > 0.0F && is_pressed(key_left) && m_time_left_jumping_wall == 0 && !m_is_on_ground && !m_is_carrying && !m_is_hovering) {
+            if (our_velocity.y > 0.0F and is_pressed(key_left) and m_time_left_jumping_wall == 0 and !m_is_on_ground and !m_is_carrying and !m_is_hovering) {
                 m_is_sliding_wall = true;
                 sprite::is_leftward(m_sprite_id, false);
                 if (our_velocity.y > 1.0F) {
@@ -346,7 +346,7 @@ namespace entity {
                 }
                 //set_anim(m_anim_ids["slide_wall"]);
             }
-            if (is_pressed(key_jump) && !is_locked(key_jump) && m_time_left_jumping_wall <= 0.0F && !m_is_carrying && !m_is_hovering) {
+            if (is_pressed(key_jump) and !is_locked(key_jump) and m_time_left_jumping_wall <= 0.0F and !m_is_carrying and !m_is_hovering) {
                 m_time_left_jumping_wall = m_time_to_jump_wall;
                 m_num_jumps = 0;
             }
@@ -361,7 +361,8 @@ namespace entity {
         else if (other_type == Type::coin) {
             if (other.owner->is_dead()) return;
             
-            sound::position(other.owner->sound_id("dead"), { (other_rect.x + 4.0F) / WINDOW_W / 2.0F, (other_rect.y + 4.0F) / WINDOW_H / 2.0F });
+            sound::position(other.owner->sound_id("dead"), { (other_rect.x + 4.0F) / app::config::extent().x / 2.0F,
+                                                             (other_rect.y + 4.0F) / app::config::extent().y / 2.0F });
             sound::play(other.owner->sound_id("dead"));
             
             other.owner->time_left_alive(0);
@@ -369,10 +370,10 @@ namespace entity {
 
             console::log(class_name(), "::collide_x() coin: ", other_number, "\n");
 
-            state::game::add_picked_coin(other_number);
+            sheet::game::add_picked_coin(other_number);
         }
         else if (other_type == Type::frog) {
-            if (m_state == State::sling) {
+            if (m_state == state::Type::sling) {
                 console::log("Player::collide_x() frog state: sling, nah\n");
                 return;
             }
@@ -428,8 +429,8 @@ namespace entity {
             if (our_rect.h > other_rect.h) return;
 
             //if (velocity().x < 0.0F) return;
-            if (m_state == State::swim) {
-                if (our_velocity.x > 0.0F && std::abs(our_velocity.y) < our_velocity.x) {
+            if (m_state == state::Type::swim) {
+                if (our_velocity.x > 0.0F and std::abs(our_velocity.y) < our_velocity.x) {
                     velocity_y(-our_velocity.x * 0.9F);
                     velocity_x(velocity().x * 0.95f);
                     position_add({ 0.0F, -1.0F });
@@ -452,8 +453,8 @@ namespace entity {
             if (our_rect.h > other_rect.h) return;
 
             //if (velocity().x > 0.0F) return;
-            if (m_state == State::swim) {
-                if (our_velocity.x < 0.0F && std::abs(our_velocity.y) < our_velocity.x) {
+            if (m_state == state::Type::swim) {
+                if (our_velocity.x < 0.0F and std::abs(our_velocity.y) < our_velocity.x) {
                     velocity_y(our_velocity.x * 0.9F);
                     velocity_x(velocity().x * 0.95F);
                     position_add({ 0.0F, -1.0F });
@@ -472,13 +473,13 @@ namespace entity {
             m_is_on_ground = true;
             m_is_on_slope = true;
         }
-        else if (other_type == Type::slope_L_2x1_0 || other_type == Type::slope_L_2x1_1) {
+        else if (other_type == Type::slope_L_2x1_0 or other_type == Type::slope_L_2x1_1) {
             return;
             if (our_rect.h > other_rect.h) return;
 
             //if (velocity().x < 0.0F) return;
-            if (m_state == State::swim) {
-                if (our_velocity.x > 0.0F && std::abs(our_velocity.y) < our_velocity.x) {
+            if (m_state == state::Type::swim) {
+                if (our_velocity.x > 0.0F and std::abs(our_velocity.y) < our_velocity.x) {
                     velocity_y(-our_velocity.x * 0.5F);
                     velocity_x(our_velocity.x * 0.95F);
                     position_add({ 0.0F, -1.0F });
@@ -496,13 +497,13 @@ namespace entity {
             m_is_on_ground = true;
             m_is_on_slope = true;
         }
-        else if (other_type == Type::slope_R_2x1_0 || other_type == Type::slope_R_2x1_1) {
+        else if (other_type == Type::slope_R_2x1_0 or other_type == Type::slope_R_2x1_1) {
             return;
             if (our_rect.h > other_rect.h) return;
 
             //if (velocity().x > 0.0F) return;
-            if (m_state == State::swim) {
-                if (our_velocity.x < 0.0F && std::abs(our_velocity.y) < our_velocity.x) {
+            if (m_state == state::Type::swim) {
+                if (our_velocity.x < 0.0F and std::abs(our_velocity.y) < our_velocity.x) {
                     velocity_y(our_velocity.x * 0.5F);
                     velocity_x(velocity().x * 0.95f);
                     position_add({ 0.0F, -1.0F });
@@ -541,7 +542,7 @@ namespace entity {
             collide_y(our, other);
         }
 
-        if (m_is_sliding_wall && m_state == State::run) {
+        if (m_is_sliding_wall and m_state == state::Type::run) {
             //console::log(class_name(), "::collide_x() sliding wall: ", (int)m_time_sliding_wall, "\n");
             if (m_time_sliding_wall > 5) {
                 m_time_sliding_wall = 0;

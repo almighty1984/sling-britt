@@ -1,7 +1,3 @@
-module;
-#include <cmath>
-#include <sstream>
-
 export module entity.grass;
 import anim;
 import camera;
@@ -21,7 +17,7 @@ export namespace entity {
         bool m_is_in_view = false;
     public:        
         void collide_x(aabb::cInfo our, aabb::cInfo other) override {
-            if (!our.owner || !other.owner) return;
+            if (!our.owner or !other.owner) return;
 
             entity::cType other_type = other.owner->type();
 
@@ -36,15 +32,15 @@ export namespace entity {
             cF32 other_w = other_rect.w - other_rect.x;
             cF32 other_mid_x = other_rect.x + other_w / 2.0f;
 
-            if (other_type == entity::Type::player &&
-                (anim::type(other.owner->current_anim_id()) == anim::Type::run || anim::type(other.owner->current_anim_id()) == anim::Type::walk) &&
-                (sprite::source_rect(other.owner->sprite_id()).x == 64 || sprite::source_rect(other.owner->sprite_id()).x == 320)) {
+            if (other_type == entity::Type::player and
+                (anim::type(other.owner->current_anim_id()) == anim::Type::run or anim::type(other.owner->current_anim_id()) == anim::Type::walk) and
+                (sprite::source_rect(other.owner->sprite_id()).x == 64 or sprite::source_rect(other.owner->sprite_id()).x == 320)) {
                 return;
             }
 
-            if (other_type == entity::Type::bug  ||
-                other_type == entity::Type::frog ||
-                other_type == entity::Type::mole ||
+            if (other_type == entity::Type::bug  or
+                other_type == entity::Type::frog or
+                other_type == entity::Type::mole or
                 other_type == entity::Type::player) {
                 //console::log("source x: ", other.owner->sprite()->source_rect.x, "\n");
                 //console::log("anim type: ", anim::to_string(other.owner->anim()->type), "\n");                
@@ -76,7 +72,7 @@ export namespace entity {
                 //console::log("grass origin: ", sprite()->origin.x, " ", sprite()->origin.y, "\n");
             }
             //console::log("pos: ", position().x, " ", m_start_offset.x, "\n");            
-            if (camera::position.x          > m_start_offset.x ||
+            if (camera::position.x          > m_start_offset.x or
                 camera::position.x + 320.0f < m_start_offset.x
                 ) {
                 m_is_in_view = false;

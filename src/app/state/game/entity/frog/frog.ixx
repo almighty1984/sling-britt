@@ -1,7 +1,3 @@
-module;
-#include <cmath>
-#include <sstream>
-
 export module entity.frog;
 import anim;
 import console;
@@ -22,10 +18,12 @@ export namespace entity {
               m_tounge_end,
               m_sensed_position;
 
-        State m_sensed_state;        
+        state::Type m_sensed_state;        
     public:
+        const char* class_name() override { return "entity::\033[0;32mFrog\033[0m"; }
+
         Frog() {            
-            m_state = m_next_state = m_start_state = State::idle;
+            m_state = m_next_state = m_start_state = state::Type::idle;
             m_tounge_line_id = line::make(m_tounge_start, m_tounge_end);
             line::is_hidden(m_tounge_line_id, true);
         }
@@ -61,37 +59,20 @@ export namespace entity {
                 sprite::is_leftward(m_sprite_id, false);
             }
 
-            /*if (velocity().y < 0.0F && !m_is_on_slope) {
+            /*if (velocity().y < 0.0F and !m_is_on_slope) {
                 m_is_on_ground = false;
             }*/
 
             deceleration_x(m_is_on_ground ? 0.2F : 0.0F);
 
-            if (m_next_state != m_state) {
-                m_prev_state = m_state;
-                m_state = m_next_state;
-                m_time_left_in_state = m_time_left_in_next_state;
-                m_is_first_state_update = true;
-            }
-            switch (m_state) {
-            case State::blocked: state_blocked(); break;
-            case State::dead:    state_dead();    break;
-            case State::heal:    state_heal();    break;
-            case State::hurt:    state_hurt();    break;
-            case State::idle:    state_idle();    break;
-            case State::jump:    state_jump();    break;
-            case State::melee:   state_melee();   break;
-            case State::stunned: state_stunned(); break;
-            case State::swim:    state_swim();    break;
-            default:                              break;
-            }
+            state_update();
 
             //console::log("Frog::update() state: ", to_string(m_state), "\n");
 
             sprite::source_rect(m_sprite_id, anim::source(m_current_anim_id));
 
             if (health::amount(m_health_id) <= 0.0f) {
-                m_next_state = State::dead;
+                m_next_state = state::Type::dead;
             }
             health::layer(m_health_id, m_start_layer);
         }

@@ -1,5 +1,3 @@
-module;
-#include <sstream>
 export module entity.particle;
 import anim;
 import console;
@@ -21,11 +19,11 @@ export namespace entity {
                 m_time_left_dead = m_time_to_be_dead;
                 //m_start_offset = position_on_level();
             }
-            /*if (m_time_left_alive == 0 && m_time_left_dead == 0) {
+            /*if (m_time_left_alive == 0 and m_time_left_dead == 0) {
                 m_is_to_erase = true;
                 return;
             }*/
-            if (m_type == entity::Type::particle_sense && m_parent && m_parent->state() == entity::State::melee) {
+            if (m_type == entity::Type::particle_sense and m_parent and m_parent->state() == state::Type::melee) {
                 m_is_to_erase = true;
             }
             if (m_time_left_hurt > 0) {
@@ -40,9 +38,9 @@ export namespace entity {
             velocity_add_y(acceleration().y);
 
             switch (m_state) {
-                case State::idle: state_idle();  break;                
-                case State::dead: state_dead();  break;
-                default:                         break;
+                case state::Type::idle: state_idle();  break;                
+                case state::Type::dead: state_dead();  break;
+                default:                               break;
             }
             if (m_time_left_alive > 0) {
                 --m_time_left_alive;

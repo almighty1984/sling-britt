@@ -1,15 +1,10 @@
-module;
-#include <fstream>
-#include <sstream>
-
-module state.edit;
-
+module sheet.edit;
 import console;
 import transform;
 import sprite;
 import types;
 
-namespace state {
+namespace sheet {
     bool Edit::load_types_from_text_file(const std::filesystem::path& path) {
         std::ifstream in_file(path);
 
@@ -38,7 +33,7 @@ namespace state {
 
         size_t label_start = file_text.find("\n", open_bracket);
         while (label_start < close_bracket) {
-            while (file_text.at(label_start) == '	' || file_text.at(label_start) == ' ' || file_text.at(label_start) == '\n') {
+            while (file_text.at(label_start) == '	' or file_text.at(label_start) == ' ' or file_text.at(label_start) == '\n') {
                 ++label_start;
             }
             const size_t label_end = file_text.find(" ",  label_start);
@@ -50,7 +45,7 @@ namespace state {
             cU16 number = std::stoi(number_label);
 
             size_t type_start = equals + 1;
-            while (file_text.at(type_start) == '	' || file_text.at(type_start) == ' ' || file_text.at(type_start) == '\n') {
+            while (file_text.at(type_start) == '	' or file_text.at(type_start) == ' ' or file_text.at(type_start) == '\n') {
                 ++type_start;
             }
             const std::string type = file_text.substr(type_start, end_line - type_start);
@@ -73,7 +68,7 @@ namespace state {
         m_text_bar.clear_text();
 
         if (tile_set == 255) {
-            if (!m_selection_on_tile_set_sprite_ids.empty() && 
+            if (!m_selection_on_tile_set_sprite_ids.empty() and 
                 m_types.find(entity::Info{ 255, m_tile_number }) != m_types.end()) {
                 m_text_bar.set_text(m_types.at(entity::Info{ 255, m_tile_number }));
             }
@@ -138,7 +133,7 @@ namespace state {
         //transform::get(m_tile_set_transform_id)->position.x = view().w - 32.0F;
         //transform::get(m_tile_set_transform_id)->position.y = view().w == 480.0F ? 240.0F : 160.0F;
 
-        /*if (!m_selection_on_tile_set_sprite_ids.empty() && sprite::get(m_selection_on_tile_set_sprite_ids.back())) {
+        /*if (!m_selection_on_tile_set_sprite_ids.empty() and sprite::get(m_selection_on_tile_set_sprite_ids.back())) {
             cVec2F tile_offset = sprite::get(m_selection_on_tile_set_sprite_ids.back())->offset;
             sprite::get(m_tile_set_sprite_id)->source_rect = { (I32)tile_offset.x, (I32)tile_offset.y, 16, 16 };
             sprite::get(m_tile_set_sprite_id)->layer = MENU_LAYER + 1;
@@ -215,7 +210,7 @@ namespace state {
         if (m_tile_set != 255) {
             m_text_bar.clear_text();
         }
-        else if (m_tile_set == 255 && m_selection_on_tile_set_sprite_ids.size() == 1) {
+        else if (m_tile_set == 255 and m_selection_on_tile_set_sprite_ids.size() == 1) {
             cVec2F tile_offset = offset / 16.0F;
             m_tile_number = std::fmodf(tile_offset.x, 32.0F) + tile_offset.y * 32.0F;
 
@@ -270,18 +265,18 @@ namespace state {
         console::log("state::Edit::move_selection_on_tile_set ", amount.x, " ", amount.y, "\n");
         if (m_selection_on_tile_set_sprite_ids.empty()) return false;
         for (auto& i : m_selection_on_tile_set_sprite_ids) {
-            if (sprite::offset(i).x + amount.x < 0 || sprite::offset(i).y + amount.y < 0 ||
-                sprite::offset(i).x + amount.x > 496.0F || sprite::offset(i).y + amount.y > 496.0F) {
+            if (sprite::offset(i).x + amount.x < 0 or sprite::offset(i).y + amount.y < 0 or
+                sprite::offset(i).x + amount.x > 496.0F or sprite::offset(i).y + amount.y > 496.0F) {
                 return false;
             }
 
             //cF32 edge_y = m_is_showing_tile_set ? 0.0F : 512.0F;
             if (m_is_showing_tile_set) {
                 cF32 edge_y = 0.0F;
-                if (amount.x < 0.0F && transform::position(m_tile_set_transform_id).x + sprite::offset(i).x + amount.x < 0.0F ||
-                    amount.x > 0.0F && transform::position(m_tile_set_transform_id).x + sprite::offset(i).x + amount.x > view().w - 48.0F ||
-                    amount.y < 0.0F && transform::position(m_tile_set_transform_id).y + sprite::offset(i).y + amount.y < edge_y ||
-                    amount.y > 0.0F && transform::position(m_tile_set_transform_id).y + sprite::offset(i).y + amount.y > edge_y + view().h - 32.0F) {
+                if (amount.x < 0.0F and transform::position(m_tile_set_transform_id).x + sprite::offset(i).x + amount.x < 0.0F or
+                    amount.x > 0.0F and transform::position(m_tile_set_transform_id).x + sprite::offset(i).x + amount.x > view().w - 48.0F or
+                    amount.y < 0.0F and transform::position(m_tile_set_transform_id).y + sprite::offset(i).y + amount.y < edge_y or
+                    amount.y > 0.0F and transform::position(m_tile_set_transform_id).y + sprite::offset(i).y + amount.y > edge_y + view().h - 32.0F) {
                     move_tile_set(-amount);
                 }
             }
@@ -289,7 +284,7 @@ namespace state {
         //transform::get(m_tile_set_transform_id)->position += amount;
 
         for (auto& i : m_selection_on_tile_set_sprite_ids) {
-            sprite::add_offset(i, amount);
+            sprite::offset_add(i, amount);
         }
 
         cVec2F offset = sprite::offset(m_selection_on_tile_set_sprite_ids.front());
@@ -301,7 +296,7 @@ namespace state {
         m_tile_number = std::fmodf(tile_offset.x, 32.0F) + tile_offset.y * 32.0F;
 
         if (m_is_showing_tile_set) {
-            if (m_tile_set == 255 && m_selection_on_tile_set_sprite_ids.size() == 1) {
+            if (m_tile_set == 255 and m_selection_on_tile_set_sprite_ids.size() == 1) {
                 if (m_types.find(entity::Info{ 255, m_tile_number }) != m_types.end()) {
                     m_text_bar.set_text(m_types.at(entity::Info{ 255, m_tile_number }));
                 }

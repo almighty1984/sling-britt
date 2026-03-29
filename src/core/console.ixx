@@ -12,7 +12,7 @@ std::string s_log, s_prev_text, s_prev_command;
 
 export namespace console {
     void log() { }
-    template <typename First, typename... Rest> //requires StringLike<First> && (StringLike<Rest> && ...)    
+    template <typename First, typename... Rest> //requires StringLike<First> and (StringLike<Rest> and ...)    
     void log(First first, Rest... rest) {
         std::ostringstream oss;
         oss << first;

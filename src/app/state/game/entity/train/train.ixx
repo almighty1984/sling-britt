@@ -4,6 +4,7 @@ import anim;
 import camera;
 import console;
 import entity;
+import std;
 
 export namespace entity {
     class Train : public Object {
@@ -53,33 +54,33 @@ export namespace entity {
 
             //console::log("entity::Train::update() direction: ", m_direction.x, " ", m_direction.y, "\n");
             
-            if (velocity().x < -0.05F || velocity().x > 0.05F) {
+            if (velocity().x < -0.05F or velocity().x > 0.05F) {
                 m_prev_velocity.x = velocity().x;
             }
-            if (velocity().y < -0.05F || velocity().y > 0.05F) {
+            if (velocity().y < -0.05F or velocity().y > 0.05F) {
                 m_prev_velocity.y = velocity().y;
             }
 
             if (m_time_left_alive > 0) {
-                if (m_start_speed > 0.0F && m_speed < m_start_speed) {
+                if (m_start_speed > 0.0F and m_speed < m_start_speed) {
                     m_speed += 0.2F;
-                } else if (m_start_speed < 0.0F && m_speed > m_start_speed) {
+                } else if (m_start_speed < 0.0F and m_speed > m_start_speed) {
                     m_speed -= 0.2F;
                 }
-                if (m_start_speed > 0.0F && m_speed > m_start_speed ||
-                    m_start_speed < 0.0F && m_speed < m_start_speed) {
+                if (m_start_speed > 0.0F and m_speed > m_start_speed or
+                    m_start_speed < 0.0F and m_speed < m_start_speed) {
                     m_speed = m_start_speed;
                 }
-                if (velocity().x >= -0.05F && velocity().x <= 0.05F &&
-                    velocity().y >= -0.05F && velocity().y <= 0.05F) {
+                if (velocity().x >= -0.05F and velocity().x <= 0.05F and
+                    velocity().y >= -0.05F and velocity().y <= 0.05F) {
                     //console::log("entity::Train at zero\n");
                     velocity(m_prev_velocity);
                 }
             } else {
                 m_speed *= 0.5f;
-                if (m_speed > 0.0F && m_speed < 0.01f) {
+                if (m_speed > 0.0F and m_speed < 0.01f) {
                     m_speed = 0.0F;          
-                } else if (m_speed < 0.0F && m_speed > -0.01f) {
+                } else if (m_speed < 0.0F and m_speed > -0.01f) {
                     m_speed = 0.0F;
                 }
             }

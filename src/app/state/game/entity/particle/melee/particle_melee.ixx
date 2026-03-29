@@ -1,6 +1,3 @@
-module;
-#include <sstream>
-
 export module entity.particle.melee;
 import camera;
 import console;
@@ -15,7 +12,7 @@ export namespace entity {
     public:
         ParticleMelee() {
             m_type = Type::particle_melee;
-            m_next_state = State::idle;
+            m_next_state = state::Type::idle;
         }
         bool hurt(Object* culprit) override;
 

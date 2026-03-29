@@ -1,11 +1,12 @@
 module entity.brick;
-import particle_system;
+import app.config;
 import aabb;
+import particle_system;
 
 namespace entity {
     void Brick::state_carried() {
         if (!m_parent) {
-            m_next_state = entity::State::idle;
+            m_next_state = state::Type::idle;
             return;
         }
         if (m_is_first_state_update) {
@@ -13,8 +14,8 @@ namespace entity {
         }
         m_is_on_ground = false;
 
-        //console::log("entity::Brick::carried is near wall: ", m_is_near_wall_L, " ", m_is_near_wall_R, "\n");
-        //console::log("entity::Brick::carried ", velocity().x, " ", velocity().y, "\n");
+        //console::log(class_name(), "::carried is near wall: ", m_is_near_wall_L, " ", m_is_near_wall_R, "\n");
+        //console::log(class_name(), "::carried ", velocity().x, " ", velocity().y, "\n");
 
         velocity(m_parent->velocity());
         moved_velocity({});
@@ -48,7 +49,7 @@ namespace entity {
         /*if (m_parent->is_ducking()) {
             position_add_y(4.0F);
         }*/
-        if (m_parent->is_ducking() || !m_parent->is_carrying()) {
+        if (m_parent->is_ducking() or !m_parent->is_carrying()) {
             m_parent->is_carrying(false);
             velocity({ m_parent->velocity().x, velocity().y });
             if (sprite::is_leftward(m_sprite_id)) {
@@ -61,7 +62,7 @@ namespace entity {
             velocity_y(-1.0F);
             m_parent = nullptr;
             m_is_first_state_update = true;
-            m_next_state = entity::State::idle;
+            m_next_state = state::Type::idle;
         }
     }
     void Brick::state_dead() {
@@ -69,7 +70,7 @@ namespace entity {
             m_is_first_state_update = false;
             m_time_left_dead = m_time_to_be_dead;
             m_time_left_alive = 0;
-            console::log("entity::Brick::state_dead()\n");
+            console::log(class_name(), "::state_dead()\n");
             if (m_parent) {
                 m_parent->is_carrying(false);
                 m_parent = nullptr;
@@ -80,29 +81,29 @@ namespace entity {
                 aabb::is_active(i, false);
             }
             sprite_is_hidden(true);
-            sound_position("dead", { position().x / (WINDOW_W / 2.0F), position().y / (WINDOW_H / 2.0F) });
+            sound_position("dead", { position().x / (app::config::extent().x / 2.0F), position().y / (app::config::extent().y / 2.0F) });
             sound_play("dead");
             particle::spawn(this, particle::Type::hit, position(), {});
 
-            console::log("entity::Brick::dead velocity.x ", velocity().x, "\n");
+            console::log(class_name(), "::dead velocity.x ", velocity().x, "\n");
 
             particle::spawn_fan(this, 0.0F, 360.0F, 8,
                                 particle::Type::brick,
                                 position() + Vec2F{ 6.0F, -4.0F },
                                 velocity() / 4.0F, 2.0F,
-                                entity::State::idle);
+                                state::Type::idle);
         }
         velocity({});
         moved_velocity({});
 
         set_anim("dead");
 
-        //console::log("entity::Brick::state_dead() start position: ", start_position().x, " ", start_position().y, "\n");
+        //console::log(class_name(), "::state_dead() start position: ", start_position().x, " ", start_position().y, "\n");
 
-        if (m_time_left_dead > 0 && m_time_to_be_dead != U16_MAX) {
+        if (m_time_left_dead > 0 and m_time_to_be_dead != U16_MAX) {
             --m_time_left_dead;
             if (m_time_left_dead == 0) {
-                console::log("entity::Brick::dead done being dead\n");
+                console::log(class_name(), "::dead done being dead\n");
                 acceleration(start_acceleration());
                 max_velocity(start_max_velocity());
             }
@@ -142,9 +143,9 @@ namespace entity {
         }
         if (m_is_on_ground) {
             deceleration({ 0.1F, 0.0F });
-            m_next_state = entity::State::idle;
+            m_next_state = state::Type::idle;
         } else {
-            //console::log("entity::Brick toss not on ground\n");
+            //console::log(class_name(), " toss not on ground\n");
         }
     }
 }

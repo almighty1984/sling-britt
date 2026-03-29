@@ -1,14 +1,12 @@
-module;
-#include <utility>
-
 module entity.frog;
+import app.config;
 import aabb;
 import console;
 import particle_system;
 
 namespace entity {
     void Frog::collide_y(aabb::cInfo our, aabb::cInfo other) {
-        if (!our.owner || !other.owner) return;
+        if (!our.owner or !other.owner) return;
 
         aabb::cName our_name = aabb::name(our.id);
 
@@ -17,7 +15,7 @@ namespace entity {
         cRectF other_rect = { aabb::point(other.id, 0).x, aabb::point(other.id, 0).y,
                               aabb::point(other.id, 3).x, aabb::point(other.id, 3).y };
 
-        if (velocity().y > 0.0F && our_rect.h - 4.0F - velocity().y > other_rect.y) {
+        if (velocity().y > 0.0F and our_rect.h - 4.0F - velocity().y > other_rect.y) {
             return;
         }
 
@@ -29,10 +27,10 @@ namespace entity {
         cVec2F other_velocity = other.owner->velocity() + other.owner->moved_velocity();
         cVec2F our_velocity = velocity() + moved_velocity();
 
-        if (m_state == State::swim) {
+        if (m_state == state::Type::swim) {
             if (position_on_level().y < m_water_line_y) {
-                if (is_clip(other_type) || is_slope(other_type)) {
-                    m_next_state = State::idle;
+                if (is_clip(other_type) or is_slope(other_type)) {
+                    m_next_state = state::Type::idle;
                     m_water_line_y = 0;
                 }
             }
@@ -46,7 +44,7 @@ namespace entity {
         }
         else if (other_type == Type::bug) {
             //console::log("Frog::collide_y bug\n");
-            if (other.owner->state() == State::tossed) {
+            if (other.owner->state() == state::Type::tossed) {
                 return;
             }
             if (other_rect.y > our_rect.y) return;
@@ -55,7 +53,7 @@ namespace entity {
 
             if (our_rect.y > other_rect.y) {
                 hurt(other.owner);
-                m_next_state = State::hurt;
+                m_next_state = state::Type::hurt;
                 /*Vec2F our_center = Vec2F{ our_rect.x + (our_rect.w - our_rect.x) / 2.0F,     our_rect.y + (our_rect.h - our_rect.y) / 2.0F };
                 Vec2F other_center = Vec2F{ other_rect.x + (other_rect.w - other_rect.x) / 2.0F, other_rect.y + (other_rect.h - other_rect.y) / 2.0F };
 
@@ -63,7 +61,7 @@ namespace entity {
                 hurt(other_type);*/
                 return;
             }
-            if (other.owner->state() == State::upended || other.owner->state() == State::bounce) {
+            if (other.owner->state() == state::Type::upended or other.owner->state() == state::Type::bounce) {
                 if (velocity().y < 0.0F) return;
                 position_add_y(-overlap_y);
                 max_velocity_y(10.0F);
@@ -78,7 +76,7 @@ namespace entity {
             velocity_y(0.0F);
             m_is_on_ground = true;
         }
-        else if (other_type == Type::clip || other_type == Type::clip_ledge) {
+        else if (other_type == Type::clip or other_type == Type::clip_ledge) {
             position_add_y(-overlap_y);
             velocity_y(0.0F);
             moved_velocity_y(0.0F);
@@ -88,7 +86,7 @@ namespace entity {
                 moved_velocity_x(0.0F);
             }
         }
-        else if (other_type == Type::clip_U || other_type == Type::slope_U) {
+        else if (other_type == Type::clip_U or other_type == Type::slope_U) {
             if (velocity().y < 0.0F) return;
             position_add_y(-overlap_y);
 
@@ -98,7 +96,7 @@ namespace entity {
             m_is_on_ground = true;
             m_is_on_slope = other_type == Type::slope_U;
         }
-        else if (other_type == Type::clip_D || other_type == Type::clip_LD || other_type == Type::clip_RD) {
+        else if (other_type == Type::clip_D or other_type == Type::clip_LD or other_type == Type::clip_RD) {
             if (velocity().y > 0.0F) return;
             position_add_y(-overlap_y);
             m_is_on_ground = false;
@@ -127,7 +125,7 @@ namespace entity {
         else if (other_type == Type::particle_health) {
             collide_x(our, other);
         }
-        else if (other_type == Type::slope_L_2x1_0 || other_type == Type::slope_L_2x1_1) {
+        else if (other_type == Type::slope_L_2x1_0 or other_type == Type::slope_L_2x1_1) {
             //if (velocity().y < 0.0F) return;
             position_add_y(-overlap_y);
 
@@ -159,7 +157,7 @@ namespace entity {
             }
             moved_velocity_x(0.0F);
         }
-        else if (other_type == Type::slope_R_2x1_0 || other_type == Type::slope_R_2x1_1) {
+        else if (other_type == Type::slope_R_2x1_0 or other_type == Type::slope_R_2x1_1) {
             //if (velocity().y < 0.0F) return;
             position_add_y(-overlap_y);
 
@@ -176,7 +174,7 @@ namespace entity {
             moved_velocity_x(0.0F);
         }
         else if (other_type == Type::player) {
-            if (other.owner->state() == State::sling) {
+            if (other.owner->state() == state::Type::sling) {
                 collide_x(our, other);
                 return;
             }
@@ -198,7 +196,7 @@ namespace entity {
 
                 if (other_velocity.y < 0.0F) {
                     hurt(other.owner);
-                    m_next_state = State::hurt;
+                    m_next_state = state::Type::hurt;
                 }
 
                 //cVec2F our_center = Vec2F{ our_rect.x + (our_rect.w - our_rect.x) / 2.0F,     our_rect.y + (our_rect.h - our_rect.y) / 2.0F };
@@ -210,21 +208,21 @@ namespace entity {
 
                 other.owner->velocity_y(-other.owner->velocity().y * 0.9F);
 
-                sound_position("bump_head", { position().x / (WINDOW_W / 2.0F), position().y / (WINDOW_H / 2.0F) });
+                sound_position("bump_head", { position().x / (app::config::extent().x / 2.0F), position().y / (app::config::extent().y / 2.0F) });
                 sound_play("bump_head");
 
-                //next_state(State::hurt);
+                //next_state(state::Type::hurt);
                 //m_time_left_in_state = 200;
             }
         }
         else if (other_type == Type::water_line) {
-            if (velocity().y > 0.0F && m_state != State::swim) {
-                m_next_state = State::swim;
+            if (velocity().y > 0.0F and m_state != state::Type::swim) {
+                m_next_state = state::Type::swim;
 
                 m_water_line_y = other.owner->start_position().y;
 
             }
-            if (m_state == State::swim) {
+            if (m_state == state::Type::swim) {
                 if (position().y > m_water_line_y) {
                     velocity_y(other_velocity.y);
                 }

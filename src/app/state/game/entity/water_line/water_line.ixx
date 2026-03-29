@@ -1,7 +1,3 @@
-module;
-#include <cmath>
-#include <sstream>
-
 export module entity.water_line;
 import anim;
 import console;
@@ -9,10 +5,11 @@ import entity;
 import aabb;
 import line;
 import random;
+import std;
 
 export namespace entity {
     class WaterLine : public Object {
-        F32 m_line_offset_y   =  4.0F;
+        F32 m_line_offset_y   =  3.0F;
         I32 m_top_line_id     = -1,
             m_bottom_line_id  = -1;
         U8 m_wave_timer       =  0,

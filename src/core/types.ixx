@@ -25,8 +25,6 @@ export using cF32 = const float;
 export using  F64 =       double;
 export using cF64 = const double;
 
-export constexpr U16 WINDOW_W           =   320;
-export constexpr U16 WINDOW_H           =   240;
 export constexpr U16 U16_MAX            = 65535;
 export constexpr  U8 NUM_VISIBLE_LAYERS =    15;
 export constexpr  U8 NUM_LEVEL_LAYERS   =    10;
@@ -220,50 +218,50 @@ export namespace entity {
     using cType = const Type;
 
     bool is_arch(cType t) {
-        return t == Type::arch_L_1x1 || t == Type::arch_L_2x1_0 || t == Type::arch_L_2x1_1 ||
-            t == Type::arch_R_1x1 || t == Type::arch_R_2x1_0 || t == Type::arch_R_2x1_1;
+        return t == Type::arch_L_1x1 or t == Type::arch_L_2x1_0 or t == Type::arch_L_2x1_1 or
+            t == Type::arch_R_1x1 or t == Type::arch_R_2x1_0 or t == Type::arch_R_2x1_1;
     }
     bool is_slope(cType t) {
-        return t == Type::slope_L_1x1 || t == Type::slope_L_2x1_0 || t == Type::slope_L_2x1_1 ||
-            t == Type::slope_R_1x1 || t == Type::slope_R_2x1_0 || t == Type::slope_R_2x1_1 ||
+        return t == Type::slope_L_1x1 or t == Type::slope_L_2x1_0 or t == Type::slope_L_2x1_1 or
+            t == Type::slope_R_1x1 or t == Type::slope_R_2x1_0 or t == Type::slope_R_2x1_1 or
             t == Type::slope_U;
     }
     bool is_clip(cType t) {
-        return t == Type::clip || t == Type::clip_U || t == Type::clip_D ||
-            t == Type::clip_L || t == Type::clip_R || t == Type::clip_LD || t == Type::clip_RD ||
+        return t == Type::clip or t == Type::clip_U or t == Type::clip_D or
+            t == Type::clip_L or t == Type::clip_R or t == Type::clip_LD or t == Type::clip_RD or
             t == Type::clip_ledge;
     }
     bool is_conduit(cType t) {
-        return t == Type::conduit_trigger_UL || t == Type::conduit_trigger_UR ||
-            t == Type::conduit_UD || t == Type::conduit_LR ||            
-            t == Type::conduit_corner_UL || t == Type::conduit_corner_UR || t == Type::conduit_corner_DL || t == Type::conduit_corner_DR ||
-            t == Type::conduit_L_1x1_0 || t == Type::conduit_L_1x1_1 || t == Type::conduit_R_1x1_0 || t == Type::conduit_R_1x1_1 ||
-            t == Type::conduit_L_1x2_0 || t == Type::conduit_L_1x2_1 || t == Type::conduit_R_1x2_0 || t == Type::conduit_R_1x2_1 ||
-            t == Type::conduit_L_2x1_0 || t == Type::conduit_L_2x1_1 || t == Type::conduit_R_2x1_0 || t == Type::conduit_R_2x1_1
+        return t == Type::conduit_trigger_UL or t == Type::conduit_trigger_UR or
+            t == Type::conduit_UD or t == Type::conduit_LR or            
+            t == Type::conduit_corner_UL or t == Type::conduit_corner_UR or t == Type::conduit_corner_DL or t == Type::conduit_corner_DR or
+            t == Type::conduit_L_1x1_0 or t == Type::conduit_L_1x1_1 or t == Type::conduit_R_1x1_0 or t == Type::conduit_R_1x1_1 or
+            t == Type::conduit_L_1x2_0 or t == Type::conduit_L_1x2_1 or t == Type::conduit_R_1x2_0 or t == Type::conduit_R_1x2_1 or
+            t == Type::conduit_L_2x1_0 or t == Type::conduit_L_2x1_1 or t == Type::conduit_R_2x1_0 or t == Type::conduit_R_2x1_1
             ;
     }
     
-    bool is_grass_0(cType t) { return t == Type::grass_0 || t == Type::grass_0_L_1x1 || t == Type::grass_0_R_1x1 || t == Type::grass_0_L_2x1_0 || t == Type::grass_0_L_2x1_1 || t == Type::grass_0_R_2x1_0 || t == Type::grass_0_R_2x1_1; }
-    bool is_grass_1(cType t) { return t == Type::grass_1 || t == Type::grass_1_L_1x1 || t == Type::grass_1_R_1x1 || t == Type::grass_1_L_2x1_0 || t == Type::grass_1_L_2x1_1 || t == Type::grass_1_R_2x1_0 || t == Type::grass_1_R_2x1_1; }
-    bool is_grass_2(cType t) { return t == Type::grass_2 || t == Type::grass_2_L_1x1 || t == Type::grass_2_R_1x1 || t == Type::grass_2_L_2x1_0 || t == Type::grass_2_L_2x1_1 || t == Type::grass_2_R_2x1_0 || t == Type::grass_2_R_2x1_1; }
-    bool is_grass(cType t) { return is_grass_0(t) || is_grass_1(t) || is_grass_2(t); }
-    bool is_logic_and(cType t) { return t == Type::logic_and_UD || t == Type::logic_and_LR; }
-    bool is_logic_not(cType t) { return t == Type::logic_not_U || t == Type::logic_not_D || t == Type::logic_not_L || t == Type::logic_not_R; }
-    bool is_logic_or(cType t) { return t == Type::logic_or_UD || t == Type::logic_or_LR; }
-    bool is_logic(cType t) { return is_logic_and(t) || is_logic_not(t) || is_logic_or(t); }
+    bool is_grass_0(cType t) { return t == Type::grass_0 or t == Type::grass_0_L_1x1 or t == Type::grass_0_R_1x1 or t == Type::grass_0_L_2x1_0 or t == Type::grass_0_L_2x1_1 or t == Type::grass_0_R_2x1_0 or t == Type::grass_0_R_2x1_1; }
+    bool is_grass_1(cType t) { return t == Type::grass_1 or t == Type::grass_1_L_1x1 or t == Type::grass_1_R_1x1 or t == Type::grass_1_L_2x1_0 or t == Type::grass_1_L_2x1_1 or t == Type::grass_1_R_2x1_0 or t == Type::grass_1_R_2x1_1; }
+    bool is_grass_2(cType t) { return t == Type::grass_2 or t == Type::grass_2_L_1x1 or t == Type::grass_2_R_1x1 or t == Type::grass_2_L_2x1_0 or t == Type::grass_2_L_2x1_1 or t == Type::grass_2_R_2x1_0 or t == Type::grass_2_R_2x1_1; }
+    bool is_grass(cType t) { return is_grass_0(t) or is_grass_1(t) or is_grass_2(t); }
+    bool is_logic_and(cType t) { return t == Type::logic_and_UD or t == Type::logic_and_LR; }
+    bool is_logic_not(cType t) { return t == Type::logic_not_U or t == Type::logic_not_D or t == Type::logic_not_L or t == Type::logic_not_R; }
+    bool is_logic_or(cType t) { return t == Type::logic_or_UD or t == Type::logic_or_LR; }
+    bool is_logic(cType t) { return is_logic_and(t) or is_logic_not(t) or is_logic_or(t); }
     bool is_particle(cType t) { return t == Type::particle_sense; }
     bool is_track(cType t) {
-        return t == Type::track_trigger_UL || t == Type::track_trigger_UR ||
-               t == Type::track_UD || t == Type::track_LR ||
-               t == Type::track_corner_UL || t == Type::track_corner_UR || t == Type::track_corner_DL || t == Type::track_corner_DR ||
-               t == Type::track_L_1x1_0 || t == Type::track_L_1x1_1 || t == Type::track_R_1x1_0 || t == Type::track_R_1x1_1 ||
-               t == Type::track_L_1x2_0 || t == Type::track_L_1x2_1 || t == Type::track_R_1x2_0 || t == Type::track_R_1x2_1 ||
-               t == Type::track_L_2x1_0 || t == Type::track_L_2x1_1 || t == Type::track_R_2x1_0 || t == Type::track_R_2x1_1;
+        return t == Type::track_trigger_UL or t == Type::track_trigger_UR or
+               t == Type::track_UD or t == Type::track_LR or
+               t == Type::track_corner_UL or t == Type::track_corner_UR or t == Type::track_corner_DL or t == Type::track_corner_DR or
+               t == Type::track_L_1x1_0 or t == Type::track_L_1x1_1 or t == Type::track_R_1x1_0 or t == Type::track_R_1x1_1 or
+               t == Type::track_L_1x2_0 or t == Type::track_L_1x2_1 or t == Type::track_R_1x2_0 or t == Type::track_R_1x2_1 or
+               t == Type::track_L_2x1_0 or t == Type::track_L_2x1_1 or t == Type::track_R_2x1_0 or t == Type::track_R_2x1_1;
     }
-    bool is_water_line(cType t) { return t == Type::water_line || t == Type::water_line_L || t == Type::water_line_R; }
+    bool is_water_line(cType t) { return t == Type::water_line or t == Type::water_line_L or t == Type::water_line_R; }
 
     bool is_coin(const std::string& s) {
-        return !s.empty() && s.size() > 3 && s.substr(0, 4) == "coin";
+        return !s.empty() and s.size() > 3 and s.substr(0, 4) == "coin";
     }
 
     const std::map<std::string, Type> string_to_entity_type_map{
@@ -526,8 +524,10 @@ export namespace entity {
         }
         return std::stoi(t);
     }
+}
 
-    enum class State {
+export namespace state {
+    enum class Type {
         none = 0,
         blocked, bounce,
         carried,
@@ -544,30 +544,30 @@ export namespace entity {
         upended,
         walk
     };
-    using cState = const State;
-    const std::string to_string(cState s) {
-        switch (s) {
-        case State::blocked:    return "blocked";
-        case State::bounce:     return "bounce";
-        case State::carried:    return "carried";
-        case State::dead:       return "dead";
-        case State::dive:       return "dive";
-        case State::enter:      return "enter";
-        case State::exit:       return "exit";
-        case State::heal:       return "heal";
-        case State::hurt:       return "hurt";
-        case State::idle:       return "idle";
-        case State::jump:       return "jump";
-        case State::ledge:      return "ledge";
-        case State::melee:      return "melee";
-        case State::run:        return "run";
-        case State::shoot:      return "shoot";
-        case State::stunned:    return "stunned";
-        case State::swim:       return "swim";
-        case State::sling:      return "sling";
-        case State::tossed:     return "tossed";
-        case State::upended:    return "upended";
-        case State::walk:       return "walk";
+    using cType = const Type;
+    const std::string to_string(cType t) {
+        switch (t) {
+        case Type::blocked:    return "blocked";
+        case Type::bounce:     return "bounce";
+        case Type::carried:    return "carried";
+        case Type::dead:       return "dead";
+        case Type::dive:       return "dive";
+        case Type::enter:      return "enter";
+        case Type::exit:       return "exit";
+        case Type::heal:       return "heal";
+        case Type::hurt:       return "hurt";
+        case Type::idle:       return "idle";
+        case Type::jump:       return "jump";
+        case Type::ledge:      return "ledge";
+        case Type::melee:      return "melee";
+        case Type::run:        return "run";
+        case Type::shoot:      return "shoot";
+        case Type::stunned:    return "stunned";
+        case Type::swim:       return "swim";
+        case Type::sling:      return "sling";
+        case Type::tossed:     return "tossed";
+        case Type::upended:    return "upended";
+        case Type::walk:       return "walk";
         default:                return "";
         }
     }
@@ -649,7 +649,7 @@ export namespace input {
     }
 }
 
-export namespace state {
+export namespace sheet {
     enum class Type {
         none = 0, edit, game, menu_options, menu_start, overlay
     };
@@ -700,7 +700,7 @@ export namespace particle {
     enum class Type {
         none = 0,
         brick, bubble,
-        down_thrust, drop, drop_blood, dust, dust_L, dust_R,
+        down_thrust, drop_blood, drop_water, dust, dust_L, dust_R,
         health, hit,
         interact,
         melee,
@@ -713,8 +713,8 @@ export namespace particle {
         case Type::brick:       return "brick";
         case Type::bubble:      return "bubble";
         case Type::down_thrust: return "down_thrust";
-        case Type::drop:        return "drop";
         case Type::drop_blood:  return "drop_blood";
+        case Type::drop_water:  return "drop_water";
         case Type::dust:        return "dust";
         case Type::dust_L:      return "dust_L";
         case Type::dust_R:      return "dust_R";
@@ -731,7 +731,7 @@ export namespace particle {
 }
 
 
-export template<typename T> requires std::integral<T> || std::floating_point<T>
+export template<typename T> requires std::integral<T> or std::floating_point<T>
 struct Rect {
     T x = 0, y = 0, w = 0, h = 0;
     Rect() {}
@@ -739,13 +739,13 @@ struct Rect {
     Rect& operator =(const Rect& other) { x = other.x, y = other.y, w = other.w, h = other.h; return *this; }    
     template<typename T>
     Rect& operator *=(const T scalar) { x *= scalar, y *= scalar, w *= scalar, h *= scalar; return *this; }
-    bool operator ==(const Rect& other) const { return (x == other.x && y == other.y && w == other.w && h == other.h); }
+    bool operator ==(const Rect& other) const { return (x == other.x and y == other.y and w == other.w and h == other.h); }
     bool operator !=(const Rect& other) const { return !operator==(other); }
 
     Rect operator +(const Rect& other) const { return { x + other.x, y + other.y, w + other.w, h + other.h }; }
 };
 
-export template<typename T> requires std::integral<T> || std::floating_point<T>
+export template<typename T> requires std::integral<T> or std::floating_point<T>
 struct Vec2 {
     T x = 0, y = 0;
     Vec2() {}
@@ -764,16 +764,16 @@ struct Vec2 {
     Vec2 operator *(const T scalar)     const { return { x * scalar, y * scalar }; }
     template<typename T>
     Vec2 operator /(const T scalar)     const { return { x / scalar, y / scalar }; }
-    bool operator ==(const Vec2& other) const { return x == other.x && y == other.y; }
+    bool operator ==(const Vec2& other) const { return x == other.x and y == other.y; }
     bool operator !=(const Vec2& other) const { return !operator==(other); }
     template<typename T>
-    bool operator ==(const T value)     const { return x == value && y == value; }
+    bool operator ==(const T value)     const { return x == value and y == value; }
     template<typename T>
-    bool operator !=(const T value)     const { return x != value && y != value; }
-    bool operator <(const Vec2& other)  const { return x < other.x && y < other.y; }
+    bool operator !=(const T value)     const { return x != value and y != value; }
+    bool operator <(const Vec2& other)  const { return x < other.x and y < other.y; }
 };
 
-export template<typename T> requires std::integral<T> || std::floating_point<T>
+export template<typename T> requires std::integral<T> or std::floating_point<T>
 struct Vec3 {
     T x = 0, y = 0, z = 0;
     Vec3() {}
@@ -791,13 +791,13 @@ struct Vec3 {
     Vec3  operator  *(const T scalar)    const { return { x * scalar, y * scalar, z * scalar }; }
     template<typename T>
     Vec3  operator  /(const T scalar)    const { return { x / scalar, y / scalar, z / scalar }; }
-    bool  operator ==(const Vec3& other) const { return x == other.x && y == other.y && z == other.z; }
+    bool  operator ==(const Vec3& other) const { return x == other.x and y == other.y and z == other.z; }
     bool  operator !=(const Vec3& other) const { return !operator==(other); }
     template<typename T>
-    bool  operator ==(const T value)     const { return x == value && y == value && z == value; }
+    bool  operator ==(const T value)     const { return x == value and y == value and z == value; }
     template<typename T>
     bool  operator !=(const T value)     const { return !operator==(value); }
-    bool  operator  <(const Vec3& other) const { return x < other.x && y < other.y && z < other.z; }
+    bool  operator  <(const Vec3& other) const { return x < other.x and y < other.y and z < other.z; }
 };
 
 export using  Vec2I =       Vec2<I32>;
@@ -823,8 +823,10 @@ export using cRectF = const Rect<F32>;
 
 
 export struct Color {
-    U8 r = 127, g = 127, b = 127;
-    bool operator ==(const Color& other) { return (r == other.r && g == other.g && b == other.b); }
+    U8 r = 127,
+       g = 127,
+       b = 127;
+    bool operator ==(const Color& other) { return (r == other.r and g == other.g and b == other.b); }
     bool operator !=(const Color& other) { return !operator==(other); }
     template<typename T>
     Color operator /(const T scalar) const {

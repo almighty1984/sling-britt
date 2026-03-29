@@ -1,17 +1,11 @@
-module;
-#include <filesystem>
-#include <sstream>
-#include <string>
-
-module state.edit;
-
+module sheet.edit;
 import console;
 import input;
 import transform;
 import sprite;
 import types;
 
-namespace state {
+namespace sheet {
     bool Edit::init_brush(U8 size) {
         if (size > 5) size = 1;
 
@@ -62,8 +56,8 @@ namespace state {
         if (button == input::Button::none) return;        
 
         if (m_is_showing_tile_set) {
-            if (m_tile_set == 255 &&
-                position.x == transform::position(m_menu_down_transform_id).x + sprite::offset(m_save_sprite_id).x &&
+            if (m_tile_set == 255 and
+                position.x == transform::position(m_menu_down_transform_id).x + sprite::offset(m_save_sprite_id).x and
                 position.y == transform::position(m_menu_down_transform_id).y + sprite::offset(m_save_sprite_id).y) {
                 if (button == input::Button::left) {
                     m_time_left_saving = m_time_to_save;
@@ -88,7 +82,7 @@ namespace state {
             }            
         }
         else if (!m_is_showing_tile_set) {
-            if (position.x == transform::position(m_menu_down_transform_id).x + sprite::offset(m_grid_icon_sprite_id).x &&
+            if (position.x == transform::position(m_menu_down_transform_id).x + sprite::offset(m_grid_icon_sprite_id).x and
                 position.y == transform::position(m_menu_down_transform_id).y + sprite::offset(m_grid_icon_sprite_id).y) {
 
                 release(button);                
@@ -110,7 +104,7 @@ namespace state {
                 return;
             }
 
-            if (position.x == transform::position(m_menu_down_transform_id).x + sprite::offset(m_save_sprite_id).x &&
+            if (position.x == transform::position(m_menu_down_transform_id).x + sprite::offset(m_save_sprite_id).x and
                 position.y == transform::position(m_menu_down_transform_id).y + sprite::offset(m_save_sprite_id).y) {
                 
                 release(button);

@@ -1,12 +1,5 @@
-module;
-#include <filesystem>
-#include <vector>
-#include <string>
-#include <map>
-#include <list>
-
-export module state.edit;
-export import state;
+export module sheet.edit;
+export import sheet;
 import bitmap_text;
 import console;
 import input;
@@ -14,6 +7,7 @@ import sprite;
 import transform;
 import types;
 import window;
+import std;
 
 namespace history {
     enum class Act { none = 0, place, replace, erase, move };
@@ -34,7 +28,7 @@ namespace history {
         Vec2F offset       = { 0.0F, 0.0F };
 
         bool operator ==(const Info& other) {
-            return (layer == other.layer && tile_set == other.tile_set && source_rect == other.source_rect && offset == other.offset);
+            return (layer == other.layer and tile_set == other.tile_set and source_rect == other.source_rect and offset == other.offset);
         }
         bool operator !=(const Info& other) {
             return !operator ==(other);
@@ -87,7 +81,7 @@ namespace menu {
     };
 }
 
-export namespace state {
+export namespace sheet {
     constexpr U8 GRID_LAYER                  = 10,
                  GRID_MAP_LAYER              = 10,
                  SELECTION_ON_LEVEL_LAYER    = 10,
@@ -197,7 +191,7 @@ export namespace state {
         std::vector<history::Act>  m_undo_acts,
                                    m_redo_acts;
 
-        std::filesystem::path m_grid_texture_path     = "res/texture/editor_grid_block.png",
+        std::filesystem::path m_grid_texture_path     = "res/texture/editor/grid_block.png",
                               m_grid_map_texture_path = "res/texture/tile_blue.png",
                               m_mouse_texture_path    = "res/texture/tile_selection.png",
                               m_level_path            = "";

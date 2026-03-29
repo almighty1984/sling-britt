@@ -1,8 +1,5 @@
-module;
-#include <cmath>
-#include <sstream>
-
 module entity.frog;
+import app.config;
 import particle_system;
 
 namespace entity {
@@ -12,18 +9,25 @@ namespace entity {
 
         if (!culprit) return false;
 
-        if (culprit->type() == Type::brick || culprit->type() == Type::bug) {
+        Vec2F add_to_position = { 0.0F, 0.0F };
+
+        if (culprit->type() == Type::brick or culprit->type() == Type::bug) {
             m_sensed_objects.clear();
             m_sensed_objects.emplace_back(culprit);
 
             //velocity() = culprit->velocity() * 0.25F;
             cF32 amount = std::abs(culprit->velocity().x * culprit->velocity().y) * 2.0F;
 
-            console::warning("entity::Frog::hurt() amount: ", amount, "\n");
+            console::warning(class_name(), "::hurt() amount: ", amount, "\n");
             health_amount_add(-amount);
             //health::get(m_health_id)->amount -= 32.0F;
 
-            m_next_state = health_amount() > 0.0F ? State::hurt : State::dead;
+            m_next_state = health_amount() > 0.0F ? state::Type::hurt : state::Type::dead;
+
+            if      (culprit->position().x < position().x + 8.0F) add_to_position.x =  4.0F;
+            else if (culprit->position().x + 8.0F > position().x) add_to_position.x = -4.0F;
+            if      (culprit->position().y < position().y + 8.0F) add_to_position.y =  4.0F;
+            else if (culprit->position().y + 8.0F > position().y) add_to_position.y = -4.0F;           
         }
         else if (culprit->type() == Type::particle_brick) {
             m_sensed_objects.clear();
@@ -33,14 +37,14 @@ namespace entity {
             //console::log("amount: ", amount, "\n");
 
             health_amount_add(-amount);
-            m_next_state = State::hurt;
+            m_next_state = state::Type::hurt;
         }
         else if (culprit->type() == Type::particle_down_thrust) {
             velocity_x(culprit->velocity().x * 0.7F);
             if (m_is_on_ground) {
                 velocity_y(-2.0f);
             }
-            m_next_state = State::stunned;
+            m_next_state = state::Type::stunned;
         }
         else if (culprit->type() == Type::particle_melee) {
             m_sensed_objects.clear();
@@ -48,33 +52,43 @@ namespace entity {
 
             velocity(culprit->velocity() * 0.25F);
             health_amount_add(-8.0f);
-            m_next_state = State::hurt;
+            m_next_state = state::Type::hurt;
+
+            if      (culprit->position().x < position().x + 8.0F) add_to_position.x =  2.0F;            
+            else if (culprit->position().x + 8.0F > position().x) add_to_position.x = -2.0F;            
+            if      (culprit->position().y < position().y + 8.0F) add_to_position.y =  2.0F;            
+            else if (culprit->position().y + 8.0F > position().y) add_to_position.y = -2.0F;
+            
         }
         else if (culprit->type() == Type::player) {
-            if (culprit->state() == State::run) {
+            if (culprit->state() == state::Type::run) {
                 if (culprit->velocity().y >= 6.0F) {
                     velocity(culprit->velocity() * 0.5F);
-                    m_next_state = State::stunned;
+                    m_next_state = state::Type::stunned;
                     m_time_to_be_in_state = 100;
 
                     console::log("Frog::hurt() m_time_to_be_in_state: ", m_time_to_be_in_state, "\n");
 
-                    sound_position("bounce", { position().x / (WINDOW_W / 2.0F), position().y / (WINDOW_H / 2.0F) });
+                    sound_position("bounce", { position().x / (app::config::extent().x / 2.0F), position().y / (app::config::extent().y / 2.0F) });
                     sound_play("bounce");
 
                     particle::spawn(this, particle::Type::hit, position(), {});
                 }
             }
-            else if (culprit->state() == State::sling) {
+            else if (culprit->state() == state::Type::sling) {
                 m_sensed_objects.clear();
                 health_amount_add(-8.0f);
-                m_next_state = State::stunned;
+                m_next_state = state::Type::stunned;
                 m_time_to_be_in_state = 20;
 
-                sound_position("bump_head", { position().x / (WINDOW_W / 2.0F), position().y / (WINDOW_H / 2.0F) });
+                sound_position("bump_head", { position().x / (app::config::extent().x / 2.0F), position().y / (app::config::extent().y / 2.0F) });
                 sound_play("bump_head");
             }
         }
+
+        position_add(add_to_position);
+
+
         return true;
     }
     void Frog::state_blocked() {
@@ -94,7 +108,7 @@ namespace entity {
 
             m_is_on_ground = false;
 
-            sound_position("block", { position().x / (WINDOW_W / 2.0F), position().y / (WINDOW_H / 2.0F) });
+            sound_position("block", { position().x / (app::config::extent().x / 2.0F), position().y / (app::config::extent().y / 2.0F) });
             sound_play("block");
         }
         //console::log("Frog::blocked\n");
@@ -113,9 +127,9 @@ namespace entity {
         transform::velocity_add(m_transform_id, { 0.0F, transform::acceleration(m_transform_id).y });
 
         ++m_time_in_state;
-        if (m_is_on_ground && m_time_in_state > 100) {
+        if (m_is_on_ground and m_time_in_state > 100) {
             m_time_in_state = 0;
-            m_next_state = State::idle;
+            m_next_state = state::Type::idle;
         }
     }
     void Frog::state_dead() {
@@ -132,11 +146,11 @@ namespace entity {
                                 velocity(), 3.0F);
             particle::spawn(this, particle::Type::health, position() + Vec2F{ 4.0F, 0.0F }, {});
 
-            sound_position("dead", { position().x / (WINDOW_W / 2.0F), position().y / (WINDOW_H / 2.0F) });
+            sound_position("dead", { position().x / (app::config::extent().x / 2.0F), position().y / (app::config::extent().y / 2.0F) });
             sound_play("dead");
 
-            //m_next_state = State::none;
-            //m_sensed_state = State::none;
+            //m_next_state = state::Type::none;
+            //m_sensed_state = state::Type::none;
             m_sensed_objects.clear();
         }
 
@@ -172,7 +186,7 @@ namespace entity {
         }
         velocity_add_y(acceleration().y);
 
-        //console::log("entity::Frog::state_heal() health: ", health::amount(m_health_id), " ", m_time_left_in_state, "\n");
+        //console::log(class_name(), "::state_heal() health: ", health::amount(m_health_id), " ", m_time_left_in_state, "\n");
         if (m_time_left_in_state > 0) {
             --m_time_left_in_state;
             health::amount_add(m_health_id, 0.1F);
@@ -186,8 +200,8 @@ namespace entity {
                 line::set(m_tounge_line_id, m_tounge_start, m_tounge_end);
             }
         }
-        if (m_time_left_in_state == 0 || health::is_max(m_health_id)) {
-            m_next_state = State::idle;
+        if (m_time_left_in_state == 0 or health::is_max(m_health_id)) {
+            m_next_state = state::Type::idle;
         }
     }
     void Frog::state_hurt() {
@@ -202,13 +216,13 @@ namespace entity {
                     aabb::is_active(i, false);
                 }
             }
-            m_sensed_state = State::idle;
+            m_sensed_state = state::Type::idle;
         }
 
         set_anim("hurt");
         line::is_hidden(m_tounge_line_id, true);
 
-        console::log("entity::Frog::hurt\n");
+        console::log(class_name(), "::hurt\n");
 
         velocity_add_y(acceleration().y);
 
@@ -220,26 +234,26 @@ namespace entity {
             }
         }
         else
-            if (/*anim()->is_last_frame() &&*/ m_is_on_ground) {
+            if (/*anim()->is_last_frame() and*/ m_is_on_ground) {
                 //console::log("is last frame: ", anim()->is_last_frame(), "\n");
 
                 for (auto& i : m_sensed_objects) {
                     if (i->is_dead()) continue;
-                    if (m_is_on_ground && (i->type() == Type::brick ||
-                        i->type() == Type::particle_brick ||
-                        i->type() == Type::particle_melee ||
-                        i->type() == Type::player ||
+                    if (m_is_on_ground and (i->type() == Type::brick or
+                        i->type() == Type::particle_brick or
+                        i->type() == Type::particle_melee or
+                        i->type() == Type::player or
                         i->type() == Type::bug)
                         ) {
                         m_time_left_to_react = 10;
-                        console::log("entity::Frog::hurt() sensed: ", to_string(i->type()), "\n");
-                        m_sensed_state = State::melee;
+                        console::log(class_name(), "::hurt() sensed: ", to_string(i->type()), "\n");
+                        m_sensed_state = state::Type::melee;
                         m_sensed_position = i->position();
                         m_sensed_objects.clear();
                         break;
                     }
                 }
-                if (m_sensed_state == State::idle) {
+                if (m_sensed_state == state::Type::idle) {
                     m_time_left_to_react = 1;
                 }
             }
@@ -248,8 +262,8 @@ namespace entity {
         if (m_is_first_state_update) {
             m_is_first_state_update = false;
 
-            if (m_prev_state == State::dead) {
-                //m_sensed_state = State::none;
+            if (m_prev_state == state::Type::dead) {
+                //m_sensed_state = state::Type::none;
                 health::reset(m_health_id);
                 sprite::is_leftward(m_sprite_id, random::number(0, 1) ? true : false);
             }
@@ -266,7 +280,7 @@ namespace entity {
             }
             m_sensed_objects.clear();
             m_sensed_position = {};
-            m_sensed_state = State::none;
+            m_sensed_state = state::Type::none;
         }
                 
         set_anim("idle");
@@ -305,25 +319,25 @@ namespace entity {
                 //        console::log("health amount: ", health::amount(m_health_id), " max: ", health::max(m_health_id), "\n");
                 //    //}
                 //}
-                if (i->type() == Type::particle_health && health::amount(m_health_id) < health::max(m_health_id)) {
-                    console::log("senseD health\n\n\n");
-                    m_sensed_state = State::melee;
+                if (i->type() == Type::particle_health and health::amount(m_health_id) < health::max(m_health_id)) {
+                    console::log(class_name(), "::state_idle() sensed health\n");
+                    m_sensed_state = state::Type::melee;
                     m_sensed_position = i->position();
                     m_time_left_to_react = 1;
 
                     m_sensed_objects.clear();
                     break;
-                } else if (i->type() == Type::player && !(i->state() == State::swim && i->num_jumps() == 0)) {
-                    console::log("senseD player\n\n\n");
-                    if (i->is_ducking() && (i->velocity().x < -1.5F || i->velocity().x > 1.5F)) {
+                } else if (i->type() == Type::player and !(i->state() == state::Type::swim and i->num_jumps() == 0)) {
+                    console::log(class_name(), "::state_idle() sensed player\n");
+                    if (i->is_ducking() and (i->velocity().x < -1.5F or i->velocity().x > 1.5F)) {
                         //console::log("velocity x: ", i->velocity().x, "\n");
                         //console::log("player sliding ground\n");
                         m_time_left_to_react = 1;
-                        m_sensed_state = State::jump;
+                        m_sensed_state = state::Type::jump;
 
                         m_sensed_position = i->position() + Vec2F{ 0.0F, -32.0F };
                     } else {
-                        if (i->state() == State::sling) {
+                        if (i->state() == state::Type::sling) {
                             m_time_left_to_react += std::abs(i->rotation_speed());
                         } else {
                             //m_time_left_to_react = 5 + random::number(0, 2);
@@ -332,8 +346,8 @@ namespace entity {
                         if (m_time_left_to_react <= 0) {
                             m_time_left_to_react = 1;
                         }
-                        console::log("entity::Frog::idle() time left to react: ", m_time_left_to_react, "\n");
-                        m_sensed_state = State::melee;
+                        console::log(class_name(), "::idle() time left to react: ", m_time_left_to_react, "\n");
+                        m_sensed_state = state::Type::melee;
                         m_sensed_position = i->position();
                     }
 
@@ -376,8 +390,8 @@ namespace entity {
 
         velocity_add_y(acceleration().y);
 
-        if (m_is_on_ground && velocity().y > 0.0F) {
-            m_next_state = State::idle;
+        if (m_is_on_ground and velocity().y > 0.0F) {
+            m_next_state = state::Type::idle;
             reset_anim("idle");
         }
     }
@@ -412,7 +426,7 @@ namespace entity {
             m_is_first_state_update = false;
             reset_anim("melee");
 
-            sound_position("melee", { position().x / (WINDOW_W / 2.0F), position().y / (WINDOW_H / 2.0F) });
+            sound_position("melee", { position().x / (app::config::extent().x / 2.0F), position().y / (app::config::extent().y / 2.0F) });
             sound_play("melee");
 
             cVec2F tounge_vector = (m_tounge_end - m_tounge_start);
@@ -422,8 +436,8 @@ namespace entity {
 
             Vec2F melee_velocity = (tounge_vector / tounge_length) * 8.0f;
 
-            console::log("entity::Frog::melee() sensed position: ", m_sensed_position.x, " ", m_sensed_position.y, "\n");
-            //console::log("entity::Frog::melee melee velocity: ", melee_velocity.x, " ", melee_velocity.y, "\n");
+            console::log(class_name(), "::melee() sensed position: ", m_sensed_position.x, " ", m_sensed_position.y, "\n");
+            //console::log(class_name(), "::melee melee velocity: ", melee_velocity.x, " ", melee_velocity.y, "\n");
 
             particle::spawn({ .parent = this,
                               .type = particle::Type::melee,
@@ -435,7 +449,7 @@ namespace entity {
         if (anim::is_last_frame(m_current_anim_id)) {
             //console::log("is last frame: ", anim()->is_last_frame(), "\n");                
             //line::is_hidden(m_tounge_line_id, true);
-            m_next_state = State::jump;
+            m_next_state = state::Type::jump;
         }
 
     }
@@ -464,9 +478,9 @@ namespace entity {
         if (m_time_left_in_state > 0) {
             --m_time_left_in_state;
         }
-        if (m_is_on_ground && m_time_left_in_state == 0) {
+        if (m_is_on_ground and m_time_left_in_state == 0) {
             m_time_in_state = 0;
-            m_next_state = State::idle;
+            m_next_state = state::Type::idle;
         }
     }
     void Frog::state_swim() {

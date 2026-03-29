@@ -1,6 +1,3 @@
-module;
-#include <algorithm>
-#include <sstream>
 export module entity.lever;
 import anim;
 import console;
@@ -36,17 +33,17 @@ export namespace entity {
             //load_config("res/entity/lever.cfg");
         }
         void collide_x(aabb::cInfo our, aabb::cInfo other) override {
-            if (!our.owner || !other.owner || !other.owner->parent()) return;
+            if (!our.owner or !other.owner or !other.owner->parent()) return;
             //console::log("Lever collide_x ", (int)m_time_left_dead, "\n");
             cType other_type = other.owner->type();
             aabb::Name other_name = aabb::name(other.id);
 
-            cState other_state = other.owner->state();
+            state::cType other_state = other.owner->state();
 
             
             if (other_type == entity::Type::particle_interact) {
                 //console::log("entity::Lever::collide_x() other state: ", to_string(other_state), "\n");
-                if (other_state == State::run /*&& !other.owner->parent()->is_carrying()*/) {
+                if (other_state == state::Type::run /*and !other.owner->parent()->is_carrying()*/) {
                     flip_it();
                 }
             }
@@ -69,8 +66,8 @@ export namespace entity {
                 }*/
                 
                 //m_time_left_dead = inputs().back()->is_dead() ? -1 : 0;
-                if (m_input_objects.back()->is_dead() && m_time_left_dead == 0 ||
-                    !m_input_objects.back()->is_dead() && m_time_left_dead > 0) {
+                if (m_input_objects.back()->is_dead() and m_time_left_dead == 0 or
+                    !m_input_objects.back()->is_dead() and m_time_left_dead > 0) {
                     flip_it();
                 }
             }

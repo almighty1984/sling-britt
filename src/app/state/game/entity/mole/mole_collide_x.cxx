@@ -1,13 +1,10 @@
-module;
-#include <cmath>
-#include <sstream>
 module entity.mole;
 import console;
 import aabb;
 
 namespace entity {
     void Mole::collide_x(aabb::cInfo our, aabb::cInfo other) {
-        if (is_dead() || !other.owner || other.owner->is_dead()) return;
+        if (is_dead() or !other.owner or other.owner->is_dead()) return;
 
         entity::cType other_type = other.owner->type();
 
@@ -33,9 +30,9 @@ namespace entity {
         cVec2F our_velocity = velocity() + moved_velocity();
         cVec2F other_velocity = other.owner->velocity() + other.owner->moved_velocity();
 
-        if (m_state == State::swim) {
+        if (m_state == state::Type::swim) {
             if (other_type == Type::bug) {
-                if (m_state == State::swim && other.owner->state() == State::swim) {                    
+                if (m_state == state::Type::swim and other.owner->state() == state::Type::swim) {                    
 
                     position_add_x(-overlap_x);
                     velocity_x(our_velocity.x * 0.5F + other_velocity.x * 0.5F);
@@ -43,10 +40,10 @@ namespace entity {
 
                     force_x(force().x - overlap_x);
 
-                    /*if (force().x < 0.0F && other.owner->is_near_wall_L()) {
+                    /*if (force().x < 0.0F and other.owner->is_near_wall_L()) {
                         force_x(4.0F);
                     }
-                    else if (force().x > 0.0F && other.owner->is_near_wall_R()) {
+                    else if (force().x > 0.0F and other.owner->is_near_wall_R()) {
                         force_x(-4.0F);
                     }
                     else {
@@ -55,7 +52,7 @@ namespace entity {
                     }*/
                 }
             }
-            else if ((other_type == Type::clip_L || other_type == Type::clip_ledge) && velocity().x > 0.0F) {
+            else if ((other_type == Type::clip_L or other_type == Type::clip_ledge) and velocity().x > 0.0F) {
                 //if (m_time_left_colliding_with[Type::water_line] > 0) return;
                 //m_time_left_colliding_with[Type::water_line] = 5;
 
@@ -81,7 +78,7 @@ namespace entity {
 
                 //m_is_near_wall_R = true;
             }
-            else if ((other_type == Type::clip_R || other_type == Type::clip_ledge) && velocity().x < 0.0F) {
+            else if ((other_type == Type::clip_R or other_type == Type::clip_ledge) and velocity().x < 0.0F) {
                 //if (m_time_left_colliding_with[Type::water_line] > 0) return;
                 //m_time_left_colliding_with[Type::water_line] = 5;
 
@@ -110,13 +107,13 @@ namespace entity {
             sprite::is_leftward(m_sprite_id, velocity().x < 0.0F);
             return;            
         }
-        else if (m_state == State::jump) {
-            if (velocity().x < 0.0F && (other_type == Type::clip_R || other_type == Type::clip_RD || other_type == Type::clip_ledge)) {
+        else if (m_state == state::Type::jump) {
+            if (velocity().x < 0.0F and (other_type == Type::clip_R or other_type == Type::clip_RD or other_type == Type::clip_ledge)) {
                 position_add_x(-overlap_x);
                 position_add_x(1.0F);
                 velocity_x(velocity().x * -1.0F);
             }
-            if (velocity().x > 0.0F && (other_type == Type::clip_L || other_type == Type::clip_LD || other_type == Type::clip_ledge)) {
+            if (velocity().x > 0.0F and (other_type == Type::clip_L or other_type == Type::clip_LD or other_type == Type::clip_ledge)) {
                 position_add_x(-overlap_x);
                 position_add_x(-1.0F);
                 velocity_x(velocity().x * -1.0F);
@@ -125,21 +122,25 @@ namespace entity {
         }
 
         if (other_type == Type::brick) {
-            if (m_state != State::idle && other.owner->state() == State::tossed) {
+            if (m_state != state::Type::idle and other.owner->state() == state::Type::tossed) {
                 hurt(other.owner);
             }
         }        
         else if (other_type == Type::particle_brick) {
-            if (m_state != State::idle && !(other_velocity.x >= -1.0F && other_velocity.x <= 1.0F)) {
+            if (m_state != state::Type::idle and !(other_velocity.x >= -1.0F and other_velocity.x <= 1.0F)) {
                 hurt(other.owner);
             }
+        }
+        else if (other_type == Type::particle_health) {
+            //if (health_is_max()) return;
+            //health_amount(health_max());
         }
         else if (other_type == Type::level_L_0) {
             sprite::is_leftward(m_sprite_id, false);
         }
         else if (other_type == Type::level_R_0) {
             sprite::is_leftward(m_sprite_id, true);
-        }
+        }        
         else if (other_type == Type::water_line) {
             //collide_y(our, other);
         }

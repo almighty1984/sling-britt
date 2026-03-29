@@ -60,7 +60,7 @@ std::vector<Sound*> s_sounds;
 std::vector<I32>    s_unused_ids;
 
 export namespace sound {
-    bool     is_valid(size_t i) { return (i >= 0 && i < s_sounds.size() && s_sounds.at(i)) ? true : false; }
+    bool     is_valid(size_t i) { return (i >= 0 and i < s_sounds.size() and s_sounds.at(i)) ? true : false; }
     size_t   size() { return s_sounds.size(); }
 
     I32 make(const std::filesystem::path& path) {
@@ -71,7 +71,7 @@ export namespace sound {
         if (!s_unused_ids.empty()) {
             object->id = s_unused_ids.back();
             s_unused_ids.pop_back();
-            if (!s_sounds.empty() && object->id >= 0 && object->id < s_sounds.size() && s_sounds.at(object->id)) {
+            if (!s_sounds.empty() and object->id >= 0 and object->id < s_sounds.size() and s_sounds.at(object->id)) {
                 delete s_sounds.at(object->id);
                 s_sounds.at(object->id) = nullptr;
             }
@@ -85,11 +85,11 @@ export namespace sound {
     void play(cI32 i)               { if (is_valid(i)) s_sounds.at(i)->play();  }
     void stop(cI32 i)               { if (is_valid(i)) s_sounds.at(i)->stop();  }
     void pause(cI32 i)              { if (is_valid(i)) s_sounds.at(i)->pause(); }
-    bool is_looped(cI32 i)          { return is_valid(i) && s_sounds.at(i)->is_looped(); }
+    bool is_looped(cI32 i)          { return is_valid(i) and s_sounds.at(i)->is_looped(); }
     void is_looped(cI32 i, bool is) { if (is_valid(i)) s_sounds.at(i)->is_looped(is); }
-    bool is_playing(cI32 i)         { return is_valid(i) && s_sounds.at(i)->is_playing(); }
-    bool is_stopped(cI32 i)         { return is_valid(i) && s_sounds.at(i)->is_stopped(); }
-    bool is_paused(cI32 i)          { return is_valid(i) && s_sounds.at(i)->is_paused();  }
+    bool is_playing(cI32 i)         { return is_valid(i) and s_sounds.at(i)->is_playing(); }
+    bool is_stopped(cI32 i)         { return is_valid(i) and s_sounds.at(i)->is_stopped(); }
+    bool is_paused(cI32 i)          { return is_valid(i) and s_sounds.at(i)->is_paused();  }
     F32 pitch(cI32 i)               { return is_valid(i) ? s_sounds.at(i)->pitch() : 0.0F; }    
     void pitch(cI32 i, cF32 v)      { if (is_valid(i))  s_sounds.at(i)->pitch(v); }
     void position(cI32 i, cVec2F p) { if (is_valid(i)) s_sounds.at(i)->position(p); }

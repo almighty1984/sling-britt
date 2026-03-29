@@ -1,13 +1,8 @@
-module;
-#include <fstream>
-#include <filesystem>
-#include <map>
-#include <string>
-
 export module level_config;
 import console;
 import music;
 import types;
+import std;
 
 export class LevelConfig {
     static inline std::filesystem::path m_level_path_L_0,
@@ -77,7 +72,7 @@ public:
             level_name_end += 4;
 
             level_open = level_name_end;
-            while (text.at(level_open) == ' ' || text.at(level_open) == '	' || text.at(level_open) == '\n') {
+            while (text.at(level_open) == ' ' or text.at(level_open) == '	' or text.at(level_open) == '\n') {
                 ++level_open;
             }
             console::log("level_open char: ", text.at(level_open), "\n");
@@ -93,7 +88,7 @@ public:
                 size_t L_0_start = text.find("=", L_0_label);
                 if (L_0_start < end_line) {
                     ++L_0_start;
-                    while (text.at(L_0_start) == '	' || text.at(L_0_start) == ' ') ++L_0_start;
+                    while (text.at(L_0_start) == '	' or text.at(L_0_start) == ' ') ++L_0_start;
 
                     m_level_path_L_0 = "res/level/" + text.substr(L_0_start, end_line - L_0_start);
 
@@ -106,7 +101,7 @@ public:
                 size_t R_0_start = text.find("=", R_0_label);
                 if (R_0_start < end_line) {
                     ++R_0_start;
-                    while (text.at(R_0_start) == '	' || text.at(R_0_start) == ' ') ++R_0_start;
+                    while (text.at(R_0_start) == '	' or text.at(R_0_start) == ' ') ++R_0_start;
                     m_level_path_R_0 = "res/level/" + text.substr(R_0_start, end_line - R_0_start);
 
                     console::log("state::Game::load_level_config R_0: ", m_level_path_R_0, "\n");
@@ -118,7 +113,7 @@ public:
                 size_t music_start = text.find("=", music_label);
                 if (music_start < end_line) {
                     ++music_start;
-                    while (text.at(music_start) == '	' || text.at(music_start) == ' ') ++music_start;
+                    while (text.at(music_start) == '	' or text.at(music_start) == ' ') ++music_start;
                     m_level_music_path = "res/music/" + text.substr(music_start, end_line - music_start);
                     console::log("state::Game::load_level_config music path: ", m_level_music_path, " prev: ", m_prev_level_music_path, "\n");
 
@@ -140,12 +135,12 @@ public:
                 size_t number_start = text.find("_", trigger_label);
                 ++number_start;
                 size_t number_end = number_start;
-                while (text.at(number_end) != '	' && text.at(number_end) != ' ') ++number_end;
+                while (text.at(number_end) != '	' and text.at(number_end) != ' ') ++number_end;
                 cU8 number = std::stoi(text.substr(number_start, number_end - number_start));
                 size_t value_start = text.find("=", trigger_label);
                 if (value_start < end_line) {
                     ++value_start;
-                    while (text.at(value_start) == '	' || text.at(value_start) == ' ') ++value_start;
+                    while (text.at(value_start) == '	' or text.at(value_start) == ' ') ++value_start;
                     m_trigger_paths.emplace(number, "res/entity/" + text.substr(value_start, end_line - value_start));
                     console::log("state::Game::load_level_config m_trigger_paths[0]: ", m_trigger_paths.at(number), "\n");
                 }

@@ -1,13 +1,9 @@
-module;
-#include <fstream>
-#include <filesystem>
-#include <vector>
-#include <map>
 export module plane;
 import console;
 import sprite;
 import transform;
 import types;
+import std;
 
 export class Multiplane {
     std::vector<I32>   m_sprite_ids;
@@ -102,7 +98,7 @@ public:
                 if (plane_close == std::string::npos) return false;
 
                 ++plane_close;
-                while (text.at(plane_close) == '	' || text.at(plane_close) == ' ' || text.at(plane_close) == '\n') ++plane_close;
+                while (text.at(plane_close) == '	' or text.at(plane_close) == ' ' or text.at(plane_close) == '\n') ++plane_close;
                 if (text.at(plane_close) == '}') {
                     break;
                 }
@@ -120,7 +116,7 @@ public:
                 size_t texture_start = text.find("=", texture_label);
                 if (texture_start < end_line) {
                     ++texture_start;
-                    while (text.at(texture_start) == '	' || text.at(texture_start) == ' ') ++texture_start;
+                    while (text.at(texture_start) == '	' or text.at(texture_start) == ' ') ++texture_start;
                     texture_path = "res/texture/" + text.substr(texture_start, end_line - texture_start);
                     //console::log("texture: ", texture_path, "\n");
 
@@ -135,30 +131,30 @@ public:
                     const size_t source_rect_open = text.find("{", source_rect_start);
                     const size_t source_rect_close = text.find("}", source_rect_start);
 
-                    if (source_rect_open < end_line && source_rect_close < end_line) {                                        
+                    if (source_rect_open < end_line and source_rect_close < end_line) {                                        
                         size_t value_0 = source_rect_open + 1;
-                        while (text.at(value_0) == '	' || text.at(value_0) == ' ') ++value_0;
+                        while (text.at(value_0) == '	' or text.at(value_0) == ' ') ++value_0;
                         const size_t comma_0 = text.find(",", value_0);
                         if (comma_0 < end_line) {
                             source_rect.x = std::stoi(text.substr(value_0, comma_0 - value_0));
                         }
                         size_t value_1 = comma_0 + 1;
-                        while (text.at(value_1) == '	' || text.at(value_1) == ' ') ++value_1;
+                        while (text.at(value_1) == '	' or text.at(value_1) == ' ') ++value_1;
                         const size_t comma_1 = text.find(",", value_1);
                         if (comma_1 < end_line) {
                             source_rect.y = std::stoi(text.substr(value_1, comma_1 - value_1));
                         }
                         size_t value_2 = comma_1 + 1;
-                        while (text.at(value_2) == '	' || text.at(value_2) == ' ') ++value_2;
+                        while (text.at(value_2) == '	' or text.at(value_2) == ' ') ++value_2;
                         const size_t comma_2 = text.find(",", value_2);
                         if (comma_2 < end_line) {
                             source_rect.w = std::stoi(text.substr(value_2, comma_2 - value_2));
                         }
 
                         size_t value_3 = comma_2 + 1;
-                        while (text.at(value_3) == '	' || text.at(value_3) == ' ') ++value_3;
+                        while (text.at(value_3) == '	' or text.at(value_3) == ' ') ++value_3;
                         size_t value_3_end = source_rect_close;
-                        while (text.at(value_3_end) == '	' || text.at(value_3_end) == ' ') --value_3_end;
+                        while (text.at(value_3_end) == '	' or text.at(value_3_end) == ' ') --value_3_end;
 
                         source_rect.h = std::stoi(text.substr(value_3, value_3_end - value_3));
                         //console::log("entity::Object::load_config source_rect: ", source_rect.x, " ", source_rect.y, " ", source_rect.w, " ", source_rect.h, "\n");
@@ -175,18 +171,18 @@ public:
                     const size_t velocity_open = text.find("{", velocity_start);
                     const size_t velocity_close = text.find("}", velocity_start);
 
-                    if (velocity_open < end_line && velocity_close < end_line) {
+                    if (velocity_open < end_line and velocity_close < end_line) {
 
                         size_t value_0 = velocity_open + 1;
-                        while (text.at(value_0) == '	' || text.at(value_0) == ' ') ++value_0;
+                        while (text.at(value_0) == '	' or text.at(value_0) == ' ') ++value_0;
                         const size_t comma_0 = text.find(",", value_0);
                         if (comma_0 < end_line) {
                             velocity.x = std::stof(text.substr(value_0, comma_0 - value_0));
                         }
                         size_t value_1 = comma_0 + 1;
-                        while (text.at(value_1) == '	' || text.at(value_1) == ' ') ++value_1;
+                        while (text.at(value_1) == '	' or text.at(value_1) == ' ') ++value_1;
                         size_t value_1_end = velocity_close;
-                        while (text.at(value_1_end) == '	' || text.at(value_1_end) == ' ') --value_1_end;
+                        while (text.at(value_1_end) == '	' or text.at(value_1_end) == ' ') --value_1_end;
 
                         velocity.y = std::stof(text.substr(value_1, value_1_end - value_1));
                         //console::log("Multiplane::load_config velocity : ", velocity.x, " ", velocity.y, "\n");

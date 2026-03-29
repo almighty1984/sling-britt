@@ -8,7 +8,7 @@ import types;
 
 export bool transform::parse_config(const std::string& text, Trait* owner) {
     const size_t transform_label = text.find("Transform", 0);
-    if (!owner || transform_label == std::string::npos || owner->transform_id() != -1) {
+    if (!owner or transform_label == std::string::npos or owner->transform_id() != -1) {
         //goto end_of_transform_block;
         return false;
     }
@@ -31,18 +31,18 @@ export bool transform::parse_config(const std::string& text, Trait* owner) {
                 const size_t velocity_limit_open = text.find("{", velocity_limit_start);
                 const size_t velocity_limit_close = text.find("}", velocity_limit_start);
 
-                if (velocity_limit_open < end_line && velocity_limit_close < end_line) {
+                if (velocity_limit_open < end_line and velocity_limit_close < end_line) {
                     Vec2F max_velocity = {};
                     size_t value_0 = velocity_limit_open + 1;
-                    while (text.at(value_0) == '	' || text.at(value_0) == ' ') ++value_0;
+                    while (text.at(value_0) == '	' or text.at(value_0) == ' ') ++value_0;
                     const size_t comma_0 = text.find(",", value_0);
                     if (comma_0 < end_line) {
                         max_velocity.x = std::stof(text.substr(value_0, comma_0 - value_0));
                     }
                     size_t value_1 = comma_0 + 1;
-                    while (text.at(value_1) == '	' || text.at(value_1) == ' ') ++value_1;
+                    while (text.at(value_1) == '	' or text.at(value_1) == ' ') ++value_1;
                     size_t value_1_end = velocity_limit_close;
-                    while (text.at(value_1_end) == '	' || text.at(value_1_end) == ' ') --value_1_end;
+                    while (text.at(value_1_end) == '	' or text.at(value_1_end) == ' ') --value_1_end;
 
                     max_velocity.y = std::stof(text.substr(value_1, value_1_end - value_1));
 
@@ -58,18 +58,18 @@ export bool transform::parse_config(const std::string& text, Trait* owner) {
                 const size_t acceleration_open = text.find("{", acceleration_start);
                 const size_t acceleration_close = text.find("}", acceleration_start);
 
-                if (acceleration_open < end_line && acceleration_close < end_line) {
+                if (acceleration_open < end_line and acceleration_close < end_line) {
                     Vec2F acceleration = {};
                     size_t value_0 = acceleration_open + 1;
-                    while (text.at(value_0) == '	' || text.at(value_0) == ' ') ++value_0;
+                    while (text.at(value_0) == '	' or text.at(value_0) == ' ') ++value_0;
                     const size_t comma_0 = text.find(",", value_0);
                     if (comma_0 < end_line) {
                         acceleration.x = std::stof(text.substr(value_0, comma_0 - value_0));
                     }
                     size_t value_1 = comma_0 + 1;
-                    while (text.at(value_1) == '	' || text.at(value_1) == ' ') ++value_1;
+                    while (text.at(value_1) == '	' or text.at(value_1) == ' ') ++value_1;
                     size_t value_1_end = acceleration_close;
-                    while (text.at(value_1_end) == '	' || text.at(value_1_end) == ' ') --value_1_end;
+                    while (text.at(value_1_end) == '	' or text.at(value_1_end) == ' ') --value_1_end;
 
                     acceleration.y = std::stof(text.substr(value_1, value_1_end - value_1));
 
@@ -85,19 +85,19 @@ export bool transform::parse_config(const std::string& text, Trait* owner) {
                 const size_t deceleration_open = text.find("{", deceleration_start);
                 const size_t deceleration_close = text.find("}", deceleration_start);
 
-                if (deceleration_open < end_line && deceleration_close < end_line) {
+                if (deceleration_open < end_line and deceleration_close < end_line) {
                     Vec2F deceleration = {};
 
                     size_t value_0 = deceleration_open + 1;
-                    while (text.at(value_0) == '	' || text.at(value_0) == ' ') ++value_0;
+                    while (text.at(value_0) == '	' or text.at(value_0) == ' ') ++value_0;
                     const size_t comma_0 = text.find(",", value_0);
                     if (comma_0 < end_line) {
                         deceleration.x = std::stof(text.substr(value_0, comma_0 - value_0));
                     }
                     size_t value_1 = comma_0 + 1;
-                    while (text.at(value_1) == '	' || text.at(value_1) == ' ') ++value_1;
+                    while (text.at(value_1) == '	' or text.at(value_1) == ' ') ++value_1;
                     size_t value_1_end = deceleration_close;
-                    while (text.at(value_1_end) == '	' || text.at(value_1_end) == ' ') --value_1_end;
+                    while (text.at(value_1_end) == '	' or text.at(value_1_end) == ' ') --value_1_end;
 
                     deceleration.y = std::stof(text.substr(value_1, value_1_end - value_1));
 

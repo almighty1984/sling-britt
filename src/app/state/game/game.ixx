@@ -1,11 +1,5 @@
-module;
-#include <filesystem>
-#include <sstream>
-#include <vector>
-#include <map>
-#include <list>
-
-export module state.game;
+export module sheet.game;
+import sheet;
 import bitmap_text;
 import console;
 import camera;
@@ -19,11 +13,11 @@ import particle_system;
 import plane;
 import quad_tree;
 import sprite;
-import state;
 import transform;
 import types;
+import std;
 
-export namespace state {
+export namespace sheet {
     class Game : public Object {
     private:
         U16 m_window_w = 0,
@@ -62,7 +56,7 @@ export namespace state {
             clear();
         }        
         void clear() {
-            console::log("state::Game::clear()\n");
+            console::log("sheet::Game::clear()\n");
             camera::remove_transform_id(m_level_transform_id);
             camera::remove_transform_id(m_player.transform_id());
             camera::difference = 0.0F;
@@ -83,8 +77,7 @@ export namespace state {
             m_water_entity_objects.clear();
             m_unlocked_entity_objects.clear();
             m_trigger_entity_objects.clear();
-
-            console::log("sprite::size: ", sprite::size(), " unused size: ", sprite::unused_size(), "\n");
+                        
             for (auto& i : m_level_sprite_ids) {
                 sprite::erase(i);
             }

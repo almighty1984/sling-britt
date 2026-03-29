@@ -1,8 +1,3 @@
-module;
-#include <vector>
-#include <memory>
-#include <string>
-
 export module aabb;
 import console;
 import line;
@@ -11,6 +6,7 @@ import entity;
 import types;
 import transform;
 import window;
+import std;
 
 //export namespace entity {
     //class Object;
@@ -28,8 +24,8 @@ struct AABB {
 
     RectF rect = { 0.0F, 0.0F, 0.0F, 0.0F };
 
-    Color color = { 255, 255, 255 },
-          start_color = { 255, 255, 255 };
+    Color color = { 0, 0, 0 },
+          start_color = { 0, 0, 0 };
 
     I32 id = -1;
 
@@ -100,7 +96,14 @@ struct AABB {
         line::color(down_line_id, c);
         line::color(left_line_id, c);
         line::color(right_line_id, c);
-    }    
+    }
+    void set_start_color(Color c) {
+        start_color = c;
+        line::start_color(up_line_id, c);
+        line::start_color(down_line_id, c);
+        line::start_color(left_line_id, c);
+        line::start_color(right_line_id, c);
+    }
 
     //void update() {
         /*if (time_left_colliding > 0) {
@@ -144,7 +147,7 @@ std::vector<AABB*> s_aabbs;
 std::vector<I32>   s_unused_ids;
 
 export namespace aabb {
-    constexpr bool is_valid(size_t i) { return (i >= 0 && i < s_aabbs.size() && s_aabbs.at(i)) ? true : false; }
+    constexpr bool is_valid(size_t i) { return (i >= 0 and i < s_aabbs.size() and s_aabbs.at(i)) ? true : false; }
 
     size_t  size() { return s_aabbs.size(); }
 
@@ -161,7 +164,7 @@ export namespace aabb {
     //entity::Object* owner(cI32 i);
 
     Vec2F point(cI32 i, cU8 p) {
-        if (!is_valid(i) || p > 3) return {};
+        if (!is_valid(i) or p > 3) return {};
         switch (p) {
             case 0:  return s_aabbs.at(i)->point_0();
             case 1:  return s_aabbs.at(i)->point_1();
@@ -173,12 +176,12 @@ export namespace aabb {
     //Vec2U time_left_colliding(cI32 i) { return IS_VALID(i) ? s_aabbs.at(i)->time_left_colliding : Vec2U{}; }
     I32 transform_id(cI32 i) { return is_valid(i) ? s_aabbs.at(i)->transform_id : -1; }
 
-    void color(cI32 i, Color c)           { if (is_valid(i)) s_aabbs.at(i)->set_color(c);     }
-    void start_color(cI32 i, Color c)     { if (is_valid(i)) s_aabbs.at(i)->start_color = c;  }
-    void rect(cI32 i, cRectF r)           { if (is_valid(i)) s_aabbs.at(i)->set_rect(r);      }
-    void is_active(cI32 i, bool q)        { if (is_valid(i)) s_aabbs.at(i)->set_is_active(q); }
-    void name(cI32 i, cName n)            { if (is_valid(i)) s_aabbs.at(i)->name = n;         }
-    void owner(cI32 i, entity::Object* o) { if (is_valid(i)) s_aabbs.at(i)->owner = o;        }
+    void color(cI32 i, Color c)           { if (is_valid(i)) s_aabbs.at(i)->set_color(c);       }
+    void start_color(cI32 i, Color c)     { if (is_valid(i)) s_aabbs.at(i)->set_start_color(c); }
+    void rect(cI32 i, cRectF r)           { if (is_valid(i)) s_aabbs.at(i)->set_rect(r);        }
+    void is_active(cI32 i, bool q)        { if (is_valid(i)) s_aabbs.at(i)->set_is_active(q);   }
+    void name(cI32 i, cName n)            { if (is_valid(i)) s_aabbs.at(i)->name = n;           }
+    void owner(cI32 i, entity::Object* o) { if (is_valid(i)) s_aabbs.at(i)->owner = o;          }
     //void owner(cI32 i, entity::Object* o);
 
     //void time_left_colliding(cI32 i, cVec2U tv) { if (IS_VALID(i)) s_aabbs.at(i)->time_left_colliding   = tv; }
@@ -194,7 +197,7 @@ export namespace aabb {
             aabb->id = s_aabbs.size();
             s_aabbs.emplace_back(nullptr);
         }
-        if (aabb->id >= 0 && aabb->id < s_aabbs.size() && s_aabbs.at(aabb->id)) {
+        if (aabb->id >= 0 and aabb->id < s_aabbs.size() and s_aabbs.at(aabb->id)) {
             delete s_aabbs.at(aabb->id);
         }
         s_aabbs.at(aabb->id) = aabb;

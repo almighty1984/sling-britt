@@ -1,4 +1,5 @@
 export module entity.spring;
+import app.config;
 import anim;
 import console;
 import entity;
@@ -15,15 +16,15 @@ export namespace entity {
         void collide_x(aabb::cInfo our, aabb::cInfo other) override {
             cType other_type = other.owner->type();
 
-            if ((other_type == Type::brick || other_type == Type::bug) && !other.owner->parent() ||
-                other_type == Type::frog  ||
+            if ((other_type == Type::brick or other_type == Type::bug) and !other.owner->parent() or
+                other_type == Type::frog  or
                 other_type == Type::player) {
                 //if (other.owner->parent()) return;
                 
                 reset_anim("dead");
                 m_time_left_dead = m_time_to_be_dead;
                 
-                sound_position("dead", { (position().x + 8.0F) / WINDOW_W / 2.0F, (position().y + 8.0F) / WINDOW_H / 2.0F });
+                sound_position("dead", { (position().x + 8.0F) / app::config::extent().x / 2.0F, (position().y + 8.0F) / app::config::extent().y / 2.0F });
                 sound_play("dead");
             }
 

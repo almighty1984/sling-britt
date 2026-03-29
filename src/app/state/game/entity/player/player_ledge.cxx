@@ -1,4 +1,5 @@
 module entity.player;
+import app.config;
 import aabb;
 import camera;
 import console;
@@ -43,9 +44,9 @@ namespace entity {
         velocity_x(0.0F);
         velocity_y(0.0F);
 
-        if (is_pressed(key_up) && !is_locked(key_up)) {
+        if (is_pressed(key_up) and !is_locked(key_up)) {
             release(key_up);
-            sound_position("ledge_climb", { position().x / (WINDOW_W / 2.0F), position().y / (WINDOW_H / 2.0F) });
+            sound_position("ledge_climb", { position().x / (app::config::extent().x / 2.0F), position().y / (app::config::extent().y / 2.0F) });
             sound_play("ledge_climb");
 
             m_is_climbing_ledge = true;
@@ -58,16 +59,16 @@ namespace entity {
             m_time_left_jump_again = m_time_to_jump_again;
             //m_time_left_ducking = m_time_to_duck;
 
-            m_next_state = State::run;
+            m_next_state = state::Type::run;
         }
-        if (is_pressed(key_down) && !is_locked(key_down)) {
+        if (is_pressed(key_down) and !is_locked(key_down)) {
             release(key_down);
-            m_next_state = State::run;
+            m_next_state = state::Type::run;
             velocity_y(0.5F);
         }
         if (is_pressed(key_jump)) {
             m_time_left_jumping_wall = m_time_to_jump_wall;            
-            m_next_state = State::run;
+            m_next_state = state::Type::run;
         }
     }
 }

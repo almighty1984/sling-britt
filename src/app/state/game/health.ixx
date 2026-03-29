@@ -1,16 +1,15 @@
-module;
-#include <memory>
-#include <vector>
 export module health;
 import console;
 import line;
 import types;
 import window;
+import std;
 
 class Bar {
-    I32 m_bar_line_id = -1,
+    I32 m_bar_line_id     = -1,
         m_bar_hit_line_id = -1,
-        m_bar_bg_line_id = -1;
+        m_bar_bg_line_id  = -1;
+
 public:
     I32 id = -1;
 
@@ -21,6 +20,8 @@ public:
         regen  = 0.1F;
 
     Vec2F offset = { 0.0F, 0.0F };
+
+    bool is_hidden = false;
 
     Bar() = delete;
     Bar(cI32 transform_id) {
@@ -77,12 +78,12 @@ public:
         line::layer(m_bar_hit_line_id, layer);
         line::layer(m_bar_line_id, layer);
 
-        if (amount > 0.0f && amount < max) {
+        if (amount > 0.0f and amount < max) {
             amount += regen;
         }
     }
     void draw(std::unique_ptr<Window>& window) {
-        if (amount <= 0.0F || amount >= max) return;
+        if (amount <= 0.0F or amount >= max or is_hidden) return;
         line::draw(window, m_bar_bg_line_id);
         line::draw(window, m_bar_hit_line_id);
         line::draw(window, m_bar_line_id);
@@ -93,24 +94,26 @@ std::vector<Bar*>  s_bars;
 std::vector<I32>   s_unused_ids;
 
 export namespace health {
-    constexpr bool is_valid(size_t i) { return (i < s_bars.size() && s_bars.at(i)) ? true : false; }
+    constexpr bool is_valid(size_t i) { return (i < s_bars.size() and s_bars.at(i)) ? true : false; }
 
     size_t  size() { return s_bars.size(); }
 
     bool  is_max(cI32 i) { return is_valid(i) ? s_bars.at(i)->amount >= s_bars.at(i)->max : false; }
 
-    U8    layer(cI32 i)  { return is_valid(i) ? s_bars.at(i)->layer  : 0;       }
-    F32   amount(cI32 i) { return is_valid(i) ? s_bars.at(i)->amount : 0.0F;    }
-    F32   max(cI32 i)    { return is_valid(i) ? s_bars.at(i)->max    : 0.0F;    }
-    F32   regen(cI32 i)  { return is_valid(i) ? s_bars.at(i)->regen  : 0.0F;    }
-    Vec2F offset(cI32 i) { return is_valid(i) ? s_bars.at(i)->offset : Vec2F{}; }
+    U8    layer(cI32 i)     { return is_valid(i) ? s_bars.at(i)->layer     :       0; }
+    F32   amount(cI32 i)    { return is_valid(i) ? s_bars.at(i)->amount    :    0.0F; }
+    F32   max(cI32 i)       { return is_valid(i) ? s_bars.at(i)->max       :    0.0F; }
+    F32   regen(cI32 i)     { return is_valid(i) ? s_bars.at(i)->regen     :    0.0F; }
+    Vec2F offset(cI32 i)    { return is_valid(i) ? s_bars.at(i)->offset    : Vec2F{}; }
+    bool  is_hidden(cI32 i) { return is_valid(i) ? s_bars.at(i)->is_hidden :   false; }
 
-    void  layer(cI32 i, cU8 l)       { if (is_valid(i)) s_bars.at(i)->layer   = l; }
-    void  amount(cI32 i, cF32 a)     { if (is_valid(i)) s_bars.at(i)->amount  = a; }
-    void  amount_add(cI32 i, cF32 a) { if (is_valid(i)) s_bars.at(i)->amount += a; }
-    void  max(cI32 i, cF32 m)        { if (is_valid(i)) s_bars.at(i)->max     = m; }
-    void  regen(cI32 i, cF32 r)      { if (is_valid(i)) s_bars.at(i)->regen   = r; }
-    void  offset(cI32 i, cVec2F o)   { if (is_valid(i)) s_bars.at(i)->offset  = o; }
+    void  layer(cI32 i, cU8 l)       { if (is_valid(i)) s_bars.at(i)->layer     = l; }
+    void  amount(cI32 i, cF32 a)     { if (is_valid(i)) s_bars.at(i)->amount    = a; }
+    void  amount_add(cI32 i, cF32 a) { if (is_valid(i)) s_bars.at(i)->amount   += a; }
+    void  max(cI32 i, cF32 m)        { if (is_valid(i)) s_bars.at(i)->max       = m; }
+    void  regen(cI32 i, cF32 r)      { if (is_valid(i)) s_bars.at(i)->regen     = r; }
+    void  offset(cI32 i, cVec2F o)   { if (is_valid(i)) s_bars.at(i)->offset    = o; }
+    void  is_hidden(cI32 i, bool q)  { if (is_valid(i)) s_bars.at(i)->is_hidden = q; }
 
     void reset(cI32 i) { if (is_valid(i)) s_bars.at(i)->reset(); }
 
@@ -123,7 +126,7 @@ export namespace health {
             object->id = s_bars.size();
             s_bars.emplace_back(nullptr);
         }
-        if (object->id >= 0 && object->id < s_bars.size() && s_bars.at(object->id)) {
+        if (object->id >= 0 and object->id < s_bars.size() and s_bars.at(object->id)) {
             delete s_bars.at(object->id);
         }
         s_bars.at(object->id) = object;

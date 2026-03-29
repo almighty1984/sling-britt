@@ -1,7 +1,5 @@
-module;
-#include <fstream>
-#include <sstream>
 module entity.player;
+import app.config;
 import anim;
 import aabb;
 import console;
@@ -19,7 +17,7 @@ namespace entity {
         m_input_id = input::make();
 
         m_type = Type::player;
-        m_state = m_next_state = State::run;
+        m_state = m_next_state = state::Type::run;
 
         load_config("res/entity/player/britt.cfg");
     }
@@ -32,32 +30,40 @@ namespace entity {
     bool Player::hurt(Object* culprit) {
         if (!culprit) return false;
         if (m_time_left_hurt > 0) {
-            console::log("entity::Player::hurt() still hurting: ", m_time_left_hurt, "\n");
+            console::log(class_name(), "::hurt() still hurting: ", m_time_left_hurt, "\n");
             return false;
         }
         m_time_left_hurt = m_time_to_hurt;
 
+        Vec2F add_to_position = { 0.0F, 0.0F };
+
         if (culprit->type() == Type::particle_melee) {
-            if (!culprit->parent() || culprit->parent() == this) {
+            if (!culprit->parent() or culprit->parent() == this) {
                 return false;
             }
             if (culprit->parent()->type() == Type::frog) {
                 health::amount_add(m_health_id, -16.0f);
+
+                if      (culprit->position().x < position().x + 8.0F) add_to_position.x =  4.0F;
+                else if (culprit->position().x + 8.0F > position().x) add_to_position.x = -4.0F;
+                if      (culprit->position().y < position().y + 8.0F) add_to_position.y =  4.0F;
+                else if (culprit->position().y + 8.0F > position().y) add_to_position.y = -4.0F;
             }
-            console::log("entity::Player::hurt() culprit: ", to_string(culprit->parent()->type()), " health: ", health::amount(m_health_id), "\n");
+            console::log(class_name(), "::hurt() culprit: ", to_string(culprit->parent()->type()), " health: ", health::amount(m_health_id), "\n");
         } else if (culprit->type() == Type::particle_shot) {            
             health::amount_add(m_health_id, -16.0f);
             console::log("\n\nentity::Player::hurt() culprit: ", to_string(culprit->type()), " health: ", health::amount(m_health_id), "\n");
         }
+        position_add(add_to_position);
         return true;
     }
 
     void Player::interact(Object* object) {
-        if (!object || m_time_left_interacting > 0) return;
+        if (!object or m_time_left_interacting > 0) return;
 
         m_time_left_interacting = m_time_to_interact;
 
-        if (object->type() == Type::trigger && is_pressed(key_sprint) && !m_is_carrying) {
+        if (object->type() == Type::trigger and is_pressed(key_sprint) and !m_is_carrying) {
             m_time_left_lever = m_time_to_lever;
             reset_anim("lever");
             sprite::is_leftward(m_sprite_id, object->is_dead());
@@ -70,31 +76,31 @@ namespace entity {
                 object->time_left_alive(0);
             }
 
-            sound_position("lever", { position().x / (WINDOW_W / 2.0F), position().y / (WINDOW_H / 2.0F) });
+            sound_position("lever", { position().x / (app::config::extent().x / 2.0F), position().y / (app::config::extent().y / 2.0F) });
             sound_play("lever");
         }
-        else if (object->type() == Type::brick || object->type() == Type::bug) {
+        else if (object->type() == Type::brick or object->type() == Type::bug) {
             //if (is_pressed(key_sprint)) return;
 
-            if (object->state() == State::swim) return;
+            if (object->state() == state::Type::swim) return;
 
-            if (!m_is_carrying && !object->parent()) {
-                console::log("entity::Player::interact pick up\n");
+            if (!m_is_carrying and !object->parent()) {
+                console::log(class_name(), "::interact pick up\n");
                 m_is_carrying = true;
                 object->parent(this);
-                object->next_state(State::carried);
+                object->next_state(state::Type::carried);
                 sprite::layer(object->sprite_id(), sprite::layer(m_sprite_id) + 1);
-                sound_position("pick_up", { position().x / (WINDOW_W / 2.0F), position().y / (WINDOW_H / 2.0F) });
+                sound_position("pick_up", { position().x / (app::config::extent().x / 2.0F), position().y / (app::config::extent().y / 2.0F) });
                 sound_play("pick_up");
             }
-            else if (object->parent() && m_is_carrying) {
+            else if (object->parent() and m_is_carrying) {
                 console::log("Player::interact toss\n");
-                if (sprite_is_leftward() && object->is_near_wall_L()) {
-                    console::log("entity::Player::interact nah, near wall L\n");
+                if (sprite_is_leftward() and object->is_near_wall_L()) {
+                    console::log(class_name(), "::interact nah, near wall L\n");
                     return;
                 }
-                if (!sprite_is_leftward() && object->is_near_wall_R()) {
-                    console::log("entity::Player::interact nah, near wall R\n");
+                if (!sprite_is_leftward() and object->is_near_wall_R()) {
+                    console::log(class_name(), "::interact nah, near wall R\n");
                     return;
                 }
                 m_is_carrying = false;
@@ -114,10 +120,10 @@ namespace entity {
 
                 object->velocity_add_y(-1.5F);
                 object->position_add_y(-1.0F);
-                object->next_state(State::tossed);
+                object->next_state(state::Type::tossed);
                 //object->time_left_interacting(10);
 
-                sound_position("toss", { position().x / (WINDOW_W / 2.0F), position().y / (WINDOW_H / 2.0F) });
+                sound_position("toss", { position().x / (app::config::extent().x / 2.0F), position().y / (app::config::extent().y / 2.0F) });
                 sound_play("toss");
             }
         }
@@ -151,6 +157,7 @@ namespace entity {
 
     }
 
+    bool is_mouse_steer = false;
 
     void Player::update() {
         for (auto& i : m_time_left_colliding_with) {
@@ -159,13 +166,9 @@ namespace entity {
             }
         }
         //console::log(class_name(), "::update() water line y: ", m_water_line_y, "\n");
-        if (m_time_left_hurt > 0) {
-            //console::log("entity::Player::update() time left hurt: ", m_time_left_hurt, "\n");
-            --m_time_left_hurt;
-        }
-        if (m_time_left_interacting > 0) {
-            --m_time_left_interacting;
-        }
+        if (m_time_left_hurt > 0)        --m_time_left_hurt;        
+        if (m_time_left_interacting > 0) --m_time_left_interacting;
+        
         if (m_is_sliding_wall) {
             ++m_time_sliding_wall;
         }
@@ -173,27 +176,15 @@ namespace entity {
             m_time_sliding_wall = 0;
         }
 
-        if (m_next_state != m_state) {
-            m_prev_state = m_state;
-            m_state = m_next_state;
-            m_is_first_state_update = true;
-        }
-        switch (m_state) {
-            case State::dead:  state_dead();  break;
-            case State::dive:  state_dive();  break;
-            case State::ledge: state_ledge(); break;
-            case State::run:   state_run();   break;
-            case State::swim:  state_swim();  break;
-            case State::sling: state_sling(); break;
-            default:                          break;
-        }
+
+        state_update();
 
         //console::log("Player::update() anim source x: ", anim::source(m_current_anim_id).x, "\n");
         sprite_source_rect(anim::source(m_current_anim_id));
 
         health_layer(m_start_layer);
         if (health_amount() <= 0.0f) {
-            m_next_state = State::dead;
+            m_next_state = state::Type::dead;
         }
 
         //console::log("is_carrying: ", m_is_carrying, "\n");
@@ -204,5 +195,62 @@ namespace entity {
             //console::log("time_left_in_state: ", (int)m_time_left_in_state, "\n");
         }
         //console::log("level pos: ", position_difference(level_transform_id).x, "\n");
+
+        if (is_pressed(input::Key::m)) {
+            release(input::Key::m);
+            is_mouse_steer = !is_mouse_steer;
+            release(key_up);
+            release(key_down);
+            release(key_right);
+            release(key_left);
+            release(key_melee);
+            release(key_jump);
+            release(key_sprint);
+        }
+
+        if (!is_mouse_steer) return;
+
+        cF32 mouse_up = app::config::extent().y / 2.0F - 32.0F;
+        cF32 mouse_down = app::config::extent().y / 2.0F + 32.0F;
+        cF32 mouse_left = app::config::extent().x / 2.0F - 40.0F;
+        cF32 mouse_right = app::config::extent().x / 2.0F + 40.0F;
+        cVec2F sprint_limit = { 80.0F, 32.0F };
+
+        release(key_up);
+        release(key_down);
+        release(key_right);
+        release(key_left);
+        release(key_melee);
+        release(key_jump);
+        release(key_sprint);
+
+        if (input::mouse.x < mouse_left) {
+            press(key_left);
+            if (app::config::extent().x / 2.0F - input::mouse.x > sprint_limit.x) {
+                press(key_sprint);
+            }
+        } else if (input::mouse.x > mouse_right) {
+            press(key_right);
+            if (input::mouse.x - app::config::extent().x / 2.0F > sprint_limit.x) {
+                press(key_sprint);
+            }
+        }
+        if (input::mouse.y < mouse_up) {
+            press(key_up);
+            if (app::config::extent().y / 2.0F - input::mouse.y > sprint_limit.y) {
+                press(key_sprint);
+            }
+        } else if (input::mouse.y > mouse_down) {
+            press(key_down);
+            if (input::mouse.y - app::config::extent().y / 2.0F > sprint_limit.y) {
+                press(key_sprint);
+            }
+        }
+        if (is_pressed(input::Button::left)) {
+            press(key_melee);
+        }
+        if (is_pressed(input::Button::right)) {
+            press(key_jump);
+        }
     }
 }

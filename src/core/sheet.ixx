@@ -4,26 +4,26 @@ module;
 #include <string>
 #include <set>
 
-export module state;
+export module sheet;
 import console;
 import input.trait;
 import types;
 import window;
 
-export namespace state {
+export namespace sheet {
     std::filesystem::path tile_set_texture_path(cU8 tile_set_number) { return "res/texture/set_" + std::to_string((int)tile_set_number) + ".png"; }
 
     class Object : public input::Trait {
     protected:
-        Type m_state      = Type::none,
-             m_prev_state = Type::none,
-             m_next_state = Type::none;
+        Type m_sheet      = Type::none,
+             m_prev_sheet = Type::none,
+             m_next_sheet = Type::none;
 
         std::set<U8> m_visible_layers;
 
         start::Info m_start_info = { start::Type::center, 0 };
 
-        RectF m_view = { 0.0F, 0.0F, WINDOW_W, WINDOW_H };
+        RectU m_view = { 0, 0, 320, 240 };
 
         start::Type m_next_level = start::Type::center;
 
@@ -47,13 +47,13 @@ export namespace state {
 
         std::set<U8>& get_visible_layers() { return m_visible_layers; }
         
-        Type state()      const { return m_state;      } void state(cType t)      { m_state = m_next_state = t; }
-        Type next_state() const { return m_next_state; } void next_state(cType t) { m_next_state           = t; }
-        Type prev_state() const { return m_prev_state; } void prev_state(cType t) { m_prev_state           = t; }
+        Type sheet()      const { return m_sheet;      } void sheet(cType t)      { m_sheet = m_next_sheet = t; }
+        Type next_sheet() const { return m_next_sheet; } void next_sheet(cType t) { m_next_sheet           = t; }
+        Type prev_sheet() const { return m_prev_sheet; } void prev_sheet(cType t) { m_prev_sheet           = t; }
 
-        bool is_to_transition() const { return m_next_state != Type::none && m_next_state != m_state; }
+        bool is_to_transition() const { return m_next_sheet != Type::none and m_next_sheet != m_sheet; }
 
-        RectF view() const { return m_view; } void view(cRectF v) { m_view = v; }
+        RectU view() const { return m_view; } void view(cRectU v) { m_view = v; }
 
         //start::cType next_level() const { return m_next_level; } void next_level(start::cType n) { m_next_level = n; }
         start::Info start_info() const { return m_start_info; } void start_info(start::cInfo i) { m_start_info = i; }

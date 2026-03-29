@@ -1,11 +1,5 @@
-module;
-#include <fstream>
-#include <filesystem>
-#include <map>
-#include <string>
-#include <vector>
-
-export module state.game.save;
+export module sheet.game.save;
+import std;
 import console;
 import types;
 
@@ -14,7 +8,7 @@ static inline std::map<std::filesystem::path, std::vector<U16>> s_picked_coins;
 
 static inline std::filesystem::path s_current_level_path;
 
-export namespace state::game {
+export namespace sheet::game {
     void clear_current_save_data() {
         console::log("state::game::clear_current_save_data()\n");
         s_visited_levels.clear();

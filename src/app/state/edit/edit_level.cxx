@@ -1,15 +1,10 @@
-module;
-#include <algorithm>
-#include <sstream>
-
-module state.edit;
-
+module sheet.edit;
 import console;
 import transform;
 import sprite;
 import types;
 
-namespace state {
+namespace sheet {
     void Edit::move_level(cVec2F amount) {
         transform::position_add(m_level_transform_id, amount);
         transform::position_add(m_grid_transform_id, amount);
@@ -24,21 +19,21 @@ namespace state {
     }
     void Edit::move_selected_on_level(cVec2F amount) {
         for (auto& i : m_selection_on_level_sprite_ids) {
-            sprite::add_offset(i, amount);
+            sprite::offset_add(i, amount);
             
-            if (amount.x < 0.0F && sprite::offset(i).x + transform::position(m_level_transform_id).x < view().x ||
-                amount.x > 0.0F && sprite::offset(i).x + transform::position(m_level_transform_id).x > view().w - 48.0F) {
+            if (amount.x < 0.0F and sprite::offset(i).x + transform::position(m_level_transform_id).x < view().x or
+                amount.x > 0.0F and sprite::offset(i).x + transform::position(m_level_transform_id).x > view().w - 48.0F) {
                 transform::position_add(m_level_transform_id, { -amount.x, 0.0F });
                 transform::position_add(m_grid_transform_id, { -amount.x, 0.0F });
             }
-            if (amount.y < 0.0F && sprite::offset(i).y + transform::position(m_level_transform_id).y < view().y ||
-                amount.y > 0.0F && sprite::offset(i).y + transform::position(m_level_transform_id).y > view().h - 32.0F) {
+            if (amount.y < 0.0F and sprite::offset(i).y + transform::position(m_level_transform_id).y < view().y or
+                amount.y > 0.0F and sprite::offset(i).y + transform::position(m_level_transform_id).y > view().h - 32.0F) {
                 transform::position_add(m_level_transform_id, { 0.0F, -amount.y });
                 transform::position_add(m_grid_transform_id, { 0.0F, -amount.y });
             }
         }
         for (auto& i : m_moving_sprite_ids) {
-            sprite::add_offset(i, amount);
+            sprite::offset_add(i, amount);
         }
         console::log("state::Edit::move_selected_on_level view: ", view().w, " ", view().h, "\n");
     }
@@ -53,8 +48,8 @@ namespace state {
             sprite::erase(moving_sprite_id);
 
             for (size_t i = 0; i < sprite::size(); ++i) {                
-                if (sprite::transform_id(i) == m_level_transform_id &&
-                    sprite::offset(i)       == offset               &&
+                if (sprite::transform_id(i) == m_level_transform_id and
+                    sprite::offset(i)       == offset               and
                     sprite::layer(i)        == m_layer) {
                     history::Act prev_act = erase_sprite_on_level(m_layer, offset);
                     if (prev_act != history::Act::none) {
@@ -83,7 +78,7 @@ namespace state {
     } 
     
     history::Act Edit::place_sprite_on_level(cU8 layer, cU8 tile_set, cRectI source_rect, cVec2F offset) {        
-        if (tile_set == 255 && m_selection_on_tile_set_sprite_ids.size() == 1) {
+        if (tile_set == 255 and m_selection_on_tile_set_sprite_ids.size() == 1) {
             cVec2F tile_offset = { source_rect.x / 16.0F, source_rect.y / 16.0F };
             m_tile_number = std::fmodf(tile_offset.x, 32.0F) + tile_offset.y * 32.0F;
 
@@ -98,11 +93,11 @@ namespace state {
         // Replace if found
         for (auto& i : m_level_sprite_ids) {
             
-            if (sprite::transform_id(i) == m_level_transform_id &&
-                sprite::layer(i)        == layer &&
+            if (sprite::transform_id(i) == m_level_transform_id and
+                sprite::layer(i)        == layer and
                 sprite::offset(i)       == offset) {
 
-                if (sprite::tile_set(i) == tile_set &&
+                if (sprite::tile_set(i) == tile_set and
                     sprite::source_rect(i) == source_rect
                     ) {
                     return history::Act::none;
@@ -151,8 +146,8 @@ namespace state {
         for (auto it = m_level_sprite_ids.begin(); it != m_level_sprite_ids.end(); ++it) {
             cI32 i = *it;
 
-            if (sprite::transform_id(i) == m_level_transform_id &&
-                sprite::offset(i)       == offset               &&
+            if (sprite::transform_id(i) == m_level_transform_id and
+                sprite::offset(i)       == offset               and
                 sprite::layer(i)        == layer) {
                 console::log("state::Edit::erase_sprite_on_level_at_offset ", i, " ", " id: ", i, " previous_acts.size: ", m_undo_acts.size(), "\n");
                 
@@ -209,13 +204,13 @@ namespace state {
         for (auto& sel_sprite_id : m_selection_on_level_sprite_ids) {
 
             for (auto& sprite_id : m_level_sprite_ids) {
-                if (sprite_id == sel_sprite_id || sprite_id == -1 ||
+                if (sprite_id == sel_sprite_id or sprite_id == -1 or
                     std::find(m_selection_on_level_sprite_ids.begin(),
                         m_selection_on_level_sprite_ids.end(), sprite_id) != m_selection_on_level_sprite_ids.end()) {
                     continue;
                 }
-                if (sprite::offset(sprite_id) == sprite::offset(sel_sprite_id) &&
-                    sprite::layer(sprite_id) == m_layer &&
+                if (sprite::offset(sprite_id) == sprite::offset(sel_sprite_id) and
+                    sprite::layer(sprite_id) == m_layer and
                     sprite::transform_id(sprite_id) == m_level_transform_id) {
                     found_sprite_ids.push_back(sprite_id);
                 }
@@ -334,18 +329,18 @@ namespace state {
         m_level_sprite_ids.clear();        
     }
     void Edit::undo_last_act() {
-        if (m_undo_acts.empty() || m_undo_counts.empty()) return;
+        if (m_undo_acts.empty() or m_undo_counts.empty()) return;
         console::log("state::Edit::undo_last_act count: ", m_undo_counts.back(), "\n");
 
         for (U16 undo_count = 0; undo_count < m_undo_counts.back(); ++undo_count) {
             if (m_undo_acts.empty()) break;
             console::log("Edit::undo_last_act: ", history::to_string(m_undo_acts.back()), " ", m_undo_acts.size(), "\n");
-            if (m_undo_acts.back() == history::Act::place && !m_undo_info_placed.empty()) {
+            if (m_undo_acts.back() == history::Act::place and !m_undo_info_placed.empty()) {
                 console::log("state::Edit::undo_last_act undo place\n");
 
                 for (size_t i = 0; i < sprite::size(); ++i) {
-                    if (sprite::transform_id(i) == m_level_transform_id        &&
-                        sprite::offset(i)       == m_undo_info_placed.back().offset &&
+                    if (sprite::transform_id(i) == m_level_transform_id        and
+                        sprite::offset(i)       == m_undo_info_placed.back().offset and
                         sprite::layer(i)        == m_undo_info_placed.back().layer) {
                         sprite::erase(i);
 
@@ -360,7 +355,7 @@ namespace state {
 
                 m_redo_info_placed.push_back(m_undo_info_placed.back());
                 m_undo_info_placed.pop_back();
-            } else if (m_undo_acts.back() == history::Act::replace && !m_undo_info_replaced.empty()) {
+            } else if (m_undo_acts.back() == history::Act::replace and !m_undo_info_replaced.empty()) {
                 cI32 id = level_sprite_id_at_offset(m_undo_info_replaced.back().layer, m_undo_info_replaced.back().offset);
                 
                 console::log("state::Edit::undo_last_act undo replace\n");
@@ -379,7 +374,7 @@ namespace state {
                 sprite::texture(id, tile_set_texture_path(sprite::tile_set(id)));
 
                 m_undo_info_replaced.pop_back();
-            } else if (m_undo_acts.back() == history::Act::erase && !m_undo_info_erased.empty()) {
+            } else if (m_undo_acts.back() == history::Act::erase and !m_undo_info_erased.empty()) {
                 if (level_sprite_id_at_offset(m_undo_info_erased.back().layer, m_undo_info_erased.back().offset) == -1) {
                     console::log("state::Edit::undo_last_act undo erase\n");
                     cI32 id = sprite::make(tile_set_texture_path(m_undo_info_erased.back().tile_set));
@@ -396,7 +391,7 @@ namespace state {
 
                 m_redo_info_erased.push_back(m_undo_info_erased.back());
                 m_undo_info_erased.pop_back();
-            } else if (m_undo_acts.back() == history::Act::move && !m_undo_info_moved.empty()) {
+            } else if (m_undo_acts.back() == history::Act::move and !m_undo_info_moved.empty()) {
                 console::log("state::Edit::undo_last_act undo move\n");
 
                 cI32 id = sprite::make(tile_set_texture_path(m_undo_info_moved.back().tile_set));
@@ -428,7 +423,7 @@ namespace state {
         
     }
     void Edit::redo_last_act() {
-        if (m_redo_acts.empty() || m_redo_counts.empty()) {
+        if (m_redo_acts.empty() or m_redo_counts.empty()) {
             console::log("state::Edit::redo_last_act() nothing to redo!\n");
             return;
         }
@@ -437,12 +432,12 @@ namespace state {
         for (U16 redo_count = 0; redo_count < m_redo_counts.back(); ++redo_count) {
             if (m_redo_acts.empty()) break;
             console::log("state::Edit::redo_last_act: ", history::to_string(m_redo_acts.back()), " ", m_redo_acts.size(), "\n");
-            if (m_redo_acts.back() == history::Act::erase && !m_redo_info_erased.empty()) {
+            if (m_redo_acts.back() == history::Act::erase and !m_redo_info_erased.empty()) {
                 console::log("state::Edit::redo_last_act redo place\n");
 
                 for (size_t i = 0; i < sprite::size(); ++i) {
-                    if (sprite::transform_id(i) == m_level_transform_id &&
-                        sprite::offset(i) == m_redo_info_erased.back().offset &&
+                    if (sprite::transform_id(i) == m_level_transform_id and
+                        sprite::offset(i) == m_redo_info_erased.back().offset and
                         sprite::layer(i) == m_redo_info_erased.back().layer) {
                         sprite::erase(i);
 
@@ -456,7 +451,7 @@ namespace state {
                 }
                 m_undo_info_erased.push_back(m_redo_info_erased.back());
                 m_redo_info_erased.pop_back();
-            } else if (m_redo_acts.back() == history::Act::place && !m_redo_info_placed.empty()) {
+            } else if (m_redo_acts.back() == history::Act::place and !m_redo_info_placed.empty()) {
                 if (level_sprite_id_at_offset(m_redo_info_placed.back().layer, m_redo_info_placed.back().offset) == -1) {
                     console::log("state::Edit::redo_last_act redo place\n");
                     cI32 id = sprite::make(tile_set_texture_path(m_redo_info_placed.back().tile_set));
@@ -472,7 +467,7 @@ namespace state {
 
                 m_undo_info_placed.push_back(m_redo_info_placed.back());
                 m_redo_info_placed.pop_back();
-            } else if (m_redo_acts.back() == history::Act::replace && !m_redo_info_replaced.empty()) {
+            } else if (m_redo_acts.back() == history::Act::replace and !m_redo_info_replaced.empty()) {
                 cI32 id = level_sprite_id_at_offset(m_redo_info_replaced.back().layer, m_redo_info_replaced.back().offset);
                 
                 //m_undo_info_replaced.push_back(m_redo_info_replaced.back());
@@ -491,12 +486,12 @@ namespace state {
                 sprite::texture(id, tile_set_texture_path(sprite::tile_set(id)));
 
                 m_redo_info_replaced.pop_back();
-            } else if (m_redo_acts.back() == history::Act::move && !m_redo_info_moved.empty()) {
+            } else if (m_redo_acts.back() == history::Act::move and !m_redo_info_moved.empty()) {
                 console::log("state::Edit::redo_last_act redo move\n");
                 
                 for (size_t i = 0; i < sprite::size(); ++i) {
-                    if (sprite::transform_id(i) == m_level_transform_id &&
-                        sprite::offset(i) == m_redo_info_moved.back().offset &&
+                    if (sprite::transform_id(i) == m_level_transform_id and
+                        sprite::offset(i) == m_redo_info_moved.back().offset and
                         sprite::layer(i) == m_redo_info_moved.back().layer) {
                         sprite::erase(i);
 

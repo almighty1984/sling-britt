@@ -1,15 +1,16 @@
 module;
 #include <SFML/Graphics.hpp>
-#include <algorithm>
-#include <vector>
 
 export module line;
 import console;
 import transform;
 import types;
 import window;
+import std;
 
 static U8 s_scale = 1;
+
+Color s_screen_color = { };
 
 export namespace line {
     cF32 length(cVec2F v) {
@@ -27,8 +28,8 @@ struct Line {
     sf::Vertex sf_vertices[4] = {};
     U8  size = 1,
         layer = 0;
-    Color color = { 127 },
-        start_color = { 127 },
+    Color color = { 0 },
+        start_color = { 0 },
         prev_color = { 0 };
     Vec2F offset = { 0.0F, 0.0F },
         start = { 0.0F, 0.0F },
@@ -67,10 +68,10 @@ struct Line {
         //cVec2F extra_length = { (delta.x / length) * size * 0.25f, (delta.y / length) * size * 0.25f };
         delta = end - start;
 
-        if (prev_start != start && prev_end != end) {
+        if (prev_start != start and prev_end != end) {
             length = line::length(delta);
         }
-        if (max_length > 0.0F && length > max_length) {
+        if (max_length > 0.0F and length > max_length) {
             cF32 over_max_length = length - max_length;
             end.x -= (over_max_length * delta.x / length);
             end.y -= (over_max_length * delta.y / length);
@@ -118,10 +119,23 @@ struct Line {
             console::log("hello\n");
         }*/
 
+        if (start_color.r == 0 and start_color.g == 0 and start_color.b == 0 and (color.r != 0 or color.g != 0 or color.b != 0)) {
+            start_color = color;
+        }
+
         //if (color != prev_color) {
             //prev_color = color;
         for (U8 i = 0; i < 4; ++i) {
-            sf_vertices[i].color = { color.r, color.g, color.b };
+
+            Vec3F amount = { s_screen_color.r / 255.0F,
+                             s_screen_color.g / 255.0F,
+                             s_screen_color.b / 255.0F };
+
+            sf_vertices[i].color = { (U8)(color.r * amount.x),
+                                     (U8)(color.g * amount.y),
+                                     (U8)(color.b * amount.z) };
+
+            //sf_vertices[i].color = { color.r, color.g, color.b };
         }
         //}
     }
@@ -130,8 +144,11 @@ struct Line {
 std::vector<Line*> s_lines;
 std::vector<I32>   s_unused_ids;
 
+
 export namespace line {
-    constexpr bool is_valid(size_t i) { return (i < s_lines.size() && s_lines.at(i)) ? true : false; }
+    constexpr bool is_valid(size_t i) { return (i < s_lines.size() and s_lines.at(i)) ? true : false; }
+
+    Color screen_color() { return s_screen_color; } void screen_color(Color c) { s_screen_color = c; }
 
     void set(cI32 i, cVec2F start, cVec2F end) { if (is_valid(i)) s_lines.at(i)->set(start, end); }
 
@@ -187,7 +204,7 @@ export namespace line {
     std::vector<I32> ids_in_layer(cU8 layer) {
         std::vector<I32> same_layer_object_ids;
         std::for_each(s_lines.cbegin(), s_lines.cend(), [&](Line* i) {
-            if (i && i->id != -1 && i->layer == layer) {
+            if (i and i->id != -1 and i->layer == layer) {
                 same_layer_object_ids.emplace_back(i->id);
             }
             }
@@ -201,7 +218,7 @@ export namespace line {
         if (!s_unused_ids.empty()) {
             object->id = s_unused_ids.back();
             s_unused_ids.pop_back();
-            if (!s_lines.empty() && object->id >= 0 && object->id < s_lines.size() && s_lines.at(object->id)) {
+            if (!s_lines.empty() and object->id >= 0 and object->id < s_lines.size() and s_lines.at(object->id)) {
                 delete s_lines.at(object->id);
             }
         } else {
@@ -231,17 +248,17 @@ export namespace line {
     void update(cI32 i) { if (is_valid(i)) s_lines.at(i)->update(); }
 
     void draw(std::unique_ptr<Window>& window, cI32 i) {        
-        if (!window || !is_valid(i) || s_lines.at(i)->is_hidden/* || s_lines.at(i)->length < 1.0F*/) return;
+        if (!window or !is_valid(i) or s_lines.at(i)->is_hidden/* or s_lines.at(i)->length < 1.0F*/) return;
 
         s_scale = window->scale();
 
         cVec2F start = s_lines.at(i)->transformed_start() + s_lines.at(i)->offset;
         cVec2F end = s_lines.at(i)->transformed_end() + s_lines.at(i)->offset;
 
-        if (start.x < 0.0F && end.x < 0.0F ||
-            start.x > window->w() * 1.0F && end.x > window->w() * 1.0F ||
-            start.y < 0.0F && end.y < 0.0F ||
-            start.y > window->h() * 1.0F && end.y > window->h() * 1.0F) {
+        if (start.x < 0.0F and end.x < 0.0F or
+            start.x > window->w() * 1.0F and end.x > window->w() * 1.0F or
+            start.y < 0.0F and end.y < 0.0F or
+            start.y > window->h() * 1.0F and end.y > window->h() * 1.0F) {
             return;
         }
 
@@ -254,7 +271,7 @@ export namespace line {
     }
     void draw_in_layer(std::unique_ptr<Window>& window, cU8 layer) {
         for (size_t i = 0; i < s_lines.size(); ++i) {
-            if (is_valid(i) && s_lines.at(i)->layer == layer) {
+            if (is_valid(i) and s_lines.at(i)->layer == layer) {
                 if (!s_lines.at(i)->is_aabb) {
                     draw(window, i);
                 }

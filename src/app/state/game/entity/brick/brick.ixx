@@ -1,7 +1,5 @@
-module;
-#include <cmath>
-#include <sstream>
 export module entity.brick;
+import app.config;
 import anim;
 import camera;
 import console;
@@ -15,23 +13,25 @@ export namespace entity {
         Vec2F m_break_velocity = { 3.5F, 3.5F };
     public:
         Brick() {            
-            m_state = m_next_state = m_start_state = entity::State::idle;
+            m_state = m_next_state = m_start_state = state::Type::idle;
         }
+        const char* class_name() override { return "entity::\033[0;60mBrick\033[0m"; }
+
         bool hurt(Object* culprit) override {
-            if (!culprit || m_time_left_hurt > 0) return false;
+            if (!culprit or m_time_left_hurt > 0) return false;
 
             m_time_left_hurt = m_time_to_hurt;
 
-            console::log("entity::Brick::hurt() culprit: ", to_string(culprit->type()), "\n");
+            console::log(class_name(), "::hurt() culprit: ", to_string(culprit->type()), "\n");
             
-            //if (m_current_anim_id == anim_id("hurt") || culprit->velocity().y > 4.0F) {
-                m_next_state = entity::State::dead;
+            //if (m_current_anim_id == anim_id("hurt") or culprit->velocity().y > 4.0F) {
+                m_next_state = state::Type::dead;
             //} else {
                 //reset_anim(anim_id("hurt"));
                 //m_break_velocity = { 1.5F, 1.5F };
             //}            
 
-            sound_position("melee", { position().x / (WINDOW_W / 2.0F), position().y / (WINDOW_H / 2.0F) });
+            sound_position("melee", { position().x / (app::config::extent().x / 2.0F), position().y / (app::config::extent().y / 2.0F) });
             sound_play("melee");            
             
             return true;
@@ -62,14 +62,7 @@ export namespace entity {
                 m_is_first_state_update = true;
             }
 
-            switch (m_state) {
-                case State::carried: state_carried(); break;
-                case State::dead:    state_dead();    break;
-                case State::idle:    state_idle();    break;
-                case State::swim:    state_swim();    break;
-                case State::tossed:  state_tossed();  break;
-                default: break;
-            }
+            state_update();
 
             sprite::source_rect(m_sprite_id, anim::source(m_current_anim_id));
 
@@ -77,7 +70,7 @@ export namespace entity {
                 velocity_add_y(acceleration().y);
             }
             m_is_near_wall_L = m_is_near_wall_R = false;
-            if (!m_is_on_slope && (velocity().y < 0.0F || velocity().y > acceleration().y)) {
+            if (!m_is_on_slope and (velocity().y < 0.0F or velocity().y > acceleration().y)) {
                 m_is_on_ground = false;
             }
         }

@@ -1,11 +1,6 @@
-module;
-#include <filesystem>
-#include <fstream>
-#include <string>
+module sheet.edit;
 
-module state.edit;
-
-namespace state {
+namespace sheet {
     bool Edit::init_typing_text_bar() {
         if (m_is_showing_tile_set) {
             if (m_tile_set != 255) return false;
@@ -76,13 +71,13 @@ namespace state {
         }
     }
     void Edit::handle_typing_text_bar() {
-        if (!m_is_typing_text_bar || is_pressed(input::Key::ctrl)) return;
+        if (!m_is_typing_text_bar or is_pressed(input::Key::ctrl)) return;
 
         ++m_time_typing_text_bar;
         if (m_time_typing_text_bar > 10) {
             m_time_typing_text_bar = 0;
             
-            if (m_typing_pos < m_text_bar.get_sprite_ids().size() && m_text_bar.get_sprite_ids().at(m_typing_pos)) {
+            if (m_typing_pos < m_text_bar.get_sprite_ids().size() and m_text_bar.get_sprite_ids().at(m_typing_pos)) {
                 sprite::is_hidden(m_text_bar.get_sprite_ids().at(m_typing_pos), !sprite::is_hidden(m_text_bar.get_sprite_ids().at(m_typing_pos)));
 
                 for (auto& i : m_text_bar.get_sprite_ids()) {
@@ -152,8 +147,8 @@ namespace state {
         }
     }
     bool Edit::shift_text_bar_typing_pos_left() {
-        if ((m_is_showing_tile_set && m_typing_pos < 1) ||
-            (!m_is_showing_tile_set && m_typing_pos < 12)) {
+        if ((m_is_showing_tile_set and m_typing_pos < 1) or
+            (!m_is_showing_tile_set and m_typing_pos < 12)) {
             return false;
         }        
         std::string text = m_text_bar.get_text();
@@ -165,8 +160,8 @@ namespace state {
         return true;
     }
     bool Edit::shift_text_bar_typing_pos_right() {
-        if ((m_is_showing_tile_set && m_typing_pos >= m_text_bar.get_text().size() - 1) ||
-            (!m_is_showing_tile_set && m_typing_pos > m_text_bar.get_text().size() - 6)) {
+        if ((m_is_showing_tile_set and m_typing_pos >= m_text_bar.get_text().size() - 1) or
+            (!m_is_showing_tile_set and m_typing_pos > m_text_bar.get_text().size() - 6)) {
             return false;
         }
         std::string text = m_text_bar.get_text();
@@ -193,7 +188,7 @@ namespace state {
                     console::log("state::Edit::save_typed_text_bar() text: ", text, "\n");
                 }
             }
-            if (m_types.find(entity::Info{ 255, m_tile_number }) == m_types.end() && !m_text_bar.get_text().empty()) {
+            if (m_types.find(entity::Info{ 255, m_tile_number }) == m_types.end() and !m_text_bar.get_text().empty()) {
                 m_types.emplace(entity::Info{ 255, m_tile_number }, m_text_bar.get_text());                
             } else {
                 if (m_text_bar.get_text().empty()) {
@@ -205,7 +200,7 @@ namespace state {
             return true;
         }
         else if (!m_is_showing_tile_set) {
-            if (m_text_bar.get_text().back() == '_' && m_text_bar.get_text().size() < 17 || m_text_bar.get_text().size() < 16) {
+            if (m_text_bar.get_text().back() == '_' and m_text_bar.get_text().size() < 17 or m_text_bar.get_text().size() < 16) {
                 console::log("state::Edit::save_typed_text_bar() text size: ", m_text_bar.get_text().size(), "\n");
                 return false;
             }

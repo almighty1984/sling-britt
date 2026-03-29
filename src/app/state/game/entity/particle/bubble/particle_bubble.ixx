@@ -1,6 +1,3 @@
-module;
-#include <cmath>
-
 export module entity.particle.bubble;
 import console;
 import entity.particle;

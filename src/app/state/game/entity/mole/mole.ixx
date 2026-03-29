@@ -1,6 +1,3 @@
-module;
-#include <sstream>
-
 export module entity.mole;
 import anim;
 import camera;
@@ -23,9 +20,9 @@ export namespace entity {
         Vec2F m_sensed_position;
     public:
         Mole() {
-            m_state = m_next_state = m_start_state = entity::State::idle;
+            m_state = m_next_state = m_start_state = state::Type::idle;
         }
-        const char* class_name() override { return "entity::Mole"; }
+        const char* class_name() override { return "entity::\033[0;36mMole\033[0m"; }
 
         bool hurt(entity::Object* culprit) override;
 
@@ -65,38 +62,16 @@ export namespace entity {
                 }
             }
 
-            if (m_next_state != m_state) {
-                if (m_time_left_in_state > 0) {
-                    --m_time_left_in_state;
-                    console::log(class_name(), "::update() m_time_left_in_state: ", m_time_left_in_state, "\n");
-                }
-                if (m_time_left_in_state == 0) {
-                    m_prev_state = m_state;
-                    m_state = m_next_state;
-                    m_is_first_state_update = true;
-                }
-            
-            }
-
-            switch (m_state) {
-                case State::dead:  state_dead();  break;
-                case State::enter: state_enter(); break;
-                case State::exit:  state_exit();  break;
-                case State::idle:  state_idle();  break;
-                case State::jump:  state_jump();  break;
-                case State::shoot: state_shoot(); break;
-                case State::swim:  state_swim();  break;
-                default:                          break;
-            }
+            state_update();
 
             sprite_source_rect(anim::source(m_current_anim_id));
 
-            if (!m_is_on_slope && (velocity().y < 0.0F || velocity().y > acceleration().y)) {
+            if (!m_is_on_slope and (velocity().y < 0.0F or velocity().y > acceleration().y)) {
                 m_is_on_ground = false;
             }
             if (health::amount(m_health_id) <= 0.0f) {                
                 m_time_left_in_state = 0;
-                m_next_state = State::dead;                
+                m_next_state = state::Type::dead;                
             }
             health::layer(m_health_id, m_start_layer);
         }

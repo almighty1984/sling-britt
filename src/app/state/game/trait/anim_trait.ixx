@@ -27,7 +27,7 @@ export namespace anim {
 
         void set_anim(const std::string& s) {
             cI32 id = anim_id(s);
-            if (id == -1 || m_current_anim_id == id) return;
+            if (id == -1 or m_current_anim_id == id) return;
             m_current_anim_id = id;
         }
         void reset_anim(const std::string& s) {

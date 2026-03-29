@@ -1,14 +1,8 @@
-module;
-#include <map>
-#include <string>
-#include <sstream>
-#include <optional>
-#include <vector>
-
 export module input;
 import console;
 import types;
 import window;
+import std;
 
 struct Listener {
     I32 id = -1;
@@ -37,7 +31,7 @@ export namespace input {
     Vec2F mouse{ 0.0F, 0.0F }, mouse_prev{ 0.0F, 0.0F };
     F32   scroll = 0.0F;
 
-    constexpr bool is_valid(size_t i) { return (i < s_listeners.size() && s_listeners.at(i)) ? true : false; }
+    constexpr bool is_valid(size_t i) { return (i < s_listeners.size() and s_listeners.at(i)) ? true : false; }
 
     void press(cI32 i, input::Key k)      { if (is_valid(i)) s_listeners.at(i)->press(k);                  }
     void release(cI32 i, input::Key k)    { if (is_valid(i)) s_listeners.at(i)->release(k);                }
@@ -60,8 +54,12 @@ export namespace input {
                 window->close();
             }
             else if (const auto* resized = sf_event->getIf<sf::Event::Resized>()) {
-                console::log("input::handle_events() resized: ", resized->size.x, " ", resized->size.y, "\n");                
-                window->view(RectF{ 0.0F, 0.0F, (F32)resized->size.x / window->scale(), (F32)resized->size.y / window->scale() });
+                console::log("input::handle_events() resized: ", resized->size.x, " ", resized->size.y, "\n");
+
+                I32 view_w = (I32)resized->size.x / (I32)window->scale();
+                I32 view_h = (I32)resized->size.y / (I32)window->scale();                
+
+                window->view(RectU{ 0, 0, (U32)view_w, (U32)view_h });
 
                 window->w(resized->size.x / window->scale());
                 window->h(resized->size.y / window->scale());
@@ -142,7 +140,7 @@ export namespace input {
         if (!s_unused_ids.empty()) {
             object->id = s_unused_ids.back();
             s_unused_ids.pop_back();
-            if (object->id >= 0 && object->id < s_listeners.size() && s_listeners.at(object->id)) {
+            if (object->id >= 0 and object->id < s_listeners.size() and s_listeners.at(object->id)) {
                 delete s_listeners.at(object->id);
             }
         } else {

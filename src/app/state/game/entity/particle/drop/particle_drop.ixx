@@ -1,6 +1,3 @@
-module;
-#include <cmath>
-
 export module entity.particle.drop;
 import console;
 import entity.particle;
@@ -12,7 +9,7 @@ export namespace entity {
     public:
         ParticleDrop() {
             m_type = Type::particle_drop;
-            m_state = m_next_state = State::idle;
+            m_state = m_next_state = state::Type::idle;
         }
         void state_idle() override;
         void state_dead() override;

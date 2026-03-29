@@ -1,7 +1,3 @@
-module;
-#include <cmath>
-#include <sstream>
-
 module entity.particle.drop;
 import console;
 
@@ -43,7 +39,7 @@ namespace entity {
             }
         }
         velocity({});
-        if (m_parent && is_water_line(m_parent->type())) {
+        if (m_parent and is_water_line(m_parent->type())) {
             position_y(m_parent->position().y - 0.0F);
         }
 
@@ -65,8 +61,8 @@ namespace entity {
         cVec2F other_size = { other_rect.w - other_rect.x, other_rect.h - other_rect.y };
 
         if (other_type == Type::clip_ledge
-            &&
-            (our_rect.h < other_rect.y + other_size.y / 4.0F || our_rect.y > other_rect.h - other_size.y / 4.0F)) {
+            and
+            (our_rect.h < other_rect.y + other_size.y / 4.0F or our_rect.y > other_rect.h - other_size.y / 4.0F)) {
 
             collide_y(our, other);
             return;
@@ -75,12 +71,12 @@ namespace entity {
         if (is_water_line(other.owner->type())) {
             collide_y(our, other);
         }
-        else if (other_type == Type::clip ||
-            other_type == Type::clip_ledge ||
-            (other_type == Type::clip_L && velocity().x > 0.0F) ||
-            (other_type == Type::clip_LD && velocity().x > 0.0F) ||
-            (other_type == Type::clip_R && velocity().x < 0.0F) ||
-            (other_type == Type::clip_RD && velocity().x < 0.0F)
+        else if (other_type == Type::clip or
+            other_type == Type::clip_ledge or
+            (other_type == Type::clip_L and velocity().x > 0.0F) or
+            (other_type == Type::clip_LD and velocity().x > 0.0F) or
+            (other_type == Type::clip_R and velocity().x < 0.0F) or
+            (other_type == Type::clip_RD and velocity().x < 0.0F)
             ) {
             position_add_x(-overlap_x);
             velocity({});
@@ -90,7 +86,7 @@ namespace entity {
             } else {
                 sprite::angle(m_sprite_id, 0.0f);
             }
-            m_next_state = State::dead;
+            m_next_state = state::Type::dead;
         }
     }
     void ParticleDrop::collide_y(aabb::cInfo our, aabb::cInfo other) {
@@ -104,26 +100,26 @@ namespace entity {
 
         cF32 overlap_y = our_rect.y < other_rect.y ? our_rect.h - other_rect.y : -(other_rect.h - our_rect.y);
 
-        if (other_type == Type::clip_L || other_type == Type::clip_R) {
+        if (other_type == Type::clip_L or other_type == Type::clip_R) {
             collide_x(our, other);
             return;
         }
 
-        if (other_rect.y > our_rect.y && velocity().y > 0.0f) {
+        if (other_rect.y > our_rect.y and velocity().y > 0.0f) {
             if (is_water_line(other_type)) {
                 position_add_y(-overlap_y);
                 velocity({});
                 //moved_velocity() = other.owner->velocity();
-                m_next_state = State::dead;
+                m_next_state = state::Type::dead;
                 m_time_left_dead = m_time_to_be_dead;
 
                 m_parent = other.owner;
 
                 sprite::angle(m_sprite_id, 270.0f);
-            } else if (other_type == Type::clip       ||
-                       other_type == Type::clip_U     ||
-                       other_type == Type::clip_ledge ||
-                       other_type == Type::slope_U    ||
+            } else if (other_type == Type::clip       or
+                       other_type == Type::clip_U     or
+                       other_type == Type::clip_ledge or
+                       other_type == Type::slope_U    or
                        is_slope(other_type)
                 ) {
                 position_add_y(-overlap_y);
@@ -140,37 +136,37 @@ namespace entity {
                     sprite::angle(m_sprite_id, 45.0f);
                 } else if (other_type == Type::slope_R_1x1) {
                     sprite::angle(m_sprite_id, 135.0f);
-                } else if (other_type == Type::slope_L_2x1_0 || other_type == Type::slope_L_2x1_1) {
+                } else if (other_type == Type::slope_L_2x1_0 or other_type == Type::slope_L_2x1_1) {
                     sprite::angle(m_sprite_id, 67.5f);
-                } else if (other_type == Type::slope_R_2x1_0 || other_type == Type::slope_R_2x1_1) {
+                } else if (other_type == Type::slope_R_2x1_0 or other_type == Type::slope_R_2x1_1) {
                     sprite::angle(m_sprite_id, 112.5f);
                 }
 
-                m_next_state = State::dead;
+                m_next_state = state::Type::dead;
                 m_time_left_dead = m_time_to_be_dead;
 
                 m_parent = nullptr;
             }
-        } else if (other_rect.h < our_rect.h && velocity().y < 0.0f) {
+        } else if (other_rect.h < our_rect.h and velocity().y < 0.0f) {
             if (is_arch(other_type)) {
                 if (other_type == Type::arch_L_1x1) {
                     sprite::angle(m_sprite_id, 45.0f);
                 } else if (other_type == Type::arch_R_1x1) {
                     sprite::angle(m_sprite_id, 135.0f);
-                } else if (other_type == Type::arch_L_2x1_0 || other_type == Type::arch_L_2x1_1) {
+                } else if (other_type == Type::arch_L_2x1_0 or other_type == Type::arch_L_2x1_1) {
                     sprite::angle(m_sprite_id, 112.5f);
-                } else if (other_type == Type::arch_R_2x1_0 || other_type == Type::arch_R_2x1_1) {
+                } else if (other_type == Type::arch_R_2x1_0 or other_type == Type::arch_R_2x1_1) {
                     sprite::angle(m_sprite_id, 67.5f);
                 }
                 position_add({ 0.0F, -overlap_y });
                 position_add({ 0.0F, -4.0F });
                 velocity_y(0.0F);
                 acceleration_y(0.0F);
-                m_next_state = State::dead;
-            } else if (other_type == Type::clip ||
-                other_type == Type::clip_D ||
-                other_type == Type::clip_LD ||
-                other_type == Type::clip_RD ||
+                m_next_state = state::Type::dead;
+            } else if (other_type == Type::clip or
+                other_type == Type::clip_D or
+                other_type == Type::clip_LD or
+                other_type == Type::clip_RD or
                 other_type == Type::clip_ledge) {
                 position_add({ 0.0F, -overlap_y });
 
@@ -179,7 +175,7 @@ namespace entity {
                 velocity_x(0.0F);
                 sprite::angle(m_sprite_id, 270.0f);
 
-                m_next_state = State::dead;
+                m_next_state = state::Type::dead;
 
                 m_parent = nullptr;
             }

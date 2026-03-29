@@ -1,9 +1,4 @@
-module;
-#include <algorithm>
-#include <execution>
-#include <sstream>
-
-module state.game;
+module sheet.game;
 import app.config;
 import camera;
 import aabb;
@@ -16,9 +11,9 @@ import entity.particle.sense;
 import entity.water_line;
 import sound;
 import particle_system;
-import state.game.save;
+import sheet.game.save;
 
-namespace state {
+namespace sheet {
     void Game::update_unlocked() {
         for (auto& i : m_unlocked_entity_objects) {
             if (i) i->update();
@@ -28,11 +23,11 @@ namespace state {
         if (is_pressed(input::Key::esc)) {
             release(input::Key::esc);
             console::log("state::Game::update() pressed esc\n");
-            state::game::clear_current_save_data();
-            m_next_state = state::Type::menu_start;
+            sheet::game::clear_current_save_data();
+            m_next_sheet = sheet::Type::menu_start;
             return;
         }
-        if (is_pressed(input::Key::f1) || is_pressed(input::Key::equal)) {
+        if (is_pressed(input::Key::f1) or is_pressed(input::Key::equal)) {
             release(input::Key::f1);
             release(input::Key::equal);
             //console::log("level path: ", m_level_path, "\n");
@@ -41,19 +36,19 @@ namespace state {
             m_start_info = { .type = start::Type::none,
                              .number = 0 };
 
-            m_next_state = Type::edit;
+            m_next_sheet = Type::edit;
             return;
         }
 
         if (is_pressed(input::Key::t)) {
             release(input::Key::t);
-            console::log("state::Game::update() pressed t\n");
+            console::log("sheet::Game::update() pressed t\n");
 
             m_start_info = { .type = start::Type::center,
                              .number = 0 };
 
-            m_state = state::Type::none;
-            m_next_state = state::Type::game;
+            m_sheet      = sheet::Type::none;
+            m_next_sheet = sheet::Type::game;
 
             return;
         }
@@ -75,16 +70,16 @@ namespace state {
                 if (is_pressed(input::Key::down)) {
                     camera::focal_point.y -= 4.0F;
                 }
-                console::log("state::Game::update camera focal point: ", camera::focal_point.x, " ", camera::focal_point.y, "\n");
-            } else {
-                camera::focal_point = { app::config::window_size().x / 2.0F, app::config::window_size().y / 2.0F };
+            }
+            else {
+                camera::focal_point = { view().w / 2.0F, view().h / 2.0F };
             }
             m_is_holding_ctrl = true;
         } else {
             m_is_holding_ctrl = false;
         }
 
-        //console::log("state::Game::update() window size: ", app::config::window_size().x, " ", app::config::window_size().y, "\n");
+        //console::log("state::Game::update() window size: ", app::config::extent().x, " ", app::config::extent().y, "\n");
 
         //console::log("level transform: ", m_level_transform_id, " position: ", transform::get(m_level_transform_id)->position.x, "\n");
         //console::log("transforms: ", transform::size(), " unused: ", transform::unused_size(), "\n");
@@ -93,7 +88,9 @@ namespace state {
         particle::check_to_spawn();
         particle::update();
 
-        camera::update();
+        //console::log("state::Game::update() view: ", view().w, " ", view().h, "\n");
+
+        camera::update(view());
         m_bg_planes.set_velocity(-camera::difference / 2.0F);
 
         m_player.update();
@@ -103,10 +100,10 @@ namespace state {
 
         std::for_each(/*std::execution::par_unseq, */m_entity_objects.begin(), m_entity_objects.end(),
             [](auto& entity) {
-                if (entity && !entity::is_water_line(entity->type()) && !entity::is_track(entity->type())) {
-                    if (!entity->is_start_in_view() &&
-                        entity->state() == entity::State::dead &&
-                        entity->time_left_dead() == 0 && entity->time_to_be_dead() != U16_MAX) {
+                if (entity and !entity::is_water_line(entity->type()) and !entity::is_track(entity->type())) {
+                    if (!entity->is_start_in_view() and
+                        entity->state() == state::Type::dead and
+                        entity->time_left_dead() == 0 and entity->time_to_be_dead() != U16_MAX) {
                         console::log("state::Game::update() ", entity::to_string(entity->type()), " lives again!\n");
                         entity->next_state(entity->start_state());
                         entity->position(entity->start_position());
@@ -123,12 +120,12 @@ namespace state {
         );
 
 
-        if (camera::focus_transform == m_player.transform_id() &&
-            (m_player.position().x < -8.0F || m_player.position().x > m_window_w - 8.0F)) {
+        if (camera::focus_transform == m_player.transform_id() and
+            (m_player.position().x < -8.0F or m_player.position().x > m_window_w - 8.0F)) {
             m_start_info = m_player.next_start();
             
-            m_state         = state::Type::none;
-            m_next_state    = state::Type::game;
+            m_sheet         = sheet::Type::none;
+            m_next_sheet    = sheet::Type::game;
 
             m_next_level = m_player.next_level();
             console::log("state::Game next level: ", start::to_string(m_next_level), "\n");
@@ -181,7 +178,7 @@ namespace state {
 
         
        /* for (auto& i : m_entity_objects) {
-            if (i && i->time_left_alive() > 0) i->time_left_alive(i->time_left_alive() - 1);
+            if (i and i->time_left_alive() > 0) i->time_left_alive(i->time_left_alive() - 1);
         }*/
 
 
@@ -206,15 +203,15 @@ namespace state {
 
         //console::log("camera position: ", m_camera.position.x, " ", m_camera.position.y, "\n");
 
-        //if (m_player.position().x < -collider::aabb::get(m_player.aabb_ids().front())->get_rect().w || m_player.position().x > m_window_w) {
+        //if (m_player.position().x < -collider::aabb::get(m_player.aabb_ids().front())->get_rect().w or m_player.position().x > m_window_w) {
 
         
-        /*else if (m_camera.focus_transform == m_player2.get_transform_id() &&
-            (m_player2.position().x < -8.0F || m_player2.position().x > m_window_w)) {
+        /*else if (m_camera.focus_transform == m_player2.get_transform_id() and
+            (m_player2.position().x < -8.0F or m_player2.position().x > m_window_w)) {
             start_info(m_player2.next_start());
             restart();
-        } else if (m_camera.focus_transform == m_player3.get_transform_id() &&
-            (m_player3.position().x < -8.0F || m_player3.position().x > m_window_w)) {
+        } else if (m_camera.focus_transform == m_player3.get_transform_id() and
+            (m_player3.position().x < -8.0F or m_player3.position().x > m_window_w)) {
             start_info(m_player3.next_start());
             restart();
         }*/
@@ -223,12 +220,14 @@ namespace state {
         if (is_pressed(input::Key::grave)) {
             release(input::Key::grave);
             m_is_to_change_view = true;
-            if (view() == RectF{0.0F, 0.0F, 480.0F, 270.0F}) {
-                view(RectF{ 0.0F, 0.0F, (F32)app::config::window_size().x, (F32)app::config::window_size().y});
+            if (view() == RectU{0, 0, 480, 270 }) {
+                view(RectU{ 0, 0, app::config::extent().x, app::config::extent().y });
             } else {
-                view(RectF{ 0.0F, 0.0F, 480.0F, 270.0F });
+                view(RectU{ 0, 0, 480, 270 });
             }
         }
+
+        //app::config::view(view());
 
 
         quad_trees_check_collision();

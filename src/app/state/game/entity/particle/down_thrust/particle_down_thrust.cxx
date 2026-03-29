@@ -1,9 +1,10 @@
 module entity.particle.down_thrust;
+import app.config;
 import particle_system;
 
 namespace entity {
     void ParticleDownThrust::collide_x(aabb::cInfo our, aabb::cInfo other) {
-        if (m_time_left_alive == 0 || is_dead() || !m_parent || m_parent == other.owner || other.owner->is_dead()) return;
+        if (m_time_left_alive == 0 or is_dead() or !m_parent or m_parent == other.owner or other.owner->is_dead()) return;
 
         cRectF our_rect = { aabb::point(our.id, 0).x, aabb::point(our.id, 0).y,
                             aabb::point(our.id, 3).x, aabb::point(our.id, 3).y };
@@ -16,14 +17,14 @@ namespace entity {
 
         //console::log("type: ", to_string(other_type), "\n");
 
-        if (is_arch(other_type) || is_clip(other_type) || is_slope(other_type)) {
+        if (is_arch(other_type) or is_clip(other_type) or is_slope(other_type)) {
             //m_is_to_erase = true;
         }
         else if (other.owner->type() == Type::particle_sense) {
 
         }
-        else if (other_type == Type::bug  ||
-                 other_type == Type::frog ||
+        else if (other_type == Type::bug  or
+                 other_type == Type::frog or
                  other_type == Type::mole) {
 
             if (other.owner->is_hurting()) return;
@@ -44,7 +45,7 @@ namespace entity {
             m_time_left_alive = 0;
             m_time_left_dead = m_time_to_be_dead;
 
-            sound_position("melee", { position().x / (WINDOW_W / 2.0F), position().y / (WINDOW_H / 2.0F) });
+            sound_position("melee", { position().x / (app::config::extent().x / 2.0F), position().y / (app::config::extent().y / 2.0F) });
             sound_play("melee");
 
             particle::spawn(this, particle::Type::hit, hit_pos, {});

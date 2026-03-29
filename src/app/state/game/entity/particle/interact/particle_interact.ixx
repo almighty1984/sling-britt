@@ -1,5 +1,3 @@
-module;
-#include <sstream>
 export module entity.particle.interact;
 import console;
 import entity;

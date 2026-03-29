@@ -1,6 +1,3 @@
-module;
-#include <sstream>
-
 export module entity.bug;
 import anim;
 import console;
@@ -21,7 +18,7 @@ export namespace entity {
         //U8 m_time_left_turning = 0;
     public:
         Bug() {
-            m_state = m_next_state = m_start_state = entity::State::walk;
+            m_state = m_next_state = m_start_state = state::Type::walk;
             m_time_to_interact = 15;
         }
         const char* class_name() override { return "entity::Bug"; }
@@ -44,11 +41,11 @@ export namespace entity {
                 m_is_first_update = false;
             }
 
-            if (!m_is_on_slope && (velocity().y < 0.0F || velocity().y > acceleration().y)) {
+            if (!m_is_on_slope and (velocity().y < 0.0F or velocity().y > acceleration().y)) {
                 m_is_on_ground = false;
             }
 
-            if (m_state == entity::State::upended) {
+            if (m_state == state::Type::upended) {
                 //console::log("entity::Bug::update is_near_wall: ", m_is_near_wall_L, " ", m_is_near_wall_R, "\n");
             }
             if (velocity().x <= 0.0F) {
@@ -69,31 +66,16 @@ export namespace entity {
                 }
             }
 
-            if (m_next_state != m_state) {
-                m_prev_state = m_state;
-                m_state = m_next_state;
-                m_is_first_state_update = true;
-            }
-
             if (!is_dead()) {
                 velocity_add_y(acceleration().y);
             }
-            switch (m_state) {
-                case State::bounce:  state_bounce();  break;
-                case State::carried: state_carried(); break;
-                case State::dead:    state_dead();    break;
-                case State::hurt:    state_hurt();    break;
-                case State::swim:    state_swim();    break;
-                case State::tossed:  state_tossed();  break;
-                case State::upended: state_upended(); break;
-                case State::walk:    state_walk();    break;
-                default:                              break;
-            }
+
+            state_update();
 
             sprite::source_rect(m_sprite_id, anim::source(m_current_anim_id));
 
             if (health::amount(m_health_id) <= 0.0f) {
-                m_next_state = State::dead;
+                m_next_state = state::Type::dead;
             }
             health::layer(m_health_id, m_start_layer);
         }

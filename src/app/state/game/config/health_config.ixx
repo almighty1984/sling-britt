@@ -1,15 +1,13 @@
-module;
-#include <string>
-
 export module health.config;
 import health;
 import entity;
 import types;
+import std;
 
 export namespace health {
     bool parse_config(const std::string& text, entity::Object* owner) {
         const size_t health_label = text.find("Health", 0);
-        if (health_label == std::string::npos || text.find("{", health_label) == std::string::npos) {
+        if (health_label == std::string::npos or text.find("{", health_label) == std::string::npos) {
             return false;
         }
         const size_t health_open = text.find("{", health_label) + 1;
@@ -28,7 +26,7 @@ export namespace health {
             size_t value_start = text.find("=", amount_label);
             if (value_start < end_line) {
                 ++value_start;
-                while (text.at(value_start) == '	' || text.at(value_start) == ' ') ++value_start;
+                while (text.at(value_start) == '	' or text.at(value_start) == ' ') ++value_start;
                 cF32 amount = std::stoi(text.substr(value_start, end_line - value_start));
                 health::max(id, amount);
                 health::amount(id, amount);
@@ -40,7 +38,7 @@ export namespace health {
             size_t value_start = text.find("=", regen_label);
             if (value_start < end_line) {
                 ++value_start;
-                while (text.at(value_start) == '	' || text.at(value_start) == ' ') ++value_start;
+                while (text.at(value_start) == '	' or text.at(value_start) == ' ') ++value_start;
                 cF32 regen = std::stof(text.substr(value_start, end_line - value_start));
                 health::regen(id, regen);
             }
@@ -52,18 +50,18 @@ export namespace health {
             const size_t offset_open = text.find("{", offset_start);
             const size_t offset_close = text.find("}", offset_start);
 
-            if (offset_open < end_line && offset_close < end_line) {
+            if (offset_open < end_line and offset_close < end_line) {
                 Vec2F offset{};
                 size_t value_0 = offset_open + 1;
-                while (text.at(value_0) == '	' || text.at(value_0) == ' ') ++value_0;
+                while (text.at(value_0) == '	' or text.at(value_0) == ' ') ++value_0;
                 const size_t comma_0 = text.find(",", value_0);
                 if (comma_0 < end_line) {
                     offset.x = std::stof(text.substr(value_0, comma_0 - value_0));
                 }
                 size_t value_1 = comma_0 + 1;
-                while (text.at(value_1) == '	' || text.at(value_1) == ' ') ++value_1;
+                while (text.at(value_1) == '	' or text.at(value_1) == ' ') ++value_1;
                 size_t value_1_end = offset_close;
-                while (text.at(value_1_end) == '	' || text.at(value_1_end) == ' ') --value_1_end;
+                while (text.at(value_1_end) == '	' or text.at(value_1_end) == ' ') --value_1_end;
 
                 offset.y = std::stof(text.substr(value_1, value_1_end - value_1));
                 health::offset(id, offset);

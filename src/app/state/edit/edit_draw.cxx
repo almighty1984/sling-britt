@@ -1,6 +1,6 @@
-module state.edit;
+module sheet.edit;
 
-namespace state {
+namespace sheet {
     void Edit::draw(std::unique_ptr<Window>& window, cU8 layer) {
         /*for (auto& i : sprite::ids_in_layer(layer)) {
             sprite::draw(window, i);
@@ -27,12 +27,12 @@ namespace state {
         for (auto& i : m_grid_sprite_ids)                  if (sprite::layer(i) == layer) sprite::draw(window, i);
         for (auto& i : m_grid_map_sprite_ids)              if (sprite::layer(i) == layer) sprite::draw(window, i);
 
-        if (m_is_mouse_on_menu_up_bar || m_is_mouse_on_menu_up_list) {
+        if (!m_is_hidden_menu_up) {
             for (auto& i : m_menu_up_bar_bg_sprite_ids) {
                 if (sprite::layer(i) == layer) sprite::draw(window, i);
             }
             for (auto& text_label : m_menu_up_bar) {
-                if (text_label && text_label->layer() == layer) {
+                if (text_label and text_label->layer() == layer) {
                     text_label->draw(window);
                 }
             }

@@ -1,36 +1,23 @@
-module;
-#include <vector>
-#include <sstream>
-#include <string>
-#include <unordered_map>
-
 export module anim;
 import console;
 import types;
+import std;
 
 struct Anim {
 private:
-    I32        m_id;
-    anim::Type m_type;
-    F32        m_speed;
-    U16        m_loop, m_loops;
-    U16        m_first_frame, m_last_frame;
-    RectI      m_source;
-    Vec2U      m_texture_size;
-    bool       m_is_reverse;
-    F32        m_timer;
-public:
-    Anim() : m_id(-1),
-             m_type(anim::Type::none),
-             m_speed(1.0F),
-             m_loop(0), m_loops(0),
-             m_first_frame(0), m_last_frame(0),
-             m_source(0, 0, 16, 16),
-             m_texture_size(16, 16),
-             m_is_reverse(false),
-             m_timer(0.0F) {
-    }
+    I32        m_id           = -1;
+    anim::Type m_type         = anim::Type::none;
+    F32        m_speed        = 1.0F;
+    U16        m_loop         = 0,
+               m_loops        = 0,
+               m_first_frame  = 0,
+               m_last_frame   = 0;
+    RectI      m_source       = {  0,  0, 16, 16 };
+    Vec2U      m_texture_size = { 16, 16 };
+    bool       m_is_reverse   = false;
+    F32        m_timer        = 0.0F;
 
+public:
     I32 id()             const { return m_id;           }   void id(cI32 i)            { m_id           = i; }
     anim::Type type()    const { return m_type;         }   void type(anim::cType t)   { m_type         = t; }
     F32 speed()          const { return m_speed;        }   void speed(cF32 s)         { m_speed        = s; }
@@ -47,10 +34,8 @@ public:
     void texture_size_x(cF32 x) { m_texture_size.x = x; }
     void texture_size_y(cF32 y) { m_texture_size.y = y; }
     bool is_reverse()    const { return m_is_reverse;   }   void is_reverse(bool q)    { m_is_reverse   = q; }
-
     cU16 num_frames()    const { return m_texture_size.x / m_source.w; }
     cU16 current_frame() const { return m_source.x / m_source.w; }
-
     bool is_last_frame() const { return (current_frame() == m_last_frame); }
 
     void update() {
@@ -103,7 +88,7 @@ std::vector<Anim*>  s_anims;
 std::vector<I32>    s_unused_ids;
 
 export namespace anim {
-    constexpr bool    is_valid(size_t i) { return (i >= 0 && i < s_anims.size() && s_anims.at(i)) ? true : false; }
+    constexpr bool    is_valid(size_t i) { return (i >= 0 and i < s_anims.size() and s_anims.at(i)) ? true : false; }
 
     Anim* get(cI32 i)      { return is_valid(i) ? s_anims.at(i) : nullptr; }
     size_t  size()           { return s_anims.size(); }
@@ -142,7 +127,7 @@ export namespace anim {
         if (!s_unused_ids.empty()) {
             object->id(s_unused_ids.back());
             s_unused_ids.pop_back();                
-            if (!s_anims.empty() && object->id() >= 0 && object->id() < s_anims.size() && s_anims.at(object->id())) {
+            if (!s_anims.empty() and object->id() >= 0 and object->id() < s_anims.size() and s_anims.at(object->id())) {
                 delete s_anims.at(object->id());
                 //s_anims.at(object->id) = nullptr;
             }
@@ -154,7 +139,7 @@ export namespace anim {
         return object->id();
     }
     bool erase(cI32 i) {
-        if (i < 0 || !is_valid(i)) {
+        if (i < 0 or !is_valid(i)) {
             console::log("anim::erase ", i, " can't do it!\n");
             return false;
         }

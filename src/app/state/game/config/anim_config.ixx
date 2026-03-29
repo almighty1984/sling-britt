@@ -1,10 +1,8 @@
-module;
-#include <vector>
-#include <string>
 export module anim.config;
 import anim;
 import entity;
 import types;
+import std;
 
 export namespace anim {
     bool parse_config(const std::string& text, entity::Object* owner) {
@@ -32,33 +30,33 @@ export namespace anim {
             const size_t current_open = text.find("{", current_equals);
             const size_t current_close = text.find("}", current_equals);
 
-            if (current_open < end_line && current_close < end_line) {
+            if (current_open < end_line and current_close < end_line) {
                 U16 source_y = 0;
                 F32 speed = 0.0F;
                 U16 num_loops = 0;
 
                 size_t value_0 = current_open + 1;
-                while (text.at(value_0) == '	' || text.at(value_0) == ' ') ++value_0;
+                while (text.at(value_0) == '	' or text.at(value_0) == ' ') ++value_0;
                 const size_t comma_0 = text.find(",", value_0);
                 if (comma_0 < end_line) {
                     source_y = std::stoi(text.substr(value_0, comma_0 - value_0));
                 }
                 size_t value_1 = comma_0 + 1;
-                while (text.at(value_1) == '	' || text.at(value_1) == ' ') ++value_1;
+                while (text.at(value_1) == '	' or text.at(value_1) == ' ') ++value_1;
                 const size_t comma_1 = text.find(",", value_1);
                 if (comma_1 < end_line) {
                     speed = std::stof(text.substr(value_1, comma_1 - value_1));
                 }
                 size_t value_2 = comma_1 + 1;
-                while (text.at(value_2) == '	' || text.at(value_2) == ' ') ++value_2;
+                while (text.at(value_2) == '	' or text.at(value_2) == ' ') ++value_2;
                 size_t value_2_end = current_close;
-                while (text.at(value_2_end) == '	' || text.at(value_2_end) == ' ') --value_2_end;
+                while (text.at(value_2_end) == '	' or text.at(value_2_end) == ' ') --value_2_end;
                 num_loops = std::stoi(text.substr(value_2, value_2_end - value_2));
 
                 size_t current_label_start = text.rfind("\n", current_equals);
-                while (text.at(current_label_start) == '	' || text.at(current_label_start) == ' ' || text.at(current_label_start) == '\n') ++current_label_start;
+                while (text.at(current_label_start) == '	' or text.at(current_label_start) == ' ' or text.at(current_label_start) == '\n') ++current_label_start;
                 size_t current_label_end = current_equals;
-                while (text.at(current_label_end - 1) == '	' || text.at(current_label_end - 1) == ' ') --current_label_end;
+                while (text.at(current_label_end - 1) == '	' or text.at(current_label_end - 1) == ' ') --current_label_end;
 
                 std::string current_label_str = text.substr(current_label_start, current_label_end - current_label_start);
 

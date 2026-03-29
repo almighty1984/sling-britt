@@ -1,8 +1,8 @@
-module state.game;
+module sheet.game;
 import health;
 import line;
 
-namespace state {
+namespace sheet {
     void Game::draw(std::unique_ptr<Window>& window, cU8 layer) {
         //for (auto& i : sprite::ids_in_layer(layer)) {
         //    sprite::draw(window, i);
@@ -10,13 +10,13 @@ namespace state {
         ////health::draw(window, layer);
         //
         //for (auto& i : line::ids_in_layer(layer)) {
-        //    if (!line::is_hidden(i) && !line::is_aabb(i) || m_is_drawing_debug) {
+        //    if (!line::is_hidden(i) and !line::is_aabb(i) or m_is_drawing_debug) {
         //        line::draw(window, i);
         //    }
         //}
         //return;
 
-        if (m_is_drawing_quad_tree && layer == NUM_VISIBLE_LAYERS - 1) {
+        if (m_is_drawing_quad_tree and layer == NUM_VISIBLE_LAYERS - 1) {
             for (auto& i : m_level_quad_trees) {
                 i.second->draw(window);
             }
@@ -34,7 +34,7 @@ namespace state {
             }
         }
         for (auto& i : m_entity_objects) {
-            if (i && sprite::layer(i->sprite_id()) == layer) {
+            if (i and sprite::layer(i->sprite_id()) == layer) {
                 if (sprite::is_debug(i->sprite_id())) {
                     if (m_is_drawing_debug) {
                         i->draw(window);                        
@@ -50,7 +50,7 @@ namespace state {
             }
         }
         for (auto& i : m_water_entity_objects) {
-            if (i && i->start_layer() == layer) {                
+            if (i and i->start_layer() == layer) {                
                 i->draw(window);
                 if (m_is_drawing_debug) {
                     i->draw_aabb(window);

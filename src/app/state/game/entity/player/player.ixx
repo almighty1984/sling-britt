@@ -1,10 +1,3 @@
-module;
-#include <filesystem>
-#include <fstream>
-#include <vector>
-#include <sstream>
-#include <string>
-#include <unordered_map>
 export module entity.player;
 import anim;
 import aabb;
@@ -68,7 +61,7 @@ export namespace entity {
         Player();
         ~Player();
 
-        const char* class_name() override { return "entity::Player"; }
+        const char* class_name() override { return "entity::\033[0;95mPlayer\033[0m"; }        
 
         U8 id = 0;
                 
@@ -85,6 +78,8 @@ export namespace entity {
         void interact(Object* object) override;
 
         void spawn_down_thrust(cVec2F position);
+
+        void jump();
 
         void state_dead()  override;
         void state_dive()  override;

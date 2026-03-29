@@ -1,8 +1,5 @@
-module;
-#include <cmath>
-#include <sstream>
-
 module entity.particle.brick;
+import app.config;
 import particle_system;
 
 namespace entity {
@@ -22,16 +19,16 @@ namespace entity {
         cVec2F other_velocity = other.owner->velocity();
         cVec2F our_velocity = velocity();
 
-        if (other_type == Type::arch_L_1x1 || other_type == Type::arch_R_1x1) {
+        if (other_type == Type::arch_L_1x1 or other_type == Type::arch_R_1x1) {
             velocity_x(velocity().x * 0.5F);
         }
-        else if (other_type == Type::arch_L_2x1_0 || other_type == Type::arch_L_2x1_1 ||
-            other_type == Type::arch_R_2x1_0 || other_type == Type::arch_R_2x1_1) {
+        else if (other_type == Type::arch_L_2x1_0 or other_type == Type::arch_L_2x1_1 or
+            other_type == Type::arch_R_2x1_0 or other_type == Type::arch_R_2x1_1) {
             velocity_x(velocity().x * -0.75F);
         }
-        else if (other_type == Type::brick || other_type == Type::bug) {
+        else if (other_type == Type::brick or other_type == Type::bug) {
             //console::log(class_name(), "::collide_x ", to_string(other_type), "\n");
-            if (is_hurting() || (std::abs(other_velocity.x) < 0.5F && std::abs(our_velocity.x) < 0.5F)) return;
+            if (is_hurting() or (std::abs(other_velocity.x) < 0.5F and std::abs(our_velocity.x) < 0.5F)) return;
 
             m_time_left_hurt = m_time_to_hurt;
             m_time_left_dead = m_time_to_be_dead;
@@ -39,14 +36,14 @@ namespace entity {
             velocity_y(other_velocity.y - 2.0F);
             velocity_x(other_velocity.x * 1.2F);
         }
-        else if (other_type == Type::clip ||
-            (other_type == Type::clip_L && velocity().x > 0.0F) ||
-            (other_type == Type::clip_R && velocity().x < 0.0F) ||
+        else if (other_type == Type::clip or
+            (other_type == Type::clip_L and velocity().x > 0.0F) or
+            (other_type == Type::clip_R and velocity().x < 0.0F) or
             other_type == Type::clip_ledge
             ) {
 
-            if (other_rect.x < our_rect.x && velocity().x > 0.0F ||
-                other_rect.w > our_rect.w && velocity().x < 0.0F) return;
+            if (other_rect.x < our_rect.x and velocity().x > 0.0F or
+                other_rect.w > our_rect.w and velocity().x < 0.0F) return;
 
             position_add_x(-overlap_x);
             velocity_x(velocity().x * -0.75F);
@@ -56,7 +53,7 @@ namespace entity {
                 other.owner->hurt(this);
                 cVec2F hit_pos = position() + Vec2F{ -8.0F, -8.0F };
 
-                sound_position("melee", { position().x / (WINDOW_W / 2.0F), position().y / (WINDOW_H / 2.0F) });
+                sound_position("melee", { position().x / (app::config::extent().x / 2.0F), position().y / (app::config::extent().y / 2.0F) });
                 sound_play("melee");
 
                 particle::spawn(this, particle::Type::hit, hit_pos, {});
@@ -65,9 +62,9 @@ namespace entity {
             velocity_x(velocity().x * -1.0F);
         }
         else if (other_type == Type::mole) {
-            if (is_hurting() || other.owner->is_hurting() || other.owner->state() == State::swim || (velocity().x >= -1.0F && velocity().x <= 1.0F)) return;
+            if (is_hurting() or other.owner->is_hurting() or other.owner->state() == state::Type::swim or (velocity().x >= -1.0F and velocity().x <= 1.0F)) return;
 
-            if (other.owner->state() == State::idle) {
+            if (other.owner->state() == state::Type::idle) {
                 m_time_left_hurt = m_time_to_hurt;
                 velocity_y(other_velocity.y - 1.0F);
                 velocity_x(other_velocity.x * 0.5F);
@@ -91,16 +88,16 @@ namespace entity {
             //position_add_x( -overlap_x );
             collide_y(our, other);
         }
-        else if (other_type == Type::slope_L_2x1_0 || other_type == Type::slope_L_2x1_1) {
+        else if (other_type == Type::slope_L_2x1_0 or other_type == Type::slope_L_2x1_1) {
             //position_add_x( -overlap_x );
             collide_y(our, other);
         }
-        else if (other_type == Type::slope_R_2x1_0 || other_type == Type::slope_R_2x1_1) {
+        else if (other_type == Type::slope_R_2x1_0 or other_type == Type::slope_R_2x1_1) {
             //position_add_x( -overlap_x );
             collide_y(our, other);
         }
         else if (other_type == Type::particle_brick) {
-            //if (is_hurting() || std::abs(other_velocity.x) < 1.0F) return;
+            //if (is_hurting() or std::abs(other_velocity.x) < 1.0F) return;
 
             //position_add_x( -overlap_x );
             //velocity_x(our_velocity.x * 0.4F + other_velocity.x * 0.4F;
@@ -116,7 +113,7 @@ namespace entity {
             }*/
         }
         else if (other_type == Type::player) {
-            if (is_hurting() || std::abs(other_velocity.x) < 1.0F) return;
+            if (is_hurting() or std::abs(other_velocity.x) < 1.0F) return;
 
             m_time_left_hurt = m_time_to_hurt;
             m_time_left_dead = m_time_to_be_dead;
@@ -159,29 +156,29 @@ namespace entity {
 
             position_add_y(-overlap_y);
             velocity_y(velocity().y * -0.5F);
-            if (velocity().y >= -acceleration().y && velocity().y <= acceleration().y) {
+            if (velocity().y >= -acceleration().y and velocity().y <= acceleration().y) {
                 velocity_y(0.0F);
             }
             moved_velocity({});
 
             velocity_x(velocity().x * 0.5F);
         }
-        else if (other_type == Type::clip || other_type == Type::clip_ledge) {
-            if (velocity().y < 0.0F && our_rect.h < other_rect.h) return;
-            if (velocity().y > 0.0F && our_rect.y > other_rect.y) return;
+        else if (other_type == Type::clip or other_type == Type::clip_ledge) {
+            if (velocity().y < 0.0F and our_rect.h < other_rect.h) return;
+            if (velocity().y > 0.0F and our_rect.y > other_rect.y) return;
 
             position_add_y(-overlap_y);
             velocity_y(velocity().y * -0.5F);
-            if (velocity().y >= -acceleration().y && velocity().y <= acceleration().y) {
+            if (velocity().y >= -acceleration().y and velocity().y <= acceleration().y) {
                 velocity_y(0.0F);
             }
             moved_velocity({});
 
             velocity_x(velocity().x * 0.5F);
         }
-        else if (other_type == Type::clip_U || other_type == Type::slope_U) {
+        else if (other_type == Type::clip_U or other_type == Type::slope_U) {
             if (velocity().y < 0.0F) return;
-            //if (velocity().y > 0.0F && our_rect.y > other_rect.h) return;
+            //if (velocity().y > 0.0F and our_rect.y > other_rect.h) return;
 
             position_add_y(-overlap_y);
 
@@ -195,9 +192,9 @@ namespace entity {
 
             velocity_x(velocity().x * 0.5F);
         }
-        else if (other_type == Type::clip_D || other_type == Type::clip_LD || other_type == Type::clip_RD) {
+        else if (other_type == Type::clip_D or other_type == Type::clip_LD or other_type == Type::clip_RD) {
             if (velocity().y > 0.0F) return;
-            //if (velocity().y < 0.0F && our_rect.h < other_rect.h) return;
+            //if (velocity().y < 0.0F and our_rect.h < other_rect.h) return;
 
             position_add_y(-overlap_y);
             velocity_y(velocity().y * -0.5F);
@@ -221,7 +218,7 @@ namespace entity {
             }
         }
         else if (other_type == Type::mole) {
-            if (other.owner->state() == State::idle || (velocity().y >= -2.0F && velocity().y <= 2.0F)) return;
+            if (other.owner->state() == state::Type::idle or (velocity().y >= -2.0F and velocity().y <= 2.0F)) return;
             if (our_rect.y < other_rect.y) {
                 cVec2F hit_pos = position() + Vec2F{ -8.0F, -8.0F };
                 sound_position("melee", { hit_pos.x / 160.0F, hit_pos.y / 90.0F });
@@ -256,7 +253,7 @@ namespace entity {
 
             velocity_x(velocity().x * 0.5F);
         }
-        else if (other_type == Type::slope_L_2x1_0 || other_type == Type::slope_L_2x1_1) {
+        else if (other_type == Type::slope_L_2x1_0 or other_type == Type::slope_L_2x1_1) {
             if (velocity().y < 0.0F) return;
             position_add_y(-overlap_y);
             if (velocity().y > 1.0F) {
@@ -268,7 +265,7 @@ namespace entity {
 
             velocity_x(velocity().x * 0.5F);
         }
-        else if (other_type == Type::slope_R_2x1_0 || other_type == Type::slope_R_2x1_1) {
+        else if (other_type == Type::slope_R_2x1_0 or other_type == Type::slope_R_2x1_1) {
             if (velocity().y < 0.0F) return;
             position_add_y(-overlap_y);
             if (velocity().y > 1.0F) {
@@ -281,7 +278,7 @@ namespace entity {
             velocity_x(velocity().x * 0.5F);
         }
         else if (other_type == Type::player) {
-            if (is_hurting() || std::abs(other_velocity.x) < 1.0F) return;
+            if (is_hurting() or std::abs(other_velocity.x) < 1.0F) return;
             m_time_left_hurt = m_time_to_hurt;
 
             position_add({ 0.0F, -2.0F });
@@ -289,7 +286,7 @@ namespace entity {
             velocity_y(other_velocity.y - 1.0F);
         }
         else if (other_type == Type::particle_brick) {
-            //if (is_hurting() || std::abs(other_velocity.x) < 1.0F) return;
+            //if (is_hurting() or std::abs(other_velocity.x) < 1.0F) return;
             ////if (other_rect.y > our_rect.y) return;
 
             ////position_add_y( -overlap_y );
@@ -311,11 +308,11 @@ namespace entity {
 
             if (velocity().y > 0.0F) {
                 if (!sound_is_playing("water_enter")) {
-                    sound_position("water_enter", { position().x / (WINDOW_W / 2.0F), position().y / (WINDOW_H / 2.0F) });
+                    sound_position("water_enter", { position().x / (app::config::extent().x / 2.0F), position().y / (app::config::extent().y / 2.0F) });
                     sound_play("water_enter");
                     particle::spawn_fan(this,
                         235.0F, 305.0F, 3,
-                        particle::Type::drop,
+                        particle::Type::drop_water,
                         position() + Vec2F{ -4.0F, 0.0F },
                         Vec2F{ velocity().x * 0.1F, -velocity().y * 0.1F }, 1.5F);
                 }

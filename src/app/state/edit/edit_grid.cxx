@@ -1,14 +1,10 @@
-module;
-#include <sstream>
-
-module state.edit;
-
+module sheet.edit;
 import console;
 import transform;
 import sprite;
 import types;
 
-namespace state {
+namespace sheet {
     cI32 Edit::grid_sprite_id_at_offset(cVec2F offset) {
         if (m_grid_sprite_ids.empty()) return -1;
 
@@ -64,7 +60,7 @@ namespace state {
         return true;
     }
     bool Edit::erase_grid_at_offset(cVec2F offset) {
-        if (m_grid_sprite_ids.empty() || m_grid_sprite_ids.size() < 2) {
+        if (m_grid_sprite_ids.empty() or m_grid_sprite_ids.size() < 2) {
             //console::log("state::Edit::erase_grid_at_offset grid size is 1");
             return false;
         }

@@ -1,10 +1,5 @@
-module;
-#include <sstream>
-#include <filesystem>
-#include <vector>
-
 export module bitmap_text;
-
+import std;
 import console;
 import sprite;
 import transform;
@@ -22,7 +17,7 @@ export class BitmapText : public transform::Trait {
                         m_start_offset  = { -1.0F, -1.0F };
     std::string         m_text;
 
-    std::filesystem::path m_texture_path = "res/texture/font_8_gray.png";
+    std::filesystem::path m_texture_path = "res/texture/font/8_gray.png";
     std::vector<I32>    m_sprite_ids;
 
 public:
@@ -39,7 +34,7 @@ public:
     //    m_texture_path = other.m_texture_path;
     //    m_sprite_ids = other.m_sprite_ids; // TODO: create new sprites
     //}
-    //BitmapText(const BitmapText&& other) {
+    //BitmapText(const BitmapTextand other) {
     //    m_sprite_ids = other.m_sprite_ids;
     //    //other.m_sprite_ids.clear();
     //}
@@ -123,15 +118,15 @@ public:
     void offset(cVec2F offset) {
         if (offset == m_offset) return;
         for (auto& i : m_sprite_ids) {
-            sprite::add_offset(i, -m_offset);
-            sprite::add_offset(i, offset);
+            sprite::offset_add(i, -m_offset);
+            sprite::offset_add(i, offset);
         }
         m_offset = offset;
     }
     std::vector<I32>& get_sprite_ids() { return m_sprite_ids; }
 
     void set_text(const std::string& text) {
-        if (text == m_text || text.empty()) return;
+        if (text == m_text or text.empty()) return;
         clear_text();
         m_text = text;
         F32 x = 0.0F, y = 0.0F;

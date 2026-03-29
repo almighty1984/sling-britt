@@ -1,8 +1,3 @@
-module;
-#include <vector>
-#include <sstream>
-//#include <set>
-
 export module quad_tree;
 import aabb;
 import console;
@@ -12,8 +7,8 @@ import sprite;
 import transform;
 import window;
 import entity;
-
 import aabb.trait;
+import std;
 
 cF32 size_at_depth(cU8 d) {
     F32 size = 256.0F;
@@ -68,7 +63,7 @@ export class QuadTreeNode {
             }
 
             // aabb too large? insert in-between points
-            if (aabb::w(aabb_id) > size_at_depth(depth + 1) || aabb::h(aabb_id) > size_at_depth(depth + 1)) {
+            if (aabb::w(aabb_id) > size_at_depth(depth + 1) or aabb::h(aabb_id) > size_at_depth(depth + 1)) {
                 for (size_t i = 0; i < 4; ++i) {
 
                     for (F32 scalar = 0.25F; scalar < 1.0F; scalar += 0.25F) {
@@ -112,18 +107,15 @@ public:
         clear();
     }
     void draw(std::unique_ptr<Window>& window) {
-        if (m_is_parent) {
-            for (size_t i = 0; i < 4; ++i) {
-                m_child[i]->draw(window);
-            }
-        }
+        
 
-        Color c = { 0 };
+        Color c = { 40, 40, 40 };
         for (int i = 0; i < depth; ++i) {
-            c.r += 5;
-            c.g += 5;
-            c.b += 5;
+            c.r += 40;
+            c.g += 40;
+            c.b += 40;
         }
+        
         line::color(m_up_line_id,    c);
         line::color(m_down_line_id,  c);
         line::color(m_left_line_id,  c);
@@ -133,12 +125,19 @@ public:
         line::update(m_down_line_id);
         line::update(m_left_line_id);
         line::update(m_right_line_id);
-
+                
 
         line::draw(window, m_up_line_id);
         line::draw(window, m_down_line_id);
         line::draw(window, m_left_line_id);
         line::draw(window, m_right_line_id);
+        
+
+        if (m_is_parent) {
+            for (size_t i = 0; i < 4; ++i) {
+                m_child[i]->draw(window);
+            }
+        }
     }
 
     cF32 x() const { return m_rect.x; }
@@ -149,9 +148,9 @@ public:
     size_t depth_at(cVec2F position) {
         if (m_is_parent) {
             for (size_t i = 0; i < 4; ++i) {
-                if (m_child[i] &&
-                    position.x >= m_child[i]->x() && position.x <= m_child[i]->x() + m_child[i]->w() &&
-                    position.y >= m_child[i]->y() && position.y <= m_child[i]->y() + m_child[i]->h()) {
+                if (m_child[i] and
+                    position.x >= m_child[i]->x() and position.x <= m_child[i]->x() + m_child[i]->w() and
+                    position.y >= m_child[i]->y() and position.y <= m_child[i]->y() + m_child[i]->h()) {
                     return m_child[i]->depth_at(position);
                 }
             }
@@ -161,9 +160,9 @@ public:
     size_t id_at(cVec2F position) {
         if (m_is_parent) {
             for (size_t i = 0; i < 4; ++i) {
-                if (m_child[i] &&
-                    position.x >= m_child[i]->x() && position.x <= m_child[i]->x() + m_child[i]->w() &&
-                    position.y >= m_child[i]->y() && position.y <= m_child[i]->y() + m_child[i]->h()) {
+                if (m_child[i] and
+                    position.x >= m_child[i]->x() and position.x <= m_child[i]->x() + m_child[i]->w() and
+                    position.y >= m_child[i]->y() and position.y <= m_child[i]->y() + m_child[i]->h()) {
                     return m_child[i]->id_at(position);
                 }
             }
@@ -172,9 +171,9 @@ public:
     }
     std::vector<I32>& aabb_ids_at(cVec2F position) {
         for (size_t i = 0; i < 4; ++i) {
-            if (m_child[i] &&
-                position.x >= m_child[i]->x() && position.x <= m_child[i]->x() + m_child[i]->w() &&
-                position.y >= m_child[i]->y() && position.y <= m_child[i]->y() + m_child[i]->h()) {
+            if (m_child[i] and
+                position.x >= m_child[i]->x() and position.x <= m_child[i]->x() + m_child[i]->w() and
+                position.y >= m_child[i]->y() and position.y <= m_child[i]->y() + m_child[i]->h()) {
                 return m_child[i]->aabb_ids_at(position);
             }
         }
@@ -198,7 +197,7 @@ public:
         }        
         //m_up_line_id = m_down_line_id = m_left_line_id = m_right_line_id = -1;
     }    
-    void init(cU16 window_w, cU16 window_h, cU8 layer, cRectF rect) {
+    void init(cU16 window_w, cU16 window_h, cU8 layer, cRectF rect) {        
         //if (m_up_line_id != -1) return;
         s_window_w = window_w, s_window_h = window_h;
         s_layer = layer;
@@ -212,8 +211,8 @@ public:
         }*/
 
         
-        /*if (m_rect.x < -m_rect.w || m_rect.x > window_w ||  // FIXME: sometimes though in view??
-            m_rect.y < -m_rect.h || m_rect.y > window_h) {
+        /*if (m_rect.x < -m_rect.w or m_rect.x > window_w or  // FIXME: sometimes though in view??
+            m_rect.y < -m_rect.h or m_rect.y > window_h) {
             return;
         }*/
 
@@ -235,8 +234,8 @@ public:
     bool insert_point(cI32 id, cVec2F point) {
         if (!aabb::is_active(id)) return false;
 
-        if (point.x < m_rect.x || point.x > m_rect.x + m_rect.w ||
-            point.y < m_rect.y || point.y > m_rect.y + m_rect.h) {
+        if (point.x < m_rect.x or point.x > m_rect.x + m_rect.w or
+            point.y < m_rect.y or point.y > m_rect.y + m_rect.h) {
             return false;
         }
                         
@@ -247,14 +246,14 @@ public:
             }
             return false;
         } else {
-            if (m_aabb_ids.size() >= s_max_objects && depth < s_max_depth) {
+            if (m_aabb_ids.size() >= s_max_objects and depth < s_max_depth) {
                 m_is_parent = true;
                 split();
                 m_aabb_ids.clear();
             }
             else {
-                //if (point.x >= m_rect.x && point.x <= m_rect.x + m_rect.w &&
-                //    point.y >= m_rect.y && point.y <= m_rect.y + m_rect.h) {
+                //if (point.x >= m_rect.x and point.x <= m_rect.x + m_rect.w and
+                //    point.y >= m_rect.y and point.y <= m_rect.y + m_rect.h) {
                     if (std::find(m_aabb_ids.begin(), m_aabb_ids.end(), id) == m_aabb_ids.end()) {
                         m_aabb_ids.emplace_back(id);
                         return true;
@@ -273,7 +272,7 @@ public:
             return;
         }
         for (auto& a : m_aabb_ids) {
-            if (!aabb::owner(a) || !aabb::is_active(a)) continue;
+            if (!aabb::owner(a) or !aabb::is_active(a)) continue;
             //if (aabb::time_left_colliding(a) > 0) {
             //    //console::log("time left colliding: ", a->time_left_colliding, "\n");
 
@@ -283,7 +282,7 @@ public:
             //}
                 
             for (auto& b : m_aabb_ids) {
-                if (a == b || !aabb::owner(b) || aabb::owner(a) == aabb::owner(b) || !aabb::is_active(b)) continue;
+                if (a == b or !aabb::owner(b) or aabb::owner(a) == aabb::owner(b) or !aabb::is_active(b)) continue;
                 //a->owner->update();                
 
                 //console::log(a->point_0(c).x, " ", b->point_0().x, "\n");
@@ -313,9 +312,9 @@ public:
         cVec2F a_vel = aabb::owner(a)->velocity() + aabb::owner(a)->moved_velocity();
         cVec2F b_vel = aabb::owner(b)->velocity() + aabb::owner(b)->moved_velocity();
         
-        return aabb::point(a, 1).x + a_vel.x > aabb::point(b, 0).x + b_vel.x &&
-               aabb::point(a, 0).x + a_vel.x < aabb::point(b, 1).x + b_vel.x &&
-               aabb::point(a, 2).y + a_vel.y - y_dec > aabb::point(b, 0).y + b_vel.y &&
+        return aabb::point(a, 1).x + a_vel.x > aabb::point(b, 0).x + b_vel.x and
+               aabb::point(a, 0).x + a_vel.x < aabb::point(b, 1).x + b_vel.x and
+               aabb::point(a, 2).y + a_vel.y - y_dec > aabb::point(b, 0).y + b_vel.y and
                aabb::point(a, 0).y + a_vel.y + y_dec < aabb::point(b, 2).y + b_vel.y;
     }
     bool is_aabb_overlap_y(cI32 a, cI32 b) {
@@ -326,9 +325,9 @@ public:
         cVec2F a_vel = aabb::owner(a)->velocity() + aabb::owner(a)->moved_velocity();
         cVec2F b_vel = aabb::owner(b)->velocity() + aabb::owner(b)->moved_velocity();
 
-        return aabb::point(a, 2).y + a_vel.y > aabb::point(b, 0).y + b_vel.y &&
-               aabb::point(a, 0).y + a_vel.y < aabb::point(b, 2).y + b_vel.y &&
-               aabb::point(a, 1).x + a_vel.x - x_dec > aabb::point(b, 0).x + b_vel.x &&
+        return aabb::point(a, 2).y + a_vel.y > aabb::point(b, 0).y + b_vel.y and
+               aabb::point(a, 0).y + a_vel.y < aabb::point(b, 2).y + b_vel.y and
+               aabb::point(a, 1).x + a_vel.x - x_dec > aabb::point(b, 0).x + b_vel.x and
                aabb::point(a, 0).x + a_vel.x + x_dec < aabb::point(b, 1).x + b_vel.x;
     }
 };

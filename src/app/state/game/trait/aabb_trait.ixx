@@ -1,10 +1,7 @@
-module;
-#include <string>
-#include <vector>
-
 export module aabb.trait;
 //import aabb;
 import types;
+import std;
 
 export namespace entity {
     class Object;

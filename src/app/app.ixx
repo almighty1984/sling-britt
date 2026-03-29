@@ -1,15 +1,3 @@
-module;
-#include <chrono>
-#include <fstream>
-#include <filesystem>
-#include <list>
-#include <map>
-#include <vector>
-#include <set>
-#include <sstream>
-#include <thread>
-#include <mutex>
-
 export module app;
 import anim;
 import console;
@@ -20,32 +8,32 @@ import level_config;
 import line;
 import music;
 import sprite;
-import state;
-import state.edit;
-import state.game;
-import state.game.save;
-import state.menu;
-import state.overlay;
+import sheet;
+import sheet.edit;
+import sheet.game;
+import sheet.game.save;
+import sheet.menu;
+import sheet.overlay;
 import transform;
 import types;
 import window;
+import std;
 
 cU32 processor_count = std::thread::hardware_concurrency();
 
 static inline std::mutex s_transition_mutex;
 static inline bool s_is_running = true;
 
-export namespace app {
-    
+export namespace app {    
     void shutdown() {
         s_is_running = false;
     }
 
     export class App {
         std::unique_ptr<Window>   m_window;
-        state::Type               m_state_type;
+        sheet::Type               m_sheet_type;
 
-        std::list<state::Object*> m_state_objects;
+        std::list<sheet::Object*> m_sheet_objects;
 
         std::filesystem::path     m_level_path,
             m_level_path_to_save;
@@ -59,89 +47,94 @@ export namespace app {
             m_window = std::make_unique<Window>(w, h, scale, title);
 
             //console::log("\033[0;31mApp::App() processor count: ", processor_count, "\033[0m\n");
-            console::error("App::App() processor count: ", processor_count, "\n");
+            console::warning("App::App() processor count: ", processor_count, "\n");
+
         }
         ~App() {
-            for (auto& i : m_state_objects) {
+            for (auto& i : m_sheet_objects) {
                 if (i) delete i;
             }
-            m_state_objects.clear();
+            m_sheet_objects.clear();
         }
 
         void set_level_path_to_save(const std::filesystem::path& p) {
             m_level_path_to_save = p;
         }
 
-        void add_state(state::cType state) {
-            console::log("App::add_state() state: ", state::to_string(state), "\n");
-            if (state == state::Type::edit) {
-                m_state_objects.emplace_back(new state::Edit(m_window->w(), m_window->h(), m_level_path));
-            }
-            else if (state == state::Type::game) {
-                start::Info start_info;
+        void add_sheet(sheet::cType sheet) {
+            console::log("App::add_state() sheet: ", sheet::to_string(sheet), "\n");
 
+            switch (sheet) {
+            case sheet::Type::edit:
+                m_sheet_objects.emplace_back(new sheet::Edit(m_window->w(), m_window->h(), m_level_path));
+                break;
+            case sheet::Type::game:
                 if (m_level_path.empty()) {
-                    m_level_path = state::game::read_save(0);
-                    console::log("App::set_state() read_save(): ", m_level_path, "\n");
+                    m_level_path = sheet::game::read_save(0);
+                    console::log("App::add_sheet() read_save(): ", m_level_path, "\n");
                     if (m_level_path.empty()) {
-                        console::log("App::set_state() level path empty!\n");
+                        console::log("App::add_sheet() level path empty!\n");
                         m_level_path = "res/level/test.bin";
                     }
                     LevelConfig::load(m_level_path);
                     LevelConfig::stop_music();
                 }
-                m_state_objects.emplace_back(new state::Game(m_window->w(), m_window->h(), m_level_path, start_info));
-            }
-            else if (state == state::Type::menu_options) {
-                m_state_objects.emplace_back(new state::MenuOptions(m_window->w(), m_window->h()));
-            }
-            else if (state == state::Type::menu_start) {
-                m_state_objects.emplace_back(new state::MenuStart(m_window->w(), m_window->h()));
-            }
-            else if (state == state::Type::overlay) {
-                m_state_objects.emplace_back(new state::Overlay(m_window->w(), m_window->h()));
-            }
+                m_sheet_objects.emplace_back(new sheet::Game(m_window->w(), m_window->h(), m_level_path, start::Info{}));
+                break;
+            case sheet::Type::menu_options:
+                m_sheet_objects.emplace_back(new sheet::MenuOptions(m_window->w(), m_window->h()));
+                break;
+            case sheet::Type::menu_start:
+                m_sheet_objects.emplace_back(new sheet::MenuStart(m_window->w(), m_window->h()));
+                break;
+            case sheet::Type::overlay:
+                m_sheet_objects.emplace_back(new sheet::Overlay(m_window->w(), m_window->h()));
+                break;
+            }            
         }
 
-        bool transition_state(state::Object* state_object, state::cType to) {
-            console::log("App::transition_state() num states: ", m_state_objects.size(), "\n");
+        bool transition_sheet(sheet::Object* sheet_object, sheet::cType to) {
+            console::log("App::transition_sheet() num sheets: ", m_sheet_objects.size(), "\n");
 
-            if (!state_object || to == state::Type::none) return false;
-            for (auto it = m_state_objects.begin(); it != m_state_objects.end(); ++it) {
-                if ((*it) && state_object == (*it)) {
-                    console::log("App::transition_state from: ", state::to_string(state_object->state()), " to: ", state::to_string(to), "\n");
+            if (!sheet_object or to == sheet::Type::none) return false;
+            for (auto it = m_sheet_objects.begin(); it != m_sheet_objects.end(); ++it) {
+                if ((*it) and sheet_object == (*it)) {
+                    console::log("App::transition_sheet() from: ", sheet::to_string(sheet_object->sheet()), " to: ", sheet::to_string(to), "\n");
 
-                    state::cType prev_state = state_object->state();
-                    start::cInfo start_info = state_object->start_info();
+                    sheet::cType prev_sheet = sheet_object->sheet();
+                    start::cInfo start_info = sheet_object->start_info();
 
                     delete (*it);
-                    if (to == state::Type::game) {
-                        m_level_path = LevelConfig::level_path(state_object->start_info().type);
+                    switch (to) {
+                    case sheet::Type::game:
+                        m_level_path = LevelConfig::level_path(sheet_object->start_info().type);
 
                         if (m_level_path.empty()) {
-                            m_level_path = state::game::read_save(0);
-                            console::log("App::set_state() read_player_save(): ", m_level_path, "\n");
+                            m_level_path = sheet::game::read_save(0);
+                            console::log("App::transistion_sheet() read_player_save(): ", m_level_path, "\n");
                             if (m_level_path.empty()) {
-                                console::log("App::set_state() level path empty!\n");
+                                console::log("App::transition_sheet() level path empty!\n");
                                 m_level_path = "res/level/test.bin";
                             }
                         }
                         LevelConfig::load(m_level_path);
                         LevelConfig::stop_music();
 
-                        (*it) = new state::Game(m_window->w(), m_window->h(), m_level_path, start_info);
+                        (*it) = new sheet::Game(m_window->w(), m_window->h(), m_level_path, start_info);
+                        break;
+                    case sheet::Type::edit:
+                        (*it) = new sheet::Edit(m_window->w(), m_window->h(), m_level_path);
+                        break;
+                    case sheet::Type::menu_options:
+                        (*it) = new sheet::MenuOptions(m_window->w(), m_window->h());
+                        break;
+                    case sheet::Type::menu_start:
+                        (*it) = new sheet::MenuStart(m_window->w(), m_window->h());
+                        break;
                     }
-                    else if (to == state::Type::edit) {
-                        (*it) = new state::Edit(m_window->w(), m_window->h(), m_level_path);
-                    }
-                    else if (to == state::Type::menu_options) {
-                        (*it) = new state::MenuOptions(m_window->w(), m_window->h());
-                    }
-                    else if (to == state::Type::menu_start) {
-                        (*it) = new state::MenuStart(m_window->w(), m_window->h());
-                    }
-                    (*it)->prev_state(prev_state);
-                    console::log("App::transition_state() num states: ", m_state_objects.size(), "\n");
+
+                    (*it)->prev_sheet(prev_sheet);
+                    console::log("App::transition_sheet() num sheets: ", m_sheet_objects.size(), "\n");
                     return true;
                 }
             }
@@ -175,12 +168,18 @@ export namespace app {
 
                 std::set<U8> layers_to_draw;
 
-                for (auto& state : m_state_objects) {
-                    if (!state) continue;
-                    state->update_unlocked();
-
-                    layers_to_draw.insert(state->get_visible_layers().begin(), state->get_visible_layers().end());
+                for (auto& sheet_object : m_sheet_objects) {
+                    if (!sheet_object) continue;
+                    sheet_object->update_unlocked();
+                    layers_to_draw.insert(sheet_object->get_visible_layers().begin(), sheet_object->get_visible_layers().end());
                 }
+
+                /*F32 r = std::clamp(input::mouse.x, 0.0F, 255.0F);
+                F32 g = std::clamp(input::mouse.x, 0.0F, 255.0F);
+                F32 b = std::clamp(input::mouse.x, 0.0F, 255.0F);
+                Color c{ (U8)r, (U8)g, (U8)b };
+                m_window->screen_color(c);
+                line::screen_color(m_window->screen_color());*/
 
                 if (frames >= frames_until_update) {
                     frames = 0;
@@ -188,31 +187,31 @@ export namespace app {
 
                     std::vector<std::thread> threads;
 
-                    for (auto& state_object : m_state_objects) {
-                        if (!state_object) continue;
+                    for (auto& sheet_object : m_sheet_objects) {
+                        if (!sheet_object) continue;
 
                         threads.emplace_back(std::thread([&]() {
-                            state_object->update(time_step);
+                            sheet_object->update(time_step);
 
-                            if (state_object->is_to_change_view()) {
-                                state_object->is_to_change_view(false);
-                                m_window->view(state_object->view());
+                            if (sheet_object->is_to_change_view()) {
+                                sheet_object->is_to_change_view(false);
+                                m_window->view(sheet_object->view());
                             }
                             else {
-                                state_object->view(m_window->view());
+                                sheet_object->view(m_window->view());
                             }
-                            if (state_object->is_to_player_save()) {
-                                state_object->is_to_player_save(false);
+                            if (sheet_object->is_to_player_save()) {
+                                sheet_object->is_to_player_save(false);
 
                                 if (m_time_left_player_save == 0) {
                                     m_time_left_player_save = m_time_to_player_save;
 
-                                    state::game::write_save(0);
+                                    sheet::game::write_save(0);
                                 }
                             }
-                            if (state_object->is_to_transition()) {
+                            if (sheet_object->is_to_transition()) {
                                 std::unique_lock<std::mutex> transition_lock(s_transition_mutex);
-                                transition_state(state_object, state_object->next_state());
+                                transition_sheet(sheet_object, sheet_object->next_sheet());
                             }
                             })
                         );
@@ -245,8 +244,10 @@ export namespace app {
                     sprite::draw_bg_in_layer(m_window, layer);
                 }
                 for (auto& layer : layers_to_draw) {
-                    for (auto& state : m_state_objects) {
-                        if (state) state->draw(m_window, layer);
+                    for (auto& sheet_object : m_sheet_objects) {
+                        if (sheet_object) {
+                            sheet_object->draw(m_window, layer);
+                        }
                     }
                     //sprite::draw_in_layer(m_window, layer);
                     //line::draw_in_layer(m_window, layer);

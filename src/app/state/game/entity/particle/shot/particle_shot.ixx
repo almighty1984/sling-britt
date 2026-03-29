@@ -10,7 +10,7 @@ export namespace entity {
     public:
         ParticleShot() {
             m_type = Type::particle_shot;
-            m_state = m_next_state = m_start_state = State::idle;
+            m_state = m_next_state = m_start_state = state::Type::idle;
         }        
         void collide_x(aabb::cInfo our, aabb::cInfo other) override;
         void collide_y(aabb::cInfo our, aabb::cInfo other) override;

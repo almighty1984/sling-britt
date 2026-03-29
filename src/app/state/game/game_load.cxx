@@ -1,12 +1,5 @@
-module;
-#include <filesystem>
-#include <fstream>
-#include <random>
-#include <string>
-#include <map>
-
-module state.game;
-import state.game.save;
+module sheet.game;
+import sheet.game.save;
 import camera;
 import console;
 import entity.brick;
@@ -29,7 +22,7 @@ import level_config;
 import random;
 import sprite;
 
-namespace state {
+namespace sheet {
     std::map<U16, std::string> Game::load_types_from_bin() {
         std::map<U16, std::string> types_map{};
 
@@ -104,13 +97,13 @@ namespace state {
                         entity_type = entity::Type::coin;
                     }
 
-                    if (start_info().type == start::Type::center && entity_type == entity::Type::level_center) {
+                    if (start_info().type == start::Type::center and entity_type == entity::Type::level_center) {
                         console::log("\n\nstate::Game::load_level() start position: ", tile_offset.x, " ", tile_offset.y, "\n\n");
                         m_start_position = tile_offset; //+ Vec2F{ 0.0F, -4.0F };
                         m_player.start_layer(i.layer + 1);
                         sprite::layer(m_player.sprite_id(), i.layer + 1);
                     }
-                    else if (start_info().type == start::Type::L_0 && entity_type == entity::Type::level_L_0) {
+                    else if (start_info().type == start::Type::L_0 and entity_type == entity::Type::level_L_0) {
                         if (tile_offset.y > m_start_position.y) {
                             m_start_position = tile_offset;
                         }
@@ -118,7 +111,7 @@ namespace state {
                         sprite::layer(m_player.sprite_id(), i.layer + 1);
                         sprite::is_leftward(m_player.sprite_id(), false);
                     }
-                    else if (start_info().type == start::Type::R_0 && entity_type == entity::Type::level_R_0) {
+                    else if (start_info().type == start::Type::R_0 and entity_type == entity::Type::level_R_0) {
                         if (tile_offset.y > m_start_position.y) {
                             m_start_position = tile_offset;
                         }
@@ -178,27 +171,27 @@ namespace state {
                             }
                             add_to_offset.x = 16.0F / num_to_create;
 
-                            if (entity_type == entity::Type::grass_0_L_1x1 || entity_type == entity::Type::grass_1_L_1x1 || entity_type == entity::Type::grass_2_L_1x1) {
+                            if (entity_type == entity::Type::grass_0_L_1x1 or entity_type == entity::Type::grass_1_L_1x1 or entity_type == entity::Type::grass_2_L_1x1) {
                                 added_offset.y = 15.0F;
                                 add_to_offset.y = -add_to_offset.x;
                             }
-                            else if (entity_type == entity::Type::grass_0_R_1x1 || entity_type == entity::Type::grass_1_R_1x1 || entity_type == entity::Type::grass_2_R_1x1) {
+                            else if (entity_type == entity::Type::grass_0_R_1x1 or entity_type == entity::Type::grass_1_R_1x1 or entity_type == entity::Type::grass_2_R_1x1) {
                                 added_offset.y = 2.0F;
                                 add_to_offset.y = add_to_offset.x;
                             }
-                            else if (entity_type == entity::Type::grass_0_L_2x1_0 || entity_type == entity::Type::grass_1_L_2x1_0 || entity_type == entity::Type::grass_2_L_2x1_0) {
+                            else if (entity_type == entity::Type::grass_0_L_2x1_0 or entity_type == entity::Type::grass_1_L_2x1_0 or entity_type == entity::Type::grass_2_L_2x1_0) {
                                 added_offset.y = 15.0F;
                                 add_to_offset.y = -add_to_offset.x / 2.0F;
                             }
-                            else if (entity_type == entity::Type::grass_0_L_2x1_1 || entity_type == entity::Type::grass_1_L_2x1_1 || entity_type == entity::Type::grass_2_L_2x1_1) {
+                            else if (entity_type == entity::Type::grass_0_L_2x1_1 or entity_type == entity::Type::grass_1_L_2x1_1 or entity_type == entity::Type::grass_2_L_2x1_1) {
                                 added_offset.y = 7.0F;
                                 add_to_offset.y = -add_to_offset.x / 2.0F;
                             }
-                            else if (entity_type == entity::Type::grass_0_R_2x1_0 || entity_type == entity::Type::grass_1_R_2x1_0 || entity_type == entity::Type::grass_2_R_2x1_0) {
+                            else if (entity_type == entity::Type::grass_0_R_2x1_0 or entity_type == entity::Type::grass_1_R_2x1_0 or entity_type == entity::Type::grass_2_R_2x1_0) {
                                 added_offset.y = 2.0F;
                                 add_to_offset.y = add_to_offset.x / 2.0F;
                             }
-                            else if (entity_type == entity::Type::grass_0_R_2x1_1 || entity_type == entity::Type::grass_1_R_2x1_1 || entity_type == entity::Type::grass_2_R_2x1_1) {
+                            else if (entity_type == entity::Type::grass_0_R_2x1_1 or entity_type == entity::Type::grass_1_R_2x1_1 or entity_type == entity::Type::grass_2_R_2x1_1) {
                                 added_offset.y = 10.0F;
                                 add_to_offset.y = add_to_offset.x / 2.0F;
                             }
@@ -292,7 +285,7 @@ namespace state {
                             if (entity_type == entity::Type::coin) {                                
                                 entity_number = entity::number_in_type(type_str);                                
                                 config_path = "res/entity/coin.cfg";
-                                if (state::game::is_coin_picked(entity_number)) {
+                                if (sheet::game::is_coin_picked(entity_number)) {
                                     num_to_create = 0;
                                 }
                                 console::log("state::Game::load_level() coin ", entity_number, " to create: ", (int)num_to_create, "\n\n");
@@ -313,8 +306,8 @@ namespace state {
 
                             // only keep L and R type at the very edge
                             entity::Type changed_entity_type = entity_type;
-                            if (entity_type == entity::Type::water_line_L && i_created > 0 ||
-                                entity_type == entity::Type::water_line_R && i_created < num_to_create - 1) {                     
+                            if (entity_type == entity::Type::water_line_L and i_created > 0 or
+                                entity_type == entity::Type::water_line_R and i_created < num_to_create - 1) {                     
                                 changed_entity_type = entity::Type::water_line;
                             }
 
@@ -370,6 +363,8 @@ namespace state {
 
         camera::level_scroll_limit = highest_quad_tree_node * 256 - Vec2I{ m_window_w, m_window_h };
 
+        console::warning("state::Game::load_level() window extent: ", m_window_w, " ", m_window_h, "\n");
+
         console::log("state::Game::load_level() camera::level_scroll_limit: ", camera::level_scroll_limit.x, " ", camera::level_scroll_limit.y, "\n");
 
         //console::log("m_water_entity_objects size: ", m_water_entity_objects.size(), "\n");
@@ -381,12 +376,12 @@ namespace state {
             if (!m_bridge_entity_objects.at(bridge_i)) continue;
 
 
-            if (bridge_i == 0 || m_bridge_entity_objects.at(bridge_i)->start_position().x - m_bridge_entity_objects.at(bridge_i - 1)->start_position().x > 16.0F) {
+            if (bridge_i == 0 or m_bridge_entity_objects.at(bridge_i)->start_position().x - m_bridge_entity_objects.at(bridge_i - 1)->start_position().x > 16.0F) {
                 m_bridge_entity_objects.at(bridge_i)->is_near_wall_L(true);
             }
             if (bridge_i > 1) {
                 if (bridge_i == m_bridge_entity_objects.size() - 1 
-                    || m_bridge_entity_objects.at(bridge_i + 1)->start_position().x - m_bridge_entity_objects.at(bridge_i)->start_position().x > 16.0F
+                    or m_bridge_entity_objects.at(bridge_i + 1)->start_position().x - m_bridge_entity_objects.at(bridge_i)->start_position().x > 16.0F
                     ) {
                     console::log("\n\nfound the last bridge ", bridge_i, "\n\n");
                     m_bridge_entity_objects.at(bridge_i)->is_near_wall_R(true);
@@ -394,10 +389,10 @@ namespace state {
             }
                 
 
-            if (bridge_i - 1 >= 0 && m_bridge_entity_objects.at(bridge_i - 1)) {
+            if (bridge_i - 1 >= 0 and m_bridge_entity_objects.at(bridge_i - 1)) {
                 m_bridge_entity_objects.at(bridge_i)->add_input(m_bridge_entity_objects.at(bridge_i - 1));
             }
-            if (bridge_i + 1 < m_bridge_entity_objects.size() && m_bridge_entity_objects.at(bridge_i + 1)) {
+            if (bridge_i + 1 < m_bridge_entity_objects.size() and m_bridge_entity_objects.at(bridge_i + 1)) {
                 m_bridge_entity_objects.at(bridge_i)->add_input(m_bridge_entity_objects.at(bridge_i + 1));
             }
         }
@@ -418,10 +413,10 @@ namespace state {
             }
             else {
 
-                if (water_i - 1 >= 0 && m_water_entity_objects.at(water_i - 1)) {
+                if (water_i - 1 >= 0 and m_water_entity_objects.at(water_i - 1)) {
                     m_water_entity_objects.at(water_i)->add_input(m_water_entity_objects.at(water_i - 1));
                 }
-                if (water_i + 1 < m_water_entity_objects.size() && m_water_entity_objects.at(water_i + 1)) {
+                if (water_i + 1 < m_water_entity_objects.size() and m_water_entity_objects.at(water_i + 1)) {
                     m_water_entity_objects.at(water_i)->add_input(m_water_entity_objects.at(water_i + 1));
                 }
                 //console::log("water inputs: ", m_water_entity_objects.at(water_i)->inputs.size(), "\n");

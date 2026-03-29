@@ -3,15 +3,16 @@ module;
 #include <sstream>
 
 module entity.particle.shot;
+import app.config;
 
 namespace entity {
     bool ParticleShot::hurt(Object* culprit) {
-        if (!culprit || is_dead()) return false;
-        m_next_state = State::dead;
-        if (culprit->type() == Type::brick ||
+        if (!culprit or is_dead()) return false;
+        m_next_state = state::Type::dead;
+        if (culprit->type() == Type::brick or
             culprit->type() == Type::player) {
             //console::log("ParticleShot::hurt() culprit: ", to_string(culprit->type()), "\n");
-            sound_position("dead", { position().x / (WINDOW_W / 2.0F), position().y / (WINDOW_H / 2.0F) });
+            sound_position("dead", { position().x / (app::config::extent().x / 2.0F), position().y / (app::config::extent().y / 2.0F) });
             sound_play("dead");
         }
         return true;
@@ -53,7 +54,7 @@ namespace entity {
             }
         }
         velocity({});
-        if (m_parent && is_water_line(m_parent->type())) {
+        if (m_parent and is_water_line(m_parent->type())) {
             position_y(m_parent->position().y - 8.0F);
         }
     }
@@ -71,8 +72,8 @@ namespace entity {
         cVec2F other_size = { other_rect.w - other_rect.x, other_rect.h - other_rect.y };
 
         if (other_type == Type::clip_ledge
-            &&
-            (our_rect.h < other_rect.y + other_size.y / 4.0F || our_rect.y > other_rect.h - other_size.y / 4.0F)) {
+            and
+            (our_rect.h < other_rect.y + other_size.y / 4.0F or our_rect.y > other_rect.h - other_size.y / 4.0F)) {
 
             collide_y(our, other);
             return;
@@ -82,14 +83,14 @@ namespace entity {
         if (is_water_line(other.owner->type())) {
             collide_y(our, other);
         }
-        else if (other_type  == Type::player     ||
-                 other_type  == Type::brick      ||
-                 other_type  == Type::clip       ||
-                 other_type  == Type::clip_ledge ||
-                 (other_type == Type::clip_L && velocity().x > 0.0F)  ||
-                 (other_type == Type::clip_LD && velocity().x > 0.0F) ||
-                 (other_type == Type::clip_R && velocity().x < 0.0F)  ||
-                 (other_type == Type::clip_RD && velocity().x < 0.0F)
+        else if (other_type  == Type::player     or
+                 other_type  == Type::brick      or
+                 other_type  == Type::clip       or
+                 other_type  == Type::clip_ledge or
+                 (other_type == Type::clip_L and velocity().x > 0.0F)  or
+                 (other_type == Type::clip_LD and velocity().x > 0.0F) or
+                 (other_type == Type::clip_R and velocity().x < 0.0F)  or
+                 (other_type == Type::clip_RD and velocity().x < 0.0F)
             ) {
             position_add_x(-overlap_x);
             velocity({});
@@ -114,27 +115,27 @@ namespace entity {
 
         cF32 overlap_y = our_rect.y < other_rect.y ? our_rect.h - other_rect.y : -(other_rect.h - our_rect.y);
 
-        if (other_type == Type::clip_L || other_type == Type::clip_R) {
+        if (other_type == Type::clip_L or other_type == Type::clip_R) {
             collide_x(our, other);
             return;
         }
 
-        if (other_rect.y > our_rect.y && velocity().y > 0.0f) {
+        if (other_rect.y > our_rect.y and velocity().y > 0.0f) {
             if (is_water_line(other_type)) {
                 position_add_y(-overlap_y);
                 velocity({});
                 //moved_velocity() = other.owner->velocity();
-                m_next_state = State::dead;
+                m_next_state = state::Type::dead;
                 m_time_left_dead = m_time_to_be_dead;
 
                 m_parent = other.owner;
             }
-            else if (other_type == Type::brick ||
-                other_type == Type::clip ||
-                other_type == Type::clip_U ||
-                other_type == Type::clip_ledge ||
-                other_type == Type::player ||
-                other_type == Type::slope_U ||
+            else if (other_type == Type::brick or
+                other_type == Type::clip or
+                other_type == Type::clip_U or
+                other_type == Type::clip_ledge or
+                other_type == Type::player or
+                other_type == Type::slope_U or
                 is_slope(other_type)
                 ) {
                 position_add_y(-overlap_y);
@@ -153,10 +154,10 @@ namespace entity {
                 else if (other_type == Type::slope_R_1x1) {
                     sprite::angle(m_sprite_id, 135.0F + 90.0F);
                 }
-                else if (other_type == Type::slope_L_2x1_0 || other_type == Type::slope_L_2x1_1) {
+                else if (other_type == Type::slope_L_2x1_0 or other_type == Type::slope_L_2x1_1) {
                     sprite::angle(m_sprite_id, 67.5F + 90.0F);
                 }
-                else if (other_type == Type::slope_R_2x1_0 || other_type == Type::slope_R_2x1_1) {
+                else if (other_type == Type::slope_R_2x1_0 or other_type == Type::slope_R_2x1_1) {
                     sprite::angle(m_sprite_id, 112.5F + 90.0F);
                 }
 
@@ -165,7 +166,7 @@ namespace entity {
                 m_parent = nullptr;
             }
         }
-        else if (other_rect.h < our_rect.h && velocity().y < 0.0f) {
+        else if (other_rect.h < our_rect.h and velocity().y < 0.0f) {
             if (is_arch(other_type)) {
                 if (other_type == Type::arch_L_1x1) {
                     sprite::angle(m_sprite_id, 45.0F + 90.0F);
@@ -173,10 +174,10 @@ namespace entity {
                 else if (other_type == Type::arch_R_1x1) {
                     sprite::angle(m_sprite_id, 135.0F + 90.0F);
                 }
-                else if (other_type == Type::arch_L_2x1_0 || other_type == Type::arch_L_2x1_1) {
+                else if (other_type == Type::arch_L_2x1_0 or other_type == Type::arch_L_2x1_1) {
                     sprite::angle(m_sprite_id, 112.5F + 90.0F);
                 }
-                else if (other_type == Type::arch_R_2x1_0 || other_type == Type::arch_R_2x1_1) {
+                else if (other_type == Type::arch_R_2x1_0 or other_type == Type::arch_R_2x1_1) {
                     sprite::angle(m_sprite_id, 67.5F + 90.0F);
                 }
                 position_add({ 0.0F, -overlap_y });;
@@ -185,11 +186,11 @@ namespace entity {
                 acceleration_y(0.0F);
                 hurt(other.owner);
             }
-            else if (other_type == Type::clip       ||
-                     other_type == Type::clip_D     ||
-                     other_type == Type::clip_LD    ||
-                     other_type == Type::clip_RD    ||
-                     other_type == Type::clip_ledge ||
+            else if (other_type == Type::clip       or
+                     other_type == Type::clip_D     or
+                     other_type == Type::clip_LD    or
+                     other_type == Type::clip_RD    or
+                     other_type == Type::clip_ledge or
                      other_type == Type::player) {
                 position_add({ 0.0F, -overlap_y });
                 //position().y -= 2.0F;

@@ -1,8 +1,9 @@
 module entity.particle.health;
+import app.config;
 
 namespace entity {
     void ParticleHealth::collide_x(aabb::cInfo our, aabb::cInfo other) {
-        if (is_dead() || m_is_to_erase || other.owner->is_dead() /* || other.owner == m_parent*/) return;
+        if (is_dead() or m_is_to_erase or other.owner->is_dead() /* or other.owner == m_parent*/) return;
 
         cType other_type = other.owner->type();
 
@@ -11,7 +12,20 @@ namespace entity {
             m_time_left_alive = 0;
             m_time_left_dead = m_time_to_be_dead;
 
-            sound_position("dead", { position().x / (WINDOW_W / 2.0F), position().y / (WINDOW_H / 2.0F) });
+            sound_position("dead", { (position().x + 8.0F) / (app::config::extent().x / 2.0F),
+                                     (position().y + 8.0F) / (app::config::extent().y / 2.0F) });
+            sound_play("dead");
+        }
+        else if (other_type == Type::mole) {
+            console::log(class_name(), "::collide_x() mole\n");
+            if (other.owner->state() != state::Type::enter || health::is_max(other.owner->health_id())) return;
+
+            health::amount_add(other.owner->health_id(), 16.0F);
+
+            m_time_left_alive = 0;
+            m_time_left_dead = m_time_to_be_dead;
+            sound_position("dead", { (position().x + 8.0F) / (app::config::extent().x / 2.0F),
+                                     (position().y + 8.0F) / (app::config::extent().y / 2.0F) });
             sound_play("dead");
         }
         else if (other_type == Type::player) {
@@ -22,9 +36,11 @@ namespace entity {
 
             health::amount_add(other.owner->health_id(), 1.0F);
 
-            sound_position("dead", { position().x / (WINDOW_W / 2.0F), position().y / (WINDOW_H / 2.0F) });
+            sound_position("dead", { position().x / (app::config::extent().x / 2.0F),
+                                     position().y / (app::config::extent().y / 2.0F) } );
             sound_play("dead");
-        } else if (other_type == Type::particle_melee) {
+        }
+        else if (other_type == Type::particle_melee) {
             if (!other.owner->parent()) return;
             if (other.owner->parent()->type() == Type::frog) {
                 health::amount_add(other.owner->parent()->health_id(), 1.0F);

@@ -29,7 +29,8 @@ private:
           m_is_debug      = false,
           m_is_hidden     = false,
           m_is_leftward   = false,
-          m_is_upended    = false;
+          m_is_upended    = false,
+          m_is_in_view    = false;
     Vec2F m_offset        = { 0.0F, 0.0F },
           m_start_offset  = { 0.0F, 0.0F },
           m_prev_position = { 0.0F, 0.0F },
@@ -56,6 +57,7 @@ public:
         m_is_hidden    = other.m_is_hidden;
         m_is_leftward  = other.m_is_leftward;
         m_is_upended   = other.m_is_upended;
+        m_is_in_view   = other.m_is_in_view;
         m_offset       = other.m_offset;
         m_start_offset = other.m_start_offset;
         m_level        = other.m_level;
@@ -72,20 +74,21 @@ public:
     I32 transform_id()    const { return m_transform_id;  } void transform_id(cI32 id)   { m_transform_id  = id;}
     U8 layer()            const { return m_layer;         } void layer(cU8 l)            { m_layer         = l; }
     U8 tile_set()         const { return m_tile_set;      } void tile_set(cU8 t)         { m_tile_set      = t; }
-    bool is_bg()          const { return m_is_bg;         } void is_bg(bool b)           { m_is_bg         = b; }
-    bool is_debug()       const { return m_is_debug;      } void is_debug(bool b)        { m_is_debug      = b; }
-    bool is_hidden()      const { return m_is_hidden;     } void is_hidden(bool b)       { m_is_hidden     = b; }
-    bool is_leftward()    const { return m_is_leftward;   } void is_leftward(bool b)     { m_is_leftward   = b; }
-    bool is_upended()     const { return m_is_upended;    } void is_upended(bool b)      { m_is_upended    = b; }    
+    bool is_bg()          const { return m_is_bg;         } void is_bg(bool q)           { m_is_bg         = q; }
+    bool is_debug()       const { return m_is_debug;      } void is_debug(bool q)        { m_is_debug      = q; }
+    bool is_hidden()      const { return m_is_hidden;     } void is_hidden(bool q)       { m_is_hidden     = q; }
+    bool is_leftward()    const { return m_is_leftward;   } void is_leftward(bool q)     { m_is_leftward   = q; }
+    bool is_upended()     const { return m_is_upended;    } void is_upended(bool q)      { m_is_upended    = q; }
+    bool is_in_view()     const { return m_is_in_view;    } void is_in_view(bool q)      { m_is_in_view    = q; }
     Vec2F prev_position() const { return m_prev_position; } void prev_position(cVec2F p) { m_prev_position = p; }
     Vec2F level()         const { return m_level;         } void level(cVec2F l)         { m_level         = l; }
     Vec2F center()        const { return m_center;        } void center(cVec2F c)        { m_center        = c; }
     Vec2F offset()        const { return m_offset;        } void offset(cVec2F o)        { m_offset        = o; }
     void offset_x(cF32 x)     { m_offset.x  = x; }    
     void offset_y(cF32 y)     { m_offset.y  = y; }
-    void add_offset(cVec2F o) { m_offset   += o; }
-    void add_offset_x(cF32 x) { m_offset.x += x; }
-    void add_offset_y(cF32 y) { m_offset.y += y; }
+    void offset_add(cVec2F o) { m_offset   += o; }
+    void offset_add_x(cF32 x) { m_offset.x += x; }
+    void offset_add_y(cF32 y) { m_offset.y += y; }
     Vec2F start_offset()  const { return m_start_offset;  } void start_offset(cVec2F s)  { m_start_offset  = s; }
     Color color()       const { return m_color;       } void color(Color c)       { m_color       = c; }
     Color start_color() const { return m_start_color; } void start_color(Color c) { m_start_color = c; }
@@ -105,7 +108,7 @@ public:
 
         m_sf_sprite.setRotation(sf::degrees(m_angle));
     }    
-    void add_angle(cF32 degrees) {
+    void angle_add(cF32 degrees) {
         m_angle += degrees;
         if      (m_angle > 360.0F)  m_angle -= 360.0F;
         else if (m_angle < -360.0F) m_angle += 360.0F;
@@ -165,7 +168,7 @@ std::vector<Sprite*> s_sprites;
 std::vector<I32>     s_unused_ids;
 
 export namespace sprite {
-    constexpr bool   is_valid(size_t i) { return (i >= 0 && i < s_sprites.size() && s_sprites.at(i)) ? true : false; }
+    constexpr bool   is_valid(size_t i) { return (i >= 0 and i < s_sprites.size() and s_sprites.at(i)) ? true : false; }
 
     struct Data {
         U8 tile_set, layer;
@@ -176,7 +179,7 @@ export namespace sprite {
     std::vector<I32> ids_in_layer(cU8 layer) {
         std::vector<I32> same_layer_object_ids;
         std::for_each(s_sprites.cbegin(), s_sprites.cend(), [&](Sprite* i) {
-                if (i && i->id() != -1 && !i->is_bg() && i->layer() == layer && !i->is_hidden()) {
+                if (i and i->id() != -1 and !i->is_bg() and i->layer() == layer and !i->is_hidden()) {
                     same_layer_object_ids.emplace_back(i->id());
                 }
             }
@@ -187,7 +190,7 @@ export namespace sprite {
     std::vector<I32> bg_ids_in_layer(cU8 layer) {
         std::vector<I32> same_layer_bg_ids;
         std::for_each(s_sprites.cbegin(), s_sprites.cend(), [&](Sprite* i) {
-            if (i && i->id() != -1 && i->is_bg() && i->layer() == layer && !i->is_hidden()) {
+            if (i and i->id() != -1 and i->is_bg() and i->layer() == layer and !i->is_hidden()) {
                 same_layer_bg_ids.emplace_back(i->id());
             }
             }
@@ -209,6 +212,7 @@ export namespace sprite {
     bool  is_hidden(cI32 i)      { return is_valid(i) ? s_sprites.at(i)->is_hidden()     :  false;  }
     bool  is_leftward(cI32 i)    { return is_valid(i) ? s_sprites.at(i)->is_leftward()   :  false;  }
     bool  is_upended(cI32 i)     { return is_valid(i) ? s_sprites.at(i)->is_upended()    :  false;  }
+    bool  is_in_view(cI32 i)     { return is_valid(i) ? s_sprites.at(i)->is_in_view()    :  false;  }
     Vec2F offset(cI32 i)         { return is_valid(i) ? s_sprites.at(i)->offset()        : Vec2F{}; }
     Vec2F start_offset(cI32 i)   { return is_valid(i) ? s_sprites.at(i)->start_offset()  : Vec2F{}; }
     Vec2F prev_position(cI32 i)  { return is_valid(i) ? s_sprites.at(i)->prev_position() : Vec2F{}; }
@@ -234,12 +238,12 @@ export namespace sprite {
     void offset(cI32 i, cVec2F o)        { if (is_valid(i)) s_sprites.at(i)->offset(o);        }
     void offset_x(cI32 i, cF32 x)        { if (is_valid(i)) s_sprites.at(i)->offset_x(x);      }
     void offset_y(cI32 i, cF32 y)        { if (is_valid(i)) s_sprites.at(i)->offset_y(y);      }
-    void add_offset(cI32 i, cVec2F o)    { if (is_valid(i)) s_sprites.at(i)->add_offset(o);    }
+    void offset_add(cI32 i, cVec2F o)    { if (is_valid(i)) s_sprites.at(i)->offset_add(o);    }
     void start_offset(cI32 i, cVec2F s)  { if (is_valid(i)) s_sprites.at(i)->start_offset(s);  }
     void origin(cI32 i, cVec2F o)        { if (is_valid(i)) s_sprites.at(i)->origin(o);        }
     void prev_position(cI32 i, cVec2F p) { if (is_valid(i)) s_sprites.at(i)->prev_position(p); }
     void level(cI32 i, cVec2F l)         { if (is_valid(i)) s_sprites.at(i)->level(l);         }    
-    void add_angle(cI32 i, cF32 a)       { if (is_valid(i)) s_sprites.at(i)->add_angle(a);     }
+    void angle_add(cI32 i, cF32 a)       { if (is_valid(i)) s_sprites.at(i)->angle_add(a);     }
     void angle(cI32 i, cF32 a)           { if (is_valid(i)) s_sprites.at(i)->angle(a);         }
     void start_angle(cI32 i, cF32 a)     { if (is_valid(i)) s_sprites.at(i)->start_angle(a);   }
     void color(cI32 i, Color c)          { if (is_valid(i)) s_sprites.at(i)->color(c);         }
@@ -257,7 +261,7 @@ export namespace sprite {
             object->id(s_unused_ids.back());
             s_unused_ids.pop_back();
             //console::log("sprite::make unused: ", object->id, "\n");
-            if (!s_sprites.empty() && object->id() >= 0 && object->id() < s_sprites.size() && s_sprites.at(object->id())) {
+            if (!s_sprites.empty() and object->id() >= 0 and object->id() < s_sprites.size() and s_sprites.at(object->id())) {
                 delete s_sprites.at(object->id());
                 //s_sprites.at(object->id) = nullptr;
             }
@@ -294,16 +298,17 @@ export namespace sprite {
         }
     }    
     void draw(std::unique_ptr<Window>& window, cI32 i) {
-        if (!window || !(is_valid(i)) || s_sprites.at(i)->is_hidden()) return;
-
-        s_scale = window->scale();
-
-        if (transform::position(s_sprites.at(i)->transform_id()).x + s_sprites.at(i)->offset().x < window->view().x - s_sprites.at(i)->source_rect().w ||
-            transform::position(s_sprites.at(i)->transform_id()).x + s_sprites.at(i)->offset().x > window->view().w ||
-            transform::position(s_sprites.at(i)->transform_id()).y + s_sprites.at(i)->offset().y < window->view().y - s_sprites.at(i)->source_rect().h ||
+        if (!window or !(is_valid(i)) or s_sprites.at(i)->is_hidden()) return;
+        if (transform::position(s_sprites.at(i)->transform_id()).x + s_sprites.at(i)->offset().x < (I32)window->view().x - s_sprites.at(i)->source_rect().w or
+            transform::position(s_sprites.at(i)->transform_id()).x + s_sprites.at(i)->offset().x > window->view().w or
+            transform::position(s_sprites.at(i)->transform_id()).y + s_sprites.at(i)->offset().y < (I32)window->view().y - s_sprites.at(i)->source_rect().h or
             transform::position(s_sprites.at(i)->transform_id()).y + s_sprites.at(i)->offset().y > window->view().h) {
+            s_sprites.at(i)->is_in_view(false);
             return;
         }
+        s_sprites.at(i)->is_in_view(true);
+
+        s_scale = window->scale();
         window->draw_sf_sprite(s_sprites.at(i)->sf_sprite());
     }
     void draw_in_layer(std::unique_ptr<Window>& window, cU8 layer) {        
@@ -332,11 +337,11 @@ export namespace sprite {
                 for (U16 y = 0; y < rows; ++y) {
                     for (U16 x = 0; x < columns; ++x) {                                                        
                         /*std::for_each(m_objects.cbegin(), m_objects.cend(),
-                        [&](Sprite* i) { if (i && i->offset == offset + Vec2F{ x * 16.0F, y * 16.0F }) sprites_to_save.emplace_back(i); }
+                        [&](Sprite* i) { if (i and i->offset == offset + Vec2F{ x * 16.0F, y * 16.0F }) sprites_to_save.emplace_back(i); }
                         );*/
                         for (auto& i : s_sprites) {
                             if (!i) continue;
-                            if (i->layer() == layer && i->offset() == offset + Vec2F{x * 16.0F, y * 16.0F}) {
+                            if (i->layer() == layer and i->offset() == offset + Vec2F{x * 16.0F, y * 16.0F}) {
                                 to_save.emplace_back(i);
                             }
                         }

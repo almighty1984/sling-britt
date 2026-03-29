@@ -10,12 +10,14 @@ import types;
 import shader;
 
 export class Window {
-    RectF m_view = { 0.0F, 0.0F, 320.0F, 180.0F };
+    RectU m_view = { 0, 0, 320, 180 };
     U8  m_scale = 1;
     U16 m_w = 0,
         m_h = 0;
 
     bool m_is_in_focus = true;
+
+    Color m_screen_color = { 255, 255, 255 };
 
 public:
     sf::RenderWindow m_sf_window;
@@ -26,32 +28,45 @@ public:
         console::log("Window::init\n");
         m_w = w, m_h = h;
         m_scale = scale;
-        m_view = { 0.0F, 0.0F, (F32)w, (F32)h };
-        U32 video_w = (U32)(w * scale);
-        U32 video_h = (U32)(h * scale);
+        m_view = { 0, 0, w, h };
+        U32 video_w = w * scale;
+        U32 video_h = h * scale;
         m_sf_window = sf::RenderWindow(sf::VideoMode({ video_w, video_h }), title, sf::Style::Default, sf::State::Windowed);
-        m_sf_window.setView(sf::View((sf::FloatRect(sf::Vector2f(0.0F, 0.0F), sf::Vector2f((F32)video_w, (F32)video_h)))));
-        
+        sf::View sf_view(sf::FloatRect{ {0.0F, 0.0F}, {(F32)(video_w), (F32)(video_h) } });
+        m_sf_window.setView(sf_view);        
         test_shader.load("res/shader/test.vert", "res/shader/test.frag");
     }
     
     bool is_open() const { return m_sf_window.isOpen(); }
     bool is_in_focus() const { return m_is_in_focus; }  void is_in_focus(bool q) { m_is_in_focus = q; }
 
-    RectF view()  const { return m_view;  }
+    Color screen_color() const { return m_screen_color; }   void screen_color(Color c) { m_screen_color = c; }
+
+    RectU view()  const { return m_view;  }
     U8    scale() const { return m_scale; }
     U16   w()     const { return m_w;     }    void w(cU16 w) { m_w = w; }
     U16   h()     const { return m_h;     }    void h(cU16 h) { m_h = h; }
 
-    void view(cRectF view) {
+    void view(cRectU view) {
         console::log("Window::view: ", view.x, " ", view.y, " ", view.w, " ", view.h, "\n");
         m_view = view;
-        m_sf_window.setView(sf::View((sf::FloatRect(sf::Vector2f(view.x * m_scale, view.y * m_scale), sf::Vector2f(view.w * m_scale, view.h * m_scale)))));
-        //m_sf_window.setView(sf::View({ view.x * m_scale, view.y * m_scale }, { view.w * m_scale, view.h * m_scale }));        
+
+        cF32 scaled_view_x = (F32)view.x * m_scale;
+        cF32 scaled_view_y = (F32)view.y * m_scale;
+        cF32 scaled_view_w = (F32)view.w * m_scale;
+        cF32 scaled_view_h = (F32)view.h * m_scale;
+
+        sf::View sf_view(sf::FloatRect{{ scaled_view_x, scaled_view_y },
+                                       { scaled_view_w, scaled_view_h }});
+        m_sf_window.setView(sf_view);
     }
     void clear()   { m_sf_window.clear();   }
     void close()   { m_sf_window.close();   }
-    void display() { m_sf_window.display(); }
+    void display() { 
+        test_shader.color(m_screen_color);
+
+        m_sf_window.display();
+    }
     
     void draw_circle(sf::CircleShape& circle) {
         m_sf_window.draw(circle);
@@ -61,23 +76,14 @@ public:
     }
     void draw_sf_sprite(sf::Sprite& sf_sprite) {
         sf::RenderStates states;
+
+        test_shader.set_uniform("light_pos", Vec2F{ 150, 80 });
+        
+
         states.shader = test_shader.get_sfml_shader();
+
+        
         m_sf_window.draw(sf_sprite, states);
-    }
-    //void draw(sprite::Object* sprite) {
-    //    if (!sprite || sprite->is_hidden) return;
-    //    if (transform::position(sprite->transform_id).x + sprite->offset.x < m_view.x - sprite->source_rect.w ||
-    //        transform::position(sprite->transform_id).x + sprite->offset.x > m_view.w ||
-    //        transform::position(sprite->transform_id).y + sprite->offset.y < m_view.y - sprite->source_rect.h ||
-    //        transform::position(sprite->transform_id).y + sprite->offset.y > m_view.h) {
-    //        return;
-    //    }
-    //    sf::RenderStates states;
-    //    states.shader = test_shader.get_sfml_shader();
-    //    m_sf_window.draw(sprite->sf_sprite, states);
-
-    //    //m_sf_window.draw(sprite->sf_sprite);
-    //}
+    }    
     std::optional<sf::Event> poll_event() { return m_sf_window.pollEvent(); }
-
 };

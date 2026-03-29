@@ -1,32 +1,26 @@
-module;
-#include <cmath>
-#include <filesystem>
-#include <string>
-#include <memory>
+module sheet.edit;
 
-module state.edit;
-
-namespace state {
+namespace sheet {
     void Edit::handle_menu_up() {
         size_t mouse_on_menu_bar_item = -1;
         for (size_t i = 0; i < m_menu_up_bar_bg_sprite_ids.size(); ++i) {
-            if (input::mouse.x >= sprite::offset(m_menu_up_bar_bg_sprite_ids.at(i)).x && input::mouse.x <= sprite::offset(m_menu_up_bar_bg_sprite_ids.at(i)).x + sprite::source_rect(m_menu_up_bar_bg_sprite_ids.at(i)).w &&
-                input::mouse.y >= sprite::offset(m_menu_up_bar_bg_sprite_ids.at(i)).y && input::mouse.y <= sprite::offset(m_menu_up_bar_bg_sprite_ids.at(i)).y + sprite::source_rect(m_menu_up_bar_bg_sprite_ids.at(i)).h) {
+            if (input::mouse.x >= sprite::offset(m_menu_up_bar_bg_sprite_ids.at(i)).x and input::mouse.x <= sprite::offset(m_menu_up_bar_bg_sprite_ids.at(i)).x + sprite::source_rect(m_menu_up_bar_bg_sprite_ids.at(i)).w and
+                input::mouse.y >= sprite::offset(m_menu_up_bar_bg_sprite_ids.at(i)).y and input::mouse.y <= sprite::offset(m_menu_up_bar_bg_sprite_ids.at(i)).y + sprite::source_rect(m_menu_up_bar_bg_sprite_ids.at(i)).h) {
                 mouse_on_menu_bar_item = i;
             }
         }
         m_is_mouse_on_menu_up_list = false;
         bool is_mouse_on_menu_up_list[2] = { false };
         if (!is_pressed(input::Key::ctrl)) {
-            if (input::mouse.y >= transform::position(m_menu_up_lists[m_menu_up_labels[0]].transform_id).y - 2 &&
-                input::mouse.y <= transform::position(m_menu_up_lists[m_menu_up_labels[0]].transform_id).y + m_menu_up_lists[m_menu_up_labels[0]].bg_h &&
-                input::mouse.x >= transform::position(m_menu_up_lists[m_menu_up_labels[0]].transform_id).x &&
+            if (input::mouse.y >= transform::position(m_menu_up_lists[m_menu_up_labels[0]].transform_id).y - 2 and
+                input::mouse.y <= transform::position(m_menu_up_lists[m_menu_up_labels[0]].transform_id).y + m_menu_up_lists[m_menu_up_labels[0]].bg_h and
+                input::mouse.x >= transform::position(m_menu_up_lists[m_menu_up_labels[0]].transform_id).x and
                 input::mouse.x <= transform::position(m_menu_up_lists[m_menu_up_labels[0]].transform_id).x + m_menu_up_lists[m_menu_up_labels[0]].bg_w) {
                 m_is_mouse_on_menu_up_list = true;
                 is_mouse_on_menu_up_list[0] = true;
-            } else if (input::mouse.y >= transform::position(m_menu_up_lists[m_menu_up_labels[1]].transform_id).y - 2 &&
-                input::mouse.y <= transform::position(m_menu_up_lists[m_menu_up_labels[1]].transform_id).y + m_menu_up_lists[m_menu_up_labels[1]].bg_h &&
-                input::mouse.x >= transform::position(m_menu_up_lists[m_menu_up_labels[1]].transform_id).x &&
+            } else if (input::mouse.y >= transform::position(m_menu_up_lists[m_menu_up_labels[1]].transform_id).y - 2 and
+                input::mouse.y <= transform::position(m_menu_up_lists[m_menu_up_labels[1]].transform_id).y + m_menu_up_lists[m_menu_up_labels[1]].bg_h and
+                input::mouse.x >= transform::position(m_menu_up_lists[m_menu_up_labels[1]].transform_id).x and
                 input::mouse.x <= transform::position(m_menu_up_lists[m_menu_up_labels[1]].transform_id).x + m_menu_up_lists[m_menu_up_labels[1]].bg_w)
 
             {
@@ -36,23 +30,23 @@ namespace state {
         }
 
         for (auto& i : m_menu_up_bar) {
-            i.get()->texture("res/texture/font_8_gray.png");
+            i.get()->texture("res/texture/font/8_gray.png");
         }
         //console::log("m_is_mouse_on_menu_up_open_list: ", m_is_mouse_on_menu_up_open_list, "\n");
-        if (mouse_on_menu_bar_item == 0 || is_mouse_on_menu_up_list[0]) {
-            m_menu_up_bar.at(0).get()->texture("res/texture/font_8_white.png");
+        if (mouse_on_menu_bar_item == 0 or is_mouse_on_menu_up_list[0]) {
+            m_menu_up_bar.at(0).get()->texture("res/texture/font/8_white.png");
             transform::position(m_menu_up_lists[m_menu_up_labels[0]].transform_id, { 0.0F, 8.0F });
 
             cF32 level_list_entry_y = input::mouse.y - transform::position(m_menu_up_lists[m_menu_up_labels[0]].transform_id).y;
             const size_t level_list_entry = (size_t)(level_list_entry_y - std::fmodf(level_list_entry_y, 8.0F)) / 8;
             if (level_list_entry < m_menu_up_lists[m_menu_up_labels[0]].text_items.size()) {
-                m_menu_up_bar.at(0).get()->texture("res/texture/font_8_white.png");
+                m_menu_up_bar.at(0).get()->texture("res/texture/font/8_white.png");
                 for (size_t i = 0; i < m_menu_up_lists[m_menu_up_labels[0]].text_items.size(); ++i) {
                     if (i != level_list_entry) {
-                        m_menu_up_lists[m_menu_up_labels[0]].text_items.at(i).get()->texture("res/texture/font_8_gray.png");
+                        m_menu_up_lists[m_menu_up_labels[0]].text_items.at(i).get()->texture("res/texture/font/8_gray.png");
                     }
                 }
-                m_menu_up_lists[m_menu_up_labels[0]].text_items.at(level_list_entry).get()->texture("res/texture/font_8_white.png");
+                m_menu_up_lists[m_menu_up_labels[0]].text_items.at(level_list_entry).get()->texture("res/texture/font/8_white.png");
 
                 if (is_pressed(input::Button::left)) {
                     release(input::Button::left);
@@ -79,8 +73,8 @@ namespace state {
             }
             transform::position(m_menu_up_lists[m_menu_up_labels[1]].transform_id, { 0.0F, m_menu_up_lists[m_menu_up_labels[1]].bg_h * -1.0F });
         }
-        if (mouse_on_menu_bar_item == 1 || is_mouse_on_menu_up_list[1]) {
-            m_menu_up_bar.at(1).get()->texture("res/texture/font_8_white.png");
+        if (mouse_on_menu_bar_item == 1 or is_mouse_on_menu_up_list[1]) {
+            m_menu_up_bar.at(1).get()->texture("res/texture/font/8_white.png");
             transform::position(m_menu_up_lists[m_menu_up_labels[0]].transform_id, { 0.0F, m_menu_up_lists[m_menu_up_labels[0]].bg_h * -1.0F });
             transform::position(m_menu_up_lists[m_menu_up_labels[1]].transform_id, { (F32)sprite::source_rect(m_menu_up_bar_bg_sprite_ids.at(0)).w, 8.0F });
 
@@ -90,10 +84,10 @@ namespace state {
             if (list_entry < m_menu_up_lists[m_menu_up_labels[1]].text_items.size()) {
                 for (size_t i = 0; i < m_menu_up_lists[m_menu_up_labels[1]].text_items.size(); ++i) {
                     if (i != list_entry) {
-                        m_menu_up_lists[m_menu_up_labels[1]].text_items.at(i).get()->texture("res/texture/font_8_gray.png");
+                        m_menu_up_lists[m_menu_up_labels[1]].text_items.at(i).get()->texture("res/texture/font/8_gray.png");
                     }
                 }
-                m_menu_up_lists[m_menu_up_labels[1]].text_items.at(list_entry).get()->texture("res/texture/font_8_white.png");
+                m_menu_up_lists[m_menu_up_labels[1]].text_items.at(list_entry).get()->texture("res/texture/font/8_white.png");
             }
         }
     }
@@ -115,7 +109,7 @@ namespace state {
 
         m_menu_up_w += bg_w;
 
-        m_menu_up_bar_bg_sprite_ids.push_back(sprite::make("res/texture/editor_menu_bg.png"));
+        m_menu_up_bar_bg_sprite_ids.push_back(sprite::make("res/texture/editor/menu_bg.png"));
         sprite::source_rect(m_menu_up_bar_bg_sprite_ids.back(), { 0, 0, bg_w, bg_h });
         sprite::layer(m_menu_up_bar_bg_sprite_ids.back(), MENU_BG_LAYER);
         sprite::transform_id(m_menu_up_bar_bg_sprite_ids.back(), m_menu_up_transform_id);
@@ -136,8 +130,8 @@ namespace state {
         if (path.string().substr(path.string().size() - 3, 3) != "bin") {
             return false;
         }
-        if (menu != m_menu_up_labels[0] && menu != m_menu_up_labels[1]) {
-            console::log("state::Edit::add_to_menu_up_list ", menu, " not implemented\n");
+        if (menu != m_menu_up_labels[0] and menu != m_menu_up_labels[1]) {
+            console::log("state::Edit::add_to_menu_up_list() ", menu, " not implemented\n");
             return false;
         }
         std::string path_str = path.string();
@@ -148,10 +142,10 @@ namespace state {
 
         size_t res_path_pos = path_str.find("res" + separator_str, 0);
         if (res_path_pos == std::string::npos) {
-            console::log("state::Edit::add_to_menu_up_list res" + separator_str + " not found!\n");
+            console::log("state::Edit::add_to_menu_up_list() res" + separator_str + " not found!\n");
             return false;
         }        
-        path_str.erase(0, res_path_pos);    // keep last part of the path (res/level/...)        
+        path_str.erase(0, res_path_pos);    // keep part after "res/level/"
 
         std::unique_ptr<BitmapText> bitmap_text = std::make_unique<BitmapText>();
         bitmap_text->transform_id(m_menu_up_lists[menu].transform_id);

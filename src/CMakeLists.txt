@@ -1,4 +1,11 @@
 cmake_minimum_required(VERSION 3.28)
+
+if (MSVC)    
+    add_compile_options(/std:c++latest /EHsc /nologo /W4 /c "%VCToolsInstallDir%\modules\std.ixx" /reference "std=std.ifc")
+else()
+    
+endif()
+
 project(CMakeSFMLProject LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 23)
@@ -22,6 +29,8 @@ FetchContent_MakeAvailable(SFML)
 add_subdirectory(core)
 add_subdirectory(app)
 
-add_executable(main main.cxx)
+add_executable(main)
+target_sources(main PRIVATE "main.cxx")
+
 target_compile_features(main PRIVATE cxx_std_23)
 target_link_libraries(main PRIVATE app)

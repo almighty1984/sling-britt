@@ -10,7 +10,7 @@ export namespace entity {
     public:
         ParticleHealth() {
             m_type = Type::particle_health;
-            m_state = State::idle;
+            m_state = state::Type::idle;
         }        
         void collide_x(aabb::cInfo our, aabb::cInfo other) override;
         void collide_y(aabb::cInfo our, aabb::cInfo other) override;

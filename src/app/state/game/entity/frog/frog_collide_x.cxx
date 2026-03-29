@@ -1,12 +1,10 @@
-module;
-#include <utility>
 module entity.frog;
 import aabb;
 import console;
 
 namespace entity {
     void Frog::collide_x(aabb::cInfo our, aabb::cInfo other) {
-        if (!our.owner || !other.owner) return;
+        if (!our.owner or !other.owner) return;
 
         cType other_type = other.owner->type();
 
@@ -32,7 +30,7 @@ namespace entity {
         }
         else if (other_type == Type::bug) {
             position_add_x(-overlap_x);
-            if (other.owner->state() == State::tossed) {
+            if (other.owner->state() == state::Type::tossed) {
                 return;
             }
 
@@ -49,9 +47,9 @@ namespace entity {
                 sprite::is_leftward(other.owner->sprite_id(), true);
             }
         }
-        else if (other_type == Type::clip || other_type == Type::clip_ledge) {
+        else if (other_type == Type::clip or other_type == Type::clip_ledge) {
             position_add_x(-overlap_x);
-            if (m_state == State::swim) {
+            if (m_state == state::Type::swim) {
                 if (velocity().x < 0.0F) {
                     sprite::is_leftward(m_sprite_id, false);
                     velocity_x(velocity().x * -1.0F);
@@ -66,18 +64,18 @@ namespace entity {
             velocity_x(0.0F);
             moved_velocity_x(0.0F);
         }
-        else if (other_type == Type::clip_L || other_type == Type::clip_LD) {
+        else if (other_type == Type::clip_L or other_type == Type::clip_LD) {
             if (velocity().x + moved_velocity().x <= 0.0F) return;
-            if (m_state == State::swim) {
+            if (m_state == state::Type::swim) {
                 sprite::is_leftward(m_sprite_id, true);
             }
             position_add_x(-overlap_x);
             velocity_x(0.0F);
             moved_velocity_x(0.0F);
         }
-        else if (other_type == Type::clip_R || other_type == Type::clip_RD) {
+        else if (other_type == Type::clip_R or other_type == Type::clip_RD) {
             if (velocity().x + moved_velocity().x >= 0.0F) return;
-            if (m_state == State::swim) {
+            if (m_state == state::Type::swim) {
                 sprite::is_leftward(m_sprite_id, false);
             }
             position_add_x(-overlap_x);
@@ -101,15 +99,15 @@ namespace entity {
             }
         }
         else if (other_type == Type::particle_health) {
-            if (health::is_max(m_health_id) || m_state == State::heal) return;
+            if (health::is_max(m_health_id) or m_state == state::Type::heal) return;
 
-            m_next_state = State::heal;
+            m_next_state = state::Type::heal;
             m_time_left_in_next_state = 200;
         }
         else if (other_type == Type::particle_melee) { }
         else if (other_type == Type::player) {
             position_add_x(-overlap_x);
-            if (other.owner->state() == State::sling) {
+            if (other.owner->state() == state::Type::sling) {
                 velocity_x(-other.owner->rotation_speed() * 0.75F);
                 hurt(other.owner);
                 //m_sensed_objects.clear();
@@ -119,7 +117,7 @@ namespace entity {
                 return;
             }*/
 
-            //if (m_state == State::swim) return;
+            //if (m_state == state::Type::swim) return;
 
             cF32 force_x = other.owner->is_ducking() ? 4.0F : 1.0F;
 
@@ -141,7 +139,7 @@ namespace entity {
             }
             m_is_on_ground = true;
             m_is_on_slope = true;
-        } else if (other_type == Type::slope_L_2x1_0 || other_type == Type::slope_L_2x1_1) {
+        } else if (other_type == Type::slope_L_2x1_0 or other_type == Type::slope_L_2x1_1) {
             velocity_y(-velocity().x / 2.0F);
             if (velocity().x > max_velocity().x * 0.9F) {
                 velocity_x(max_velocity().x * 0.9F);
@@ -155,7 +153,7 @@ namespace entity {
             }
             m_is_on_ground = true;
             m_is_on_slope = true;
-        } else if (other_type == Type::slope_R_2x1_0 || other_type == Type::slope_R_2x1_1) {
+        } else if (other_type == Type::slope_R_2x1_0 or other_type == Type::slope_R_2x1_1) {
             velocity_y(velocity().x / 2.0F);
             if (velocity().x < -max_velocity().x * 0.9F) {
                 velocity_x(-max_velocity().x * 0.9F);

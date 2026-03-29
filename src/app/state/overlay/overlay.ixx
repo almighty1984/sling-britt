@@ -1,17 +1,15 @@
-module;
-#include <string>
-#include <sstream>
-export module state.overlay;
-import state;
+export module sheet.overlay;
+import sheet;
 import console;
 import bitmap_text;
 import input;
 import line;
 import transform;
 import sprite;
-import state.game.save;
+import sheet.game.save;
+import std;
 
-export namespace state {
+export namespace sheet {
     class Overlay : public Object {
         //I32 m_line_id = -1;
 
@@ -20,13 +18,13 @@ export namespace state {
         //U8 m_timer = 0;
     public:
         Overlay(cU16 window_w, cU16 window_h) {
-            m_state = m_next_state = Type::overlay;
+            m_sheet = m_next_sheet = Type::overlay;
 
             m_input_id = input::make();
 
             m_fps_text.layer(NUM_VISIBLE_LAYERS - 1);
 
-            m_fps_text.texture("res/texture/font_5_white.png");
+            m_fps_text.texture("res/texture/font/5_white.png");
             m_fps_text.font_size(5);
 
             m_visible_layers.insert(m_fps_text.layer());
@@ -62,8 +60,8 @@ export namespace state {
             if (is_pressed(input::Key::del)) {
                 release(input::Key::del);
 
-                state::game::clear_current_save_data();
-                state::game::write_save(0);
+                sheet::game::clear_current_save_data();
+                sheet::game::write_save(0);
             }
         }
         void draw(std::unique_ptr<Window>& window, cU8 layer) override {

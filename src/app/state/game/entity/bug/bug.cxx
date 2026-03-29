@@ -1,4 +1,5 @@
 module entity.bug;
+import app.config;
 import particle_system;
 
 namespace entity {
@@ -12,13 +13,13 @@ namespace entity {
 
         if (culprit->type() == entity::Type::player) {
             console::log("entity::Bug::hurt player vel y: ", culprit->velocity().y, "\n");
-            sound_position("bounce", { position().x / (WINDOW_W / 2.0F), position().y / (WINDOW_H / 2.0F) });
+            sound_position("bounce", { position().x / (app::config::extent().x / 2.0F), position().y / (app::config::extent().y / 2.0F) });
             sound_play("bounce");
             return true;
         }
 
-        //m_state = entity::State::upended;
-        m_next_state = entity::State::hurt;
+        //m_state = state::Type::upended;
+        m_next_state = state::Type::hurt;
 
         if (culprit->type() == entity::Type::particle_melee) {
             velocity_x(culprit->velocity().x * 0.1F + velocity().x * 0.5F);
@@ -28,7 +29,7 @@ namespace entity {
         }
         sprite_is_leftward(!sprite_is_leftward());
 
-        sound_position("melee", { position().x / (WINDOW_W / 2.0F), position().y / (WINDOW_H / 2.0F) });
+        sound_position("melee", { position().x / (app::config::extent().x / 2.0F), position().y / (app::config::extent().y / 2.0F) });
         sound_play("melee");
 
         return true;
@@ -37,7 +38,7 @@ namespace entity {
     void Bug::state_bounce() {
         if (m_is_first_state_update) {
             m_is_first_state_update = false;
-            /*sound::position(sound_id("bounce"), { position().x / (WINDOW_W / 2.0F), position().y / (WINDOW_H / 2.0F) });
+            /*sound::position(sound_id("bounce"), { position().x / (app::config::extent().x / 2.0F), position().y / (app::config::extent().y / 2.0F) });
             sound::play(sound_id("bounce"));*/
 
             reset_anim("bounce");
@@ -45,12 +46,12 @@ namespace entity {
         //int num_frames = anim()->texture_size.x / anim()->source.w;
         //console::log("num_frames: ", anim()->current_frame(), "\n");
         if (anim::current_frame(m_current_anim_id) + 1 == anim::num_frames(m_current_anim_id)) {
-            m_next_state = entity::State::upended;
+            m_next_state = state::Type::upended;
         }
     }
     void Bug::state_carried() {
         if (!m_parent) {
-            m_next_state = entity::State::walk;
+            m_next_state = state::Type::walk;
             return;
         }
         if (m_is_first_state_update) {
@@ -95,7 +96,7 @@ namespace entity {
         /*if (m_parent->is_ducking()) {
             position_add_y(4.0F);
         }*/
-        if (m_parent->is_ducking() || !m_parent->is_carrying()) {
+        if (m_parent->is_ducking() or !m_parent->is_carrying()) {
             m_parent->is_carrying(false);
             velocity({ m_parent->velocity().x, velocity().y });
             if (sprite::is_leftward(m_sprite_id)) {
@@ -112,11 +113,11 @@ namespace entity {
                 m_next_state = m_prev_state;
             }
             else {
-                if (m_prev_state == State::walk) {
-                    m_next_state = State::upended;
+                if (m_prev_state == state::Type::walk) {
+                    m_next_state = state::Type::upended;
                 }
-                else if (m_prev_state == State::upended) {
-                    m_next_state = State::walk;
+                else if (m_prev_state == state::Type::upended) {
+                    m_next_state = state::Type::walk;
                 }
             }
 
@@ -130,7 +131,7 @@ namespace entity {
             m_time_left_dead = m_time_to_be_dead;
             reset_anim("dead");
             //console::log("prev state: ", entity::to_string(m_prev_state), "\n");
-            if (m_prev_state == entity::State::upended || m_prev_state == entity::State::bounce) {
+            if (m_prev_state == state::Type::upended or m_prev_state == state::Type::bounce) {
                 sprite::is_upended(m_sprite_id, true);
             }
             for (auto& i : m_aabb_ids) {
@@ -145,7 +146,7 @@ namespace entity {
             //particle::spawn({ this, particle::Type::health, position() , {} });
             particle::spawn(this, particle::Type::health, position(), {});
 
-            sound_position("dead", { position().x / (WINDOW_W / 2.0F), position().y / (WINDOW_H / 2.0F) });
+            sound_position("dead", { position().x / (app::config::extent().x / 2.0F), position().y / (app::config::extent().y / 2.0F) });
             sound_play("dead");
 
             if (m_parent) {
@@ -153,7 +154,7 @@ namespace entity {
                 m_parent = nullptr;
             }
         }
-        if (m_time_left_dead > 0 && m_time_to_be_dead != U16_MAX) {
+        if (m_time_left_dead > 0 and m_time_to_be_dead != U16_MAX) {
             --m_time_left_dead;
             if (m_time_left_dead == 0) {
                 console::log("entity::Bug::dead done being dead\n");
@@ -172,7 +173,7 @@ namespace entity {
         deceleration({});
         set_anim("hurt");
         if (anim::is_last_frame(m_current_anim_id)) {
-            m_next_state = entity::State::upended;
+            m_next_state = state::Type::upended;
         }
     }
     void Bug::state_swim() {
@@ -221,8 +222,8 @@ namespace entity {
         }
         if (m_is_on_ground) {
             console::log("entity::Bug::tossed, on ground\n");
-            //m_next_state = entity::State::walk;
-            //m_next_state = entity::State::upended;
+            //m_next_state = state::Type::walk;
+            //m_next_state = state::Type::upended;
             m_next_state = m_prev_state;
         }
         else {
@@ -244,7 +245,7 @@ namespace entity {
         if (m_time_left_in_state > 0) {
             --m_time_left_in_state;
             if (m_time_left_in_state == 0) {
-                m_next_state = entity::State::walk;
+                m_next_state = state::Type::walk;
             }
         }
     }
@@ -259,7 +260,7 @@ namespace entity {
             for (auto& i : m_aabb_ids) {
                 aabb::is_active(i, true);
             }
-            if (m_prev_state == entity::State::dead) {
+            if (m_prev_state == state::Type::dead) {
                 health::reset(m_health_id);
                 sprite::is_leftward(m_sprite_id, random::number(0, 1) ? true : false);
             }
