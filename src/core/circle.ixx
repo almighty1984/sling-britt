@@ -16,17 +16,17 @@ export namespace circle {
         
     public:
         Object() {
-            m_transform_id = transform::make();
-            console::log("circle::Object() transform_id: ", m_transform_id, "\n");
-            transform::position(m_transform_id, { 32.0F, 32.0F });
-            console::log("circle::Object() position: ", transform::position(m_transform_id).x, " ", transform::position(m_transform_id).y, "\n");
+            m_transform = transform::make();
+            console::log("circle::Object() transform: ", m_transform, "\n");
+            transform::position(m_transform, { 32.0F, 32.0F });
+            console::log("circle::Object() position: ", transform::position(m_transform).x, " ", transform::position(m_transform).y, "\n");
 
 
             m_circle_shape.setFillColor(sf::Color::Green);
         }        
         ~Object() {
-            console::log("~circle::Object() transform_id: ", m_transform_id, "\n");
-            transform::erase(m_transform_id);
+            console::log("~circle::Object() transform: ", m_transform, "\n");
+            transform::erase(m_transform);
         }
 
 
@@ -34,10 +34,10 @@ export namespace circle {
 
 
         void update() {
-            //console::log("circle::Object::update() transform_id: ", m_transform_id, "\n");
+            //console::log("circle::Object::update() transform: ", m_transform, "\n");
 
-            sf::Vector2f pos = { transform::position(m_transform_id).x * s_scale,
-                                 transform::position(m_transform_id).y * s_scale };
+            sf::Vector2f pos = { transform::position(m_transform).x * s_scale,
+                                 transform::position(m_transform).y * s_scale };
 
             m_circle_shape.setPosition(pos);
 

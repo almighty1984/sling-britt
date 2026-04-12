@@ -8,7 +8,8 @@ import types;
 import window;
 
 export class BitmapText : public transform::Trait {
-    bool m_is_hidden = false;
+    bool m_is_hidden          = false,
+         m_is_owned_transform = false;
 
     U8  m_layer     = 0,
         m_font_size = 8;
@@ -18,11 +19,16 @@ export class BitmapText : public transform::Trait {
     std::string         m_text;
 
     std::filesystem::path m_texture_path = "res/texture/font/8_gray.png";
-    std::vector<I32>    m_sprite_ids;
+    std::vector<I32>    m_sprites;
 
 public:
     BitmapText() {
-        m_transform_id = transform::make();
+        m_transform = transform::make();
+        m_is_owned_transform = true;
+    }
+    BitmapText(cI32 transform) {
+        m_transform = transform;
+        m_is_owned_transform = false;
     }
     //BitmapText(const BitmapText& other) {
     //    m_is_hidden = other.m_is_hidden;
@@ -32,52 +38,58 @@ public:
     //    m_start_offset = other.m_start_offset;
     //    m_text = other.m_text;
     //    m_texture_path = other.m_texture_path;
-    //    m_sprite_ids = other.m_sprite_ids; // TODO: create new sprites
+    //    m_sprites = other.m_sprites; // TODO: create new sprites
     //}
     //BitmapText(const BitmapTextand other) {
-    //    m_sprite_ids = other.m_sprite_ids;
-    //    //other.m_sprite_ids.clear();
+    //    m_sprites = other.m_sprites;
+    //    //other.m_sprites.clear();
     //}
     ~BitmapText() {
         clear_text();
-        transform::erase(m_transform_id);
+        if (m_is_owned_transform) {
+            transform::erase(m_transform);
+        }
     }
     U8 layer()         const { return m_layer;        } void layer(cU8 l)         { m_layer        = l; }
     U8 font_size()     const { return m_font_size;    } void font_size(cU8 s)     { m_font_size    = s; }
+
+    size_t count() const { return m_text.size(); }
     
-    /*void transform_id(cI32 id) override {
-        transform::erase(m_transform_id);
-        m_transform_id = id;
-        for (auto& i : m_sprite_ids) {
-            sprite::transform_id(i, id);
+    // erase transform we created in constructor and use this one instead
+    void transform(cI32 id) override {
+        transform::erase(m_transform);
+        m_is_owned_transform = false;
+        m_transform = id;
+        for (auto& i : m_sprites) {
+            sprite::transform(i, id);
         }
-    }*/
+    }
     std::filesystem::path texture_path() const { return m_texture_path; }
     void texture(const std::filesystem::path path) {
         if (path == m_texture_path) return;
         m_texture_path = path;
-        for (auto& i : m_sprite_ids) {
+        for (auto& i : m_sprites) {
             sprite::texture(i, path);
         }
     }
 
     const std::string& get_text() const { return m_text; }
     void clear_text() {
-        //if (m_sprite_ids.empty()) return;
+        //if (m_sprites.empty()) return;
 
         ////console::log("BitmapText::clear_text ids: ");
-        ////for (auto& i : m_sprite_ids) {
+        ////for (auto& i : m_sprites) {
         //    //console::log(" ", i);
         ////}
         ////console::log("\n");
         //
-        for (auto& i : m_sprite_ids) {
+        for (auto& i : m_sprites) {
             sprite::erase(i);
         }
-        m_sprite_ids.clear();
+        m_sprites.clear();
         m_text.clear();
     }
-    bool insert(size_t pos, std::string s) {
+    bool insert(size_t pos, std::string_view s) {
         if (pos < m_text.size()) {
             std::string text = m_text;
             text.insert(pos, s);
@@ -110,20 +122,20 @@ public:
     void is_hidden(bool q) {
         if (q == m_is_hidden) return;
         m_is_hidden = q;
-        for (auto& i : m_sprite_ids) {
+        for (auto& i : m_sprites) {
             sprite::is_hidden(i, q);
         }
     }
     cVec2F offset() const { return m_offset; }
     void offset(cVec2F offset) {
         if (offset == m_offset) return;
-        for (auto& i : m_sprite_ids) {
+        for (auto& i : m_sprites) {
             sprite::offset_add(i, -m_offset);
             sprite::offset_add(i, offset);
         }
         m_offset = offset;
     }
-    std::vector<I32>& get_sprite_ids() { return m_sprite_ids; }
+    std::vector<I32>& get_sprites() { return m_sprites; }
 
     void set_text(const std::string& text) {
         if (text == m_text or text.empty()) return;
@@ -137,28 +149,29 @@ public:
                 y += m_font_size, x = 0.0F;
                 continue;
             }
-            cI32 sprite_id = sprite::make(m_texture_path);
+            cI32 sprite = sprite::make(m_texture_path);
 
-            m_sprite_ids.emplace_back(sprite_id);
-            //console::log(sprite_id, " ");
-            //sprite::id(sprite_id, sprite_id);
-            sprite::transform_id(sprite_id, m_transform_id);
-            sprite::layer(sprite_id, m_layer);
-            sprite::offset(sprite_id, m_offset + Vec2F{ x, y });
+            m_sprites.emplace_back(sprite);
+            //console::log(sprite, " ");
+            //sprite::id(sprite, sprite);
+            sprite::transform(sprite, m_transform);
+            sprite::layer(sprite, m_layer);
+            sprite::offset(sprite, m_offset + Vec2F{ x, y });
 
             cRectI texture_rect{ ((32 + m_text.at(i)) % 32) * m_font_size,
                                  ((m_text.at(i) - m_text.at(i) % 32 - 32) / 32) * m_font_size,
                                  m_font_size,
                                  m_font_size };
             
-            sprite::source_rect(sprite_id, texture_rect);
-            sprite::is_hidden(sprite_id, m_is_hidden);
+            sprite::rect(sprite, texture_rect);
+            sprite::is_hidden(sprite, m_is_hidden);
+            //sprite::update(sprite);
 
             x += (F32)(m_font_size);
             //console::log("BitmapText add sprite id: ", id, "\n");
         }
         /*console::log("BitmapText::set_text ids: ");
-        for (auto& i : m_sprite_ids) {
+        for (auto& i : m_sprites) {
             console::log(" ", i);
         }
         console::log("\n");*/
@@ -171,7 +184,7 @@ public:
     }
 
     void draw(std::unique_ptr<Window>& window) {
-        for (auto& i : m_sprite_ids) {
+        for (auto& i : m_sprites) {
             sprite::draw(window, i);
         }
     }

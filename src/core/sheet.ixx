@@ -15,9 +15,12 @@ export namespace sheet {
 
     class Object : public input::Trait {
     protected:
-        Type m_sheet      = Type::none,
-             m_prev_sheet = Type::none,
-             m_next_sheet = Type::none;
+        Type m_type            = Type::none,
+             m_prev            = Type::none,
+             m_transition_to   = Type::none,
+             m_transition_from = Type::none;
+
+        bool m_is_to_transition = false;
 
         std::set<U8> m_visible_layers;
 
@@ -39,7 +42,7 @@ export namespace sheet {
 
         virtual std::filesystem::path level_path_to_save() { return {}; }
         virtual ~Object() {
-            //input::erase(m_input_id);
+            //input::erase(m_input);
             m_visible_layers.clear();
         }
         virtual void update(cF32 ts) {}
@@ -47,12 +50,19 @@ export namespace sheet {
 
         std::set<U8>& get_visible_layers() { return m_visible_layers; }
         
-        Type sheet()      const { return m_sheet;      } void sheet(cType t)      { m_sheet = m_next_sheet = t; }
-        Type next_sheet() const { return m_next_sheet; } void next_sheet(cType t) { m_next_sheet           = t; }
-        Type prev_sheet() const { return m_prev_sheet; } void prev_sheet(cType t) { m_prev_sheet           = t; }
+        Type type() const { return m_type; } void type(cType t) { m_type = t; }
+        Type prev() const { return m_prev; } void prev(cType t) { m_prev = t; }
+        Type transition_to()   const { return m_transition_to;   } void transition_to(cType t)   { m_transition_to   = t; }
+        Type transition_from() const { return m_transition_from; } void transition_from(cType t) { m_transition_from = t; }
 
-        bool is_to_transition() const { return m_next_sheet != Type::none and m_next_sheet != m_sheet; }
+        void transition(cType from, cType to) {
+            m_transition_from = from;
+            m_transition_to = to;
+            m_is_to_transition = true;
+        }
 
+        bool is_to_transition() const { return m_is_to_transition; } void is_to_transition(bool q) { m_is_to_transition = q; }
+        
         RectU view() const { return m_view; } void view(cRectU v) { m_view = v; }
 
         //start::cType next_level() const { return m_next_level; } void next_level(start::cType n) { m_next_level = n; }

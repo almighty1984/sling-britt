@@ -46,10 +46,10 @@ export namespace sound {
 
                 //console::log("entity::load_config() ", sound_path, "\n\n");
 
-                //m_sound_ids[sound_label] = sound::make(sound_path);
+                //m_sounds[sound_label] = sound::make(sound_path);
 
                 cI32 id = sound::make(sound_path);
-                owner->sound_id(sound_label, id);
+                owner->sound(sound_label, id);
 
                 label_start = end_line;
             }

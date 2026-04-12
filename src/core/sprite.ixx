@@ -19,7 +19,7 @@ static U8 s_scale = 1;
 struct Sprite {
 private:
     I32   m_id            = -1,
-          m_transform_id  = -1;
+          m_transform  = -1;
     U8    m_layer         = 0,
           m_tile_set      = 0;
     F32   m_angle         = 0.0F,
@@ -38,7 +38,7 @@ private:
           m_center        = { 0.0F, 0.0F };
     Color m_color         = { 127, 127, 127 },
           m_start_color   = { 127, 127, 127 };
-    RectI m_source_rect   = { 0, 0, 16, 16 };
+    RectI m_rect          = { 0, 0, 16, 16 };
     std::filesystem::path m_texture_path;
     sf::Sprite m_sf_sprite;
     sf::Texture* m_sf_texture;
@@ -47,7 +47,7 @@ public:
     Sprite(std::filesystem::path path) : m_texture_path(path), m_sf_sprite(*texture::load(path)), m_sf_texture(texture::load(path)) { }
     
     Sprite& operator=(const Sprite& other) {
-        m_transform_id = other.m_transform_id;
+        m_transform = other.m_transform;
         m_layer        = other.m_layer;
         m_tile_set     = other.m_tile_set;
         m_angle        = other.m_angle;
@@ -64,14 +64,14 @@ public:
         m_center       = other.m_center;
         m_color        = other.m_color;
         m_start_color  = other.m_start_color;        
-        m_source_rect  = other.m_source_rect;
+        m_rect         = other.m_rect;
         m_texture_path = other.m_texture_path;
         m_sf_sprite    = other.m_sf_sprite;
         m_sf_texture   = other.m_sf_texture;
         return *this;
     }
     I32 id()              const { return m_id;            } void id(cI32 id)             { m_id            = id;}
-    I32 transform_id()    const { return m_transform_id;  } void transform_id(cI32 id)   { m_transform_id  = id;}
+    I32 transform()    const { return m_transform;  } void transform(cI32 id)   { m_transform  = id;}
     U8 layer()            const { return m_layer;         } void layer(cU8 l)            { m_layer         = l; }
     U8 tile_set()         const { return m_tile_set;      } void tile_set(cU8 t)         { m_tile_set      = t; }
     bool is_bg()          const { return m_is_bg;         } void is_bg(bool q)           { m_is_bg         = q; }
@@ -123,32 +123,32 @@ public:
         m_sf_texture = texture::load(path);
         if (!m_sf_texture) return false;
         m_sf_sprite.setTexture(*m_sf_texture, true);
-        m_sf_sprite.setTextureRect(sf::IntRect({ (I32)m_source_rect.x, (I32)m_source_rect.y }, { (I32)m_source_rect.w, (I32)m_source_rect.h }));
+        m_sf_sprite.setTextureRect(sf::IntRect({ (I32)m_rect.x, (I32)m_rect.y }, { (I32)m_rect.w, (I32)m_rect.h }));
         return true;
     }
-    RectI source_rect() const { return m_source_rect; }
-    void source_rect(cRectI rect) {
-        m_source_rect = rect;
+    RectI rect() const { return m_rect; }
+    void rect(cRectI rect) {
+        m_rect = rect;
         m_sf_sprite.setTextureRect(sf::IntRect({ rect.x, rect.y }, { rect.w, rect.h }));
     }
-    void source_rect_x(cI32 x) {
-        m_source_rect.x = x;
-        m_sf_sprite.setTextureRect(sf::IntRect({ m_source_rect.x, m_source_rect.y }, { m_source_rect.w, m_source_rect.h }));
+    void rect_x(cI32 x) {
+        m_rect.x = x;
+        m_sf_sprite.setTextureRect(sf::IntRect({ m_rect.x, m_rect.y }, { m_rect.w, m_rect.h }));
     }
-    void source_rect_y(cI32 y) {
-        m_source_rect.y = y;
-        m_sf_sprite.setTextureRect(sf::IntRect({ m_source_rect.x, m_source_rect.y }, { m_source_rect.w, m_source_rect.h }));
+    void rect_y(cI32 y) {
+        m_rect.y = y;
+        m_sf_sprite.setTextureRect(sf::IntRect({ m_rect.x, m_rect.y }, { m_rect.w, m_rect.h }));
     }
-    void source_rect_w(cI32 w) {
-        m_source_rect.w = w;
-        m_sf_sprite.setTextureRect(sf::IntRect({ m_source_rect.x, m_source_rect.y }, { m_source_rect.w, m_source_rect.h }));
+    void rect_w(cI32 w) {
+        m_rect.w = w;
+        m_sf_sprite.setTextureRect(sf::IntRect({ m_rect.x, m_rect.y }, { m_rect.w, m_rect.h }));
     }
-    void source_rect_h(cI32 h) {
-        m_source_rect.h = h;
-        m_sf_sprite.setTextureRect(sf::IntRect({ m_source_rect.x, m_source_rect.y }, { m_source_rect.w, m_source_rect.h }));
+    void rect_h(cI32 h) {
+        m_rect.h = h;
+        m_sf_sprite.setTextureRect(sf::IntRect({ m_rect.x, m_rect.y }, { m_rect.w, m_rect.h }));
     }
     void update() {
-        source_rect(m_source_rect);
+        rect(m_rect);
         m_sf_sprite.setOrigin({ m_origin.x, m_origin.y });
 
         m_sf_sprite.setScale({ (m_is_leftward ? -1.0F : 1.0F) * s_scale, (m_is_upended ? -1.0F : 1.0F) * s_scale});
@@ -156,10 +156,10 @@ public:
         //if (position != prev_position) {
             //m_transformed_position = position + position();
             //prev_position = position;
-            //center = { position.x + source_rect.w / 2.0F, position.y + source_rect.h / 2.0F };
+            //center = { position.x + rect.w / 2.0F, position.y + rect.h / 2.0F };
             //console::log("sprite::Sprite::update position: ", prev_position.x, " ", position().x, "  ", prev_position.y, " ", position().y, "\n");        
-        m_sf_sprite.setPosition({ (transform::position(m_transform_id).x + m_offset.x + m_origin.x) * s_scale,
-                                  (transform::position(m_transform_id).y + m_offset.y + m_origin.y) * s_scale });
+        m_sf_sprite.setPosition({ (transform::position(m_transform).x + m_offset.x + m_origin.x) * s_scale,
+                                  (transform::position(m_transform).y + m_offset.y + m_origin.y) * s_scale });
         //}
     }
 };
@@ -168,7 +168,7 @@ std::vector<Sprite*> s_sprites;
 std::vector<I32>     s_unused_ids;
 
 export namespace sprite {
-    constexpr bool   is_valid(size_t i) { return (i >= 0 and i < s_sprites.size() and s_sprites.at(i)) ? true : false; }
+    constexpr bool is_valid(cI32 i) { return (!s_sprites.empty() and i >= 0 and i < s_sprites.size() and s_sprites.at(i)) ? true : false; }
 
     struct Data {
         U8 tile_set, layer;
@@ -204,7 +204,7 @@ export namespace sprite {
     Sprite* get(cI32 i) { return is_valid(i) ? s_sprites.at(i) : nullptr; }
     void update(cI32 i) { if (is_valid(i)) s_sprites.at(i)->update(); }
         
-    I32   transform_id(cI32 i)   { return is_valid(i) ? s_sprites.at(i)->transform_id()  :     -1;  }
+    I32   transform(cI32 i)   { return is_valid(i) ? s_sprites.at(i)->transform()  :     -1;  }
     U8    layer(cI32 i)          { return is_valid(i) ? s_sprites.at(i)->layer()         :      0;  }
     U8    tile_set(cI32 i)       { return is_valid(i) ? s_sprites.at(i)->tile_set()      :      0;  } 
     bool  is_bg(cI32 i)          { return is_valid(i) ? s_sprites.at(i)->is_bg()         :  false;  }
@@ -224,10 +224,10 @@ export namespace sprite {
     F32   radians(cI32 i)        { return is_valid(i) ? s_sprites.at(i)->radians()       :    0.0F; }
     Color color(cI32 i)          { return is_valid(i) ? s_sprites.at(i)->color()         : Color{}; }
     Color start_color(cI32 i)    { return is_valid(i) ? s_sprites.at(i)->start_color()   : Color{}; }
-    RectI source_rect(cI32 i)    { return is_valid(i) ? s_sprites.at(i)->source_rect()   : RectI{}; }
+    RectI rect(cI32 i)    { return is_valid(i) ? s_sprites.at(i)->rect()   : RectI{}; }
     Vec2U texture_size(cI32 i)   { return is_valid(i) ? s_sprites.at(i)->texture_size()  : Vec2U{}; }
 
-    void transform_id(cI32 i, cI32 t)    { if (is_valid(i)) s_sprites.at(i)->transform_id(t);  }
+    void transform(cI32 i, cI32 t)    { if (is_valid(i)) s_sprites.at(i)->transform(t);  }
     void layer(cI32 i, cU8 l)            { if (is_valid(i)) s_sprites.at(i)->layer(l);         }
     void tile_set(cI32 i, cU8 t)         { if (is_valid(i)) s_sprites.at(i)->tile_set(t);      }
     void is_bg(cI32 i, bool q)           { if (is_valid(i)) s_sprites.at(i)->is_bg(q);         }
@@ -248,11 +248,11 @@ export namespace sprite {
     void start_angle(cI32 i, cF32 a)     { if (is_valid(i)) s_sprites.at(i)->start_angle(a);   }
     void color(cI32 i, Color c)          { if (is_valid(i)) s_sprites.at(i)->color(c);         }
     void start_color(cI32 i, Color c)    { if (is_valid(i)) s_sprites.at(i)->start_color(c);   }
-    void source_rect(cI32 i, RectI r)    { if (is_valid(i)) s_sprites.at(i)->source_rect(r);   }
-    void source_rect_x(cI32 i, cI32 x)   { if (is_valid(i)) s_sprites.at(i)->source_rect_x(x); }
-    void source_rect_y(cI32 i, cI32 y)   { if (is_valid(i)) s_sprites.at(i)->source_rect_y(y); }
-    void source_rect_w(cI32 i, cI32 w)   { if (is_valid(i)) s_sprites.at(i)->source_rect_w(w); }
-    void source_rect_h(cI32 i, cI32 h)   { if (is_valid(i)) s_sprites.at(i)->source_rect_h(h); }
+    void rect(cI32 i, RectI r)           { if (is_valid(i)) s_sprites.at(i)->rect(r);          }
+    void rect_x(cI32 i, cI32 x)          { if (is_valid(i)) s_sprites.at(i)->rect_x(x);        }
+    void rect_y(cI32 i, cI32 y)          { if (is_valid(i)) s_sprites.at(i)->rect_y(y);        }
+    void rect_w(cI32 i, cI32 w)          { if (is_valid(i)) s_sprites.at(i)->rect_w(w);        }
+    void rect_h(cI32 i, cI32 h)          { if (is_valid(i)) s_sprites.at(i)->rect_h(h);        }
     void texture(cI32 i, const std::filesystem::path path) { if (is_valid(i)) s_sprites.at(i)->texture(path); }
     
     cI32 make(const std::filesystem::path& path) {
@@ -279,7 +279,7 @@ export namespace sprite {
             //console::log("sprite::erase ", i, " can't do it! size: ", s_sprites.size(), "\n");
             return false;
         }
-        //console::log("sprite::erase ", i, "\n");
+        //console::log("sprite::erase() ", i, "\n");
         delete s_sprites.at(i);
         s_sprites.at(i) = nullptr;
         s_unused_ids.emplace_back(i);
@@ -299,10 +299,10 @@ export namespace sprite {
     }    
     void draw(std::unique_ptr<Window>& window, cI32 i) {
         if (!window or !(is_valid(i)) or s_sprites.at(i)->is_hidden()) return;
-        if (transform::position(s_sprites.at(i)->transform_id()).x + s_sprites.at(i)->offset().x < (I32)window->view().x - s_sprites.at(i)->source_rect().w or
-            transform::position(s_sprites.at(i)->transform_id()).x + s_sprites.at(i)->offset().x > window->view().w or
-            transform::position(s_sprites.at(i)->transform_id()).y + s_sprites.at(i)->offset().y < (I32)window->view().y - s_sprites.at(i)->source_rect().h or
-            transform::position(s_sprites.at(i)->transform_id()).y + s_sprites.at(i)->offset().y > window->view().h) {
+        if (transform::position(s_sprites.at(i)->transform()).x + s_sprites.at(i)->offset().x < (I32)window->view().x - s_sprites.at(i)->rect().w or
+            transform::position(s_sprites.at(i)->transform()).x + s_sprites.at(i)->offset().x > window->view().w or
+            transform::position(s_sprites.at(i)->transform()).y + s_sprites.at(i)->offset().y < (I32)window->view().y - s_sprites.at(i)->rect().h or
+            transform::position(s_sprites.at(i)->transform()).y + s_sprites.at(i)->offset().y > window->view().h) {
             s_sprites.at(i)->is_in_view(false);
             return;
         }
@@ -325,12 +325,12 @@ export namespace sprite {
             }
         }        
     }
-    void save_level(const std::filesystem::path& path, std::vector<I32>& grid_sprite_ids) {
+    void save_level(const std::filesystem::path& path, std::vector<I32>& grid_sprites) {
         console::log("sprite::save_level...");
         std::vector<Sprite*> to_save;
-        for (auto& i : grid_sprite_ids) {
-            cU16   rows    = s_sprites.at(i)->source_rect().h / 16;
-            cU16   columns = s_sprites.at(i)->source_rect().w / 16;
+        for (auto& i : grid_sprites) {
+            cU16   rows    = s_sprites.at(i)->rect().h / 16;
+            cU16   columns = s_sprites.at(i)->rect().w / 16;
             cVec2F offset  = s_sprites.at(i)->offset();
 
             for (U8 layer = 0; layer < NUM_LEVEL_LAYERS; ++layer) {
@@ -362,8 +362,8 @@ export namespace sprite {
 
             cU8  tile_set = i->tile_set();
             cU8  layer    = i->layer();
-            cU16 source_y = (U16)i->source_rect().y,
-                 source_x = (U16)i->source_rect().x;
+            cU16 source_y = (U16)i->rect().y,
+                 source_x = (U16)i->rect().x;
             cU16 y        = (U16)i->offset().y,
                  x        = (U16)i->offset().x;
 

@@ -35,6 +35,8 @@ export namespace app {
 
         std::list<sheet::Object*> m_sheet_objects;
 
+        std::set<U8> m_layers_to_draw;
+
         std::filesystem::path     m_level_path,
             m_level_path_to_save;
 
@@ -59,6 +61,15 @@ export namespace app {
 
         void set_level_path_to_save(const std::filesystem::path& p) {
             m_level_path_to_save = p;
+        }
+
+        sheet::Object* get_sheet(sheet::cType type) {
+            for (auto it = m_sheet_objects.begin(); it != m_sheet_objects.end(); ++it) {
+                if ((*it) and (*it)->type() == type) {
+                    return (*it);
+                }
+            }
+            return nullptr;
         }
 
         void add_sheet(sheet::cType sheet) {
@@ -93,21 +104,27 @@ export namespace app {
             }            
         }
 
-        bool transition_sheet(sheet::Object* sheet_object, sheet::cType to) {
-            console::log("App::transition_sheet() num sheets: ", m_sheet_objects.size(), "\n");
+        bool transition_sheet(sheet::cType from, sheet::cType to) {
+            if (from == sheet::Type::none or to == sheet::Type::none) return false;
 
-            if (!sheet_object or to == sheet::Type::none) return false;
+            //console::log("App::transition_sheet() num sheets: ", m_sheet_objects.size(), "\n");
+
+            sheet::Object* sheet = get_sheet(from);
+            if (!sheet) {
+                //console::error("App::transition_sheet() ", sheet::to_string(from), " not found!\n");
+                return false;
+            }
+                        
             for (auto it = m_sheet_objects.begin(); it != m_sheet_objects.end(); ++it) {
-                if ((*it) and sheet_object == (*it)) {
-                    console::log("App::transition_sheet() from: ", sheet::to_string(sheet_object->sheet()), " to: ", sheet::to_string(to), "\n");
+                if ((*it) and sheet == (*it)) {
+                    console::log("App::transition_sheet() from: ", sheet::to_string(sheet->type()), " to: ", sheet::to_string(to), "\n");
 
-                    sheet::cType prev_sheet = sheet_object->sheet();
-                    start::cInfo start_info = sheet_object->start_info();
+                    start::cInfo start_info = sheet->start_info();
 
                     delete (*it);
                     switch (to) {
                     case sheet::Type::game:
-                        m_level_path = LevelConfig::level_path(sheet_object->start_info().type);
+                        m_level_path = LevelConfig::level_path(sheet->start_info().type);
 
                         if (m_level_path.empty()) {
                             m_level_path = sheet::game::read_save(0);
@@ -133,12 +150,12 @@ export namespace app {
                         break;
                     }
 
-                    (*it)->prev_sheet(prev_sheet);
+                    (*it)->prev(from);
+
                     console::log("App::transition_sheet() num sheets: ", m_sheet_objects.size(), "\n");
                     return true;
                 }
             }
-
             return false;
         }
         void run() {
@@ -166,68 +183,76 @@ export namespace app {
                     continue;
                 }
 
-                std::set<U8> layers_to_draw;
-
-                for (auto& sheet_object : m_sheet_objects) {
-                    if (!sheet_object) continue;
-                    sheet_object->update_unlocked();
-                    layers_to_draw.insert(sheet_object->get_visible_layers().begin(), sheet_object->get_visible_layers().end());
+                for (auto& sheet : m_sheet_objects) {
+                    if (!sheet) continue;
+                    sheet->update_unlocked();                    
                 }
 
                 /*F32 r = std::clamp(input::mouse.x, 0.0F, 255.0F);
                 F32 g = std::clamp(input::mouse.x, 0.0F, 255.0F);
                 F32 b = std::clamp(input::mouse.x, 0.0F, 255.0F);
                 Color c{ (U8)r, (U8)g, (U8)b };
-                m_window->screen_color(c);
-                line::screen_color(m_window->screen_color());*/
+                m_window->screen_color(c);*/
+                line::screen_color(m_window->screen_color());
 
                 if (frames >= frames_until_update) {
                     frames = 0;
                     cF32 time_step = std::chrono::duration_cast<std::chrono::nanoseconds>(delta_time).count() / 1000000000.0F;
 
+                    //m_layers_to_draw.clear();
                     std::vector<std::thread> threads;
 
-                    for (auto& sheet_object : m_sheet_objects) {
-                        if (!sheet_object) continue;
-
+                    for (auto& sheet : m_sheet_objects) {
+                        if (!sheet) continue;
                         threads.emplace_back(std::thread([&]() {
-                            sheet_object->update(time_step);
-
-                            if (sheet_object->is_to_change_view()) {
-                                sheet_object->is_to_change_view(false);
-                                m_window->view(sheet_object->view());
+                            sheet->update(time_step);
+                            //m_layers_to_draw.insert(sheet->get_visible_layers().begin(), sheet->get_visible_layers().end());
+                            if (sheet->is_to_change_view()) {
+                                sheet->is_to_change_view(false);
+                                m_window->view(sheet->view());
                             }
                             else {
-                                sheet_object->view(m_window->view());
+                                sheet->view(m_window->view());
                             }
-                            if (sheet_object->is_to_player_save()) {
-                                sheet_object->is_to_player_save(false);
-
+                            if (sheet->is_to_player_save()) {
+                                sheet->is_to_player_save(false);
                                 if (m_time_left_player_save == 0) {
                                     m_time_left_player_save = m_time_to_player_save;
-
                                     sheet::game::write_save(0);
                                 }
                             }
-                            if (sheet_object->is_to_transition()) {
+                            if (sheet->is_to_transition()) {
                                 std::unique_lock<std::mutex> transition_lock(s_transition_mutex);
-                                transition_sheet(sheet_object, sheet_object->next_sheet());
+                                transition_sheet(sheet->transition_from(), sheet->transition_to());
+                                
+                                sheet->transition_from(sheet::Type::none);
+                                sheet->transition_to(sheet::Type::none);
+                                sheet->is_to_transition(false);
                             }
                             })
                         );
                     }
-                    for (auto& i : threads) {
-                        i.join();
+                    for (auto& thread : threads) {
+                        if (thread.joinable()) {
+                            thread.join();
+                        }
                     }
                     threads.clear();
+                    //transform::update();
+                    //health::update();
+                    //anim::update();
+                    //sprite::update();
+                    //line::update();
+
                     threads.emplace_back([] { transform::update(); });
                     threads.emplace_back([] {    health::update(); });
                     threads.emplace_back([] {      anim::update(); });
                     threads.emplace_back([] {    sprite::update(); });
                     threads.emplace_back([] {      line::update(); });
-
-                    for (auto& i : threads) {
-                        i.join();
+                    for (auto& thread : threads) {
+                        if (thread.joinable()) {
+                            thread.join();
+                        }
                     }
 
                     if (m_time_left_player_save > 0) {
@@ -237,21 +262,21 @@ export namespace app {
 
                 m_window->clear();
                 for (U8 layer = 0; layer < 3; ++layer) {
-                    /*const auto bg_sprite_ids_in_layer = sprite::bg_ids_in_layer(layer);
-                    for (const auto& i : bg_sprite_ids_in_layer) {
+                    /*const auto bg_sprites_in_layer = sprite::bg_ids_in_layer(layer);
+                    for (const auto& i : bg_sprites_in_layer) {
                         sprite::draw(m_window, i);
                     }*/
                     sprite::draw_bg_in_layer(m_window, layer);
                 }
-                for (auto& layer : layers_to_draw) {
-                    for (auto& sheet_object : m_sheet_objects) {
-                        if (sheet_object) {
-                            sheet_object->draw(m_window, layer);
-                        }
+                
+                for (auto& sheet : m_sheet_objects) {
+                    for (auto& layer : sheet->get_visible_layers()) {
+                        if (sheet) sheet->draw(m_window, layer);
                     }
+                }
                     //sprite::draw_in_layer(m_window, layer);
                     //line::draw_in_layer(m_window, layer);
-                }
+                
                 m_window->display();
 
                 auto current_time = std::chrono::steady_clock::now();

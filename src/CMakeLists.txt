@@ -1,10 +1,10 @@
-cmake_minimum_required(VERSION 3.28)
+cmake_minimum_required(VERSION 4.0.1)
 
-if (MSVC)    
-    add_compile_options(/std:c++latest /EHsc /nologo /W4 /c "%VCToolsInstallDir%\modules\std.ixx" /reference "std=std.ifc")
-else()
+#if (MSVC)    
+    #add_compile_options(/std:c++latest /EHsc /nologo /W4 /c "%VCToolsInstallDir%\modules\std.ixx" /reference "std=std.ifc")
+#else()
     
-endif()
+#endif()
 
 project(CMakeSFMLProject LANGUAGES CXX)
 

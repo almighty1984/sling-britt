@@ -8,7 +8,7 @@ import types;
 
 export bool transform::parse_config(const std::string& text, Trait* owner) {
     const size_t transform_label = text.find("Transform", 0);
-    if (!owner or transform_label == std::string::npos or owner->transform_id() != -1) {
+    if (!owner or transform_label == std::string::npos or owner->transform() != -1) {
         //goto end_of_transform_block;
         return false;
     }
@@ -17,10 +17,10 @@ export bool transform::parse_config(const std::string& text, Trait* owner) {
         const size_t transform_open = text.find("{", transform_label) + 1;
 
         cI32 id = transform::make();
-        owner->transform_id(id);
+        owner->transform(id);
 
-        //console::log("entity ", entity::to_string(m_type), " camera add transform: ", m_transform_id, "\n");
-        //camera::add_transform_id(m_transform_id);
+        //console::log("entity ", entity::to_string(m_type), " camera add transform: ", m_transform, "\n");
+        //camera::add_transform(m_transform);
 
         const size_t transform_close = text.find("\n}", transform_open);
         if (transform_close != std::string::npos) {

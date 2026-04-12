@@ -83,7 +83,7 @@ export namespace aabb {
         { "hit_ground" , Name::hit_ground },
         { "track"      , Name::track      }        
     };
-    cName string_to_name(const std::string& s) {        
+    cName string_to_name(const std::string& s) {
         return string_to_aabb_name_map.find(s) == string_to_aabb_name_map.end() ? Name::none : string_to_aabb_name_map.at(s);
     }
 }
@@ -540,6 +540,7 @@ export namespace state {
         melee,
         run,
         shoot, stunned, swim, sling,
+        slide_wall, jump_wall,
         tossed,
         upended,
         walk
@@ -565,10 +566,12 @@ export namespace state {
         case Type::stunned:    return "stunned";
         case Type::swim:       return "swim";
         case Type::sling:      return "sling";
+        case Type::slide_wall: return "slide_wall";
+        case Type::jump_wall:  return "jump_wall";
         case Type::tossed:     return "tossed";
         case Type::upended:    return "upended";
         case Type::walk:       return "walk";
-        default:                return "";
+        default:               return "";
         }
     }
 }
@@ -596,7 +599,7 @@ export namespace input {
     I32 inputs_begin()   { return (I32)Key::a;         }
     I32 inputs_end()     { return (I32)Key::alt + 1;   }
 
-    const std::string string_from(Key key, bool is_shift) {
+    const std::string to_string(Key key, bool is_shift) {
         switch (key) {
         case Key::a:          return is_shift ? "A" : "a";
         case Key::b:          return is_shift ? "B" : "b";
@@ -644,8 +647,8 @@ export namespace input {
         default:              return "";
         }
     }
-    const std::string string_from(Key key) {
-        return string_from(key, false);
+    const std::string to_string(Key key) {
+        return to_string(key, false);
     }
 }
 
@@ -687,7 +690,7 @@ export namespace start {
         else if (s == "R_0")    return Type::R_0;
         else                    return Type::none;
     }
-    const std::string to_string(cType type) {
+    constexpr std::string to_string(cType type) {
         switch (type) {
         case Type::center:  return "center";
         case Type::L_0:     return "L_0";
@@ -700,15 +703,16 @@ export namespace particle {
     enum class Type {
         none = 0,
         brick, bubble,
-        down_thrust, drop_blood, drop_water, dust, dust_L, dust_R,
+        down_thrust, drop_blood, drop_water, dust, dust_wall,
         health, hit,
         interact,
         melee,
         sense, shot,
+        trail_smoke,
         tile_line
     };
     using cType = const Type;
-    const std::string to_string(cType t) {
+    constexpr std::string to_string(cType t) {
         switch (t) {
         case Type::brick:       return "brick";
         case Type::bubble:      return "bubble";
@@ -716,14 +720,14 @@ export namespace particle {
         case Type::drop_blood:  return "drop_blood";
         case Type::drop_water:  return "drop_water";
         case Type::dust:        return "dust";
-        case Type::dust_L:      return "dust_L";
-        case Type::dust_R:      return "dust_R";
+        case Type::dust_wall:   return "dust_wall";
         case Type::health:      return "health";
         case Type::hit:         return "hit";
         case Type::interact:    return "interact";
         case Type::melee:       return "melee";
         case Type::sense:       return "sense";
         case Type::shot:        return "shot";
+        case Type::trail_smoke: return "trail_smoke";
         case Type::tile_line:   return "tile_line";
         default:                return "";
         }

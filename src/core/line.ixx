@@ -23,7 +23,7 @@ struct Line {
          is_hidden = false;
 
     I32 id = -1,
-        transform_id = -1;
+        transform = -1;
 
     sf::Vertex sf_vertices[4] = {};
     U8  size = 1,
@@ -42,7 +42,7 @@ struct Line {
         slope = 0.0F;
 
 
-    /*Line() : id(-1), transform_id(-1),
+    /*Line() : id(-1), transform(-1),
         size(1), layer(0),
         color({ 127, 127, 127 }), start_color({ 127, 127, 127 }), prev_color({ 0, 0, 0 }),
         offset({ 0.0F, 0.0F }), start({ 0.0F, 0.0F }), end({ 0.0F, 0.0F }), delta({ 0.0F, 0.0F }), velocity({ 0.0F, 0.0F }),
@@ -53,10 +53,10 @@ struct Line {
         set(in_start, in_end);
     }
     Vec2F transformed_start() const {
-        return start + transform::position(transform_id);
+        return start + transform::position(transform);
     }
     Vec2F transformed_end() const {
-        return end + transform::position(transform_id);
+        return end + transform::position(transform);
     }
     void set(cVec2F in_start, cVec2F in_end) {
         cVec2F prev_start = start;
@@ -157,7 +157,7 @@ export namespace line {
     Color color(cI32 i)        { return is_valid(i) ? s_lines.at(i)->color        : Color{}; }
     Color start_color(cI32 i)  { return is_valid(i) ? s_lines.at(i)->start_color  : Color{}; }
     Color prev_color(cI32 i)   { return is_valid(i) ? s_lines.at(i)->prev_color   : Color{}; }
-    I32   transform_id(cI32 i) { return is_valid(i) ? s_lines.at(i)->transform_id :       0; }
+    I32   transform(cI32 i) { return is_valid(i) ? s_lines.at(i)->transform :       0; }
     U8    size(cI32 i)         { return is_valid(i) ? s_lines.at(i)->size         :       0; }
     cU8   layer(cI32 i)        { return is_valid(i) ? s_lines.at(i)->layer        :       0; }
     Vec2F offset(cI32 i)       { return is_valid(i) ? s_lines.at(i)->offset       : Vec2F{}; }
@@ -171,7 +171,7 @@ export namespace line {
 
     void is_aabb(cI32 i, bool is)      { if (is_valid(i)) s_lines.at(i)->is_aabb     = is; }
     void is_hidden(cI32 i, bool is)     { if (is_valid(i)) s_lines.at(i)->is_hidden    = is; }
-    void transform_id(cI32 i, cI32 t)   { if (is_valid(i)) s_lines.at(i)->transform_id = t;  }
+    void transform(cI32 i, cI32 t)   { if (is_valid(i)) s_lines.at(i)->transform = t;  }
     void color(cI32 i, Color c)         { if (is_valid(i)) s_lines.at(i)->color        = c;  }
     void start_color(cI32 i, Color c)   { if (is_valid(i)) s_lines.at(i)->start_color  = c;  }
     void prev_color(cI32 i, Color c)    { if (is_valid(i)) s_lines.at(i)->prev_color   = c;  }

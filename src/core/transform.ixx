@@ -15,8 +15,11 @@ struct Transform {
           start_acceleration = {   0.0F, 0.0F },
           deceleration       = {   0.0F, 0.0F },
           start_deceleration = {   0.0F, 0.0F },
-          max_velocity       = { 10.0F, 10.0F },
-          start_max_velocity = { 10.0F, 10.0F };
+          max_velocity       = { 100.0F, 100.0F },
+          start_max_velocity = { 100.0F, 100.0F };
+
+
+    Vec2F direction = { 0.0F, 0.0F };
 
     void update() {
         //moved_velocity = decelerate(moved_velocity, deceleration);
@@ -84,16 +87,16 @@ private:
 std::vector<Transform*> s_transforms;
 std::vector<size_t>     s_unused_ids;
 
-I32 s_level_transform_id = -1;
+I32 s_level_transform = -1;
 
 export namespace transform {
     constexpr bool    is_valid(size_t i) { return (i >= 0 and i < s_transforms.size() and s_transforms.at(i)) ? true : false; }
     size_t  size()        { return s_transforms.size(); }
     size_t  unused_size() { return s_unused_ids.size(); }
 
-    I32  level_id()       { return s_level_transform_id; }
-    void level_id(cI32 i) { s_level_transform_id = i; }
-    bool is_level(cI32 i) { return is_valid(i) and i == s_level_transform_id; }
+    I32  level_id()       { return s_level_transform; }
+    void level_id(cI32 i) { s_level_transform = i; }
+    bool is_level(cI32 i) { return is_valid(i) and i == s_level_transform; }
 
     I32 make() {
         Transform* object = new Transform;
@@ -106,7 +109,8 @@ export namespace transform {
                 //s_transforms.at(object->id) = nullptr;
             }
             s_transforms.at(object->id) = object;
-        } else {
+        }
+        else {
             object->id = s_transforms.size();
             //console::log("transform::make id: ", object->id, "\n");
             s_transforms.emplace_back(object);
@@ -124,6 +128,8 @@ export namespace transform {
     Vec2F start_deceleration(cI32 i) { return is_valid(i) ? s_transforms.at(i)->start_deceleration : Vec2F{}; }
     Vec2F max_velocity(cI32 i)       { return is_valid(i) ? s_transforms.at(i)->max_velocity       : Vec2F{}; }
     Vec2F start_max_velocity(cI32 i) { return is_valid(i) ? s_transforms.at(i)->start_max_velocity : Vec2F{}; }
+
+    Vec2F direction(cI32 i)          { return is_valid(i) ? s_transforms.at(i)->direction          : Vec2F{}; }
 
     void position(cI32 i, cVec2F p)           { if (is_valid(i)) s_transforms.at(i)->position             = p; }
     void position_x(cI32 i, cF32 x)           { if (is_valid(i)) s_transforms.at(i)->position.x           = x; }    
@@ -162,6 +168,10 @@ export namespace transform {
     void start_max_velocity(cI32 i, cVec2F v) { if (is_valid(i)) s_transforms.at(i)->start_max_velocity   = v; }
     void start_max_velocity_x(cI32 i, cF32 x) { if (is_valid(i)) s_transforms.at(i)->start_max_velocity.x = x; }
     void start_max_velocity_y(cI32 i, cF32 y) { if (is_valid(i)) s_transforms.at(i)->start_max_velocity.y = y; }
+
+    void direction(cI32 i, cVec2F d)          { if (is_valid(i)) s_transforms.at(i)->direction            = d; }
+    void direction_x(cI32 i, cF32 x)          { if (is_valid(i)) s_transforms.at(i)->direction.x          = x; }
+    void direction_y(cI32 i, cF32 y)          { if (is_valid(i)) s_transforms.at(i)->direction.y          = y; }
 
     bool erase(const size_t i) {
         if (!is_valid(i)) {
