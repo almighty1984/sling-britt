@@ -120,7 +120,7 @@ namespace entity {
 
         //console::log(class_name(), "::swim is_on_ground: ", m_is_on_ground, "\n");
         
-        for (auto& i : m_aabb_ids) {
+        for (auto& i : m_aabbs) {
             aabb::is_active(i, false);
             if (aabb::name(i) == aabb::Name::body_swim) {
                 aabb::is_active(i, true);

@@ -194,7 +194,10 @@ export namespace sheet {
         std::filesystem::path m_grid_texture_path     = "res/texture/editor/grid_block.png",
                               m_grid_map_texture_path = "res/texture/tile_blue.png",
                               m_mouse_texture_path    = "res/texture/tile_selection.png",
-                              m_level_path            = "";
+                              m_level_path            = "",
+                              m_prefab_path           = "",
+                              m_level_directory       = "res/level/",
+                              m_prefab_directory      = "res/prefab/";
 
         std::map<entity::Info, std::string> m_types;
         
@@ -242,7 +245,7 @@ export namespace sheet {
         bool select_on_level(cVec2F offset);
         bool deselect_on_level(cVec2F offset);
 
-        std::vector<I32> find_sprites_in_selection_on_level();
+        std::vector<I32> find_level_sprites_in_selection();
 
         void copy_selected_start_moving_on_level();
         void start_moving_selected_on_level();
@@ -260,6 +263,7 @@ export namespace sheet {
         void redo_last_act();
         void clear_level_sprites();
         void load_level_sprites(const std::filesystem::path& path);
+        void import_prefab_sprites(const std::filesystem::path& path);
 
         void update(cF32 ts) override;
 

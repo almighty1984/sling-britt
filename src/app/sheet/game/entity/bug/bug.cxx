@@ -156,7 +156,7 @@ namespace entity {
             if (m_prev_state == state::Type::upended or m_prev_state == state::Type::bounce) {
                 sprite::is_upended(m_sprite, true);
             }
-            for (auto& i : m_aabb_ids) {
+            for (auto& i : m_aabbs) {
                 aabb::is_active(i, false);
             }
             particle::spawn_fan(this,
@@ -279,7 +279,7 @@ namespace entity {
             deceleration(start_deceleration());
 
             sprite::is_hidden(m_sprite, false);
-            for (auto& i : m_aabb_ids) {
+            for (auto& i : m_aabbs) {
                 aabb::is_active(i, true);
             }
             if (m_prev_state == state::Type::dead) {

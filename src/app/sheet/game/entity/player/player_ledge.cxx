@@ -24,7 +24,7 @@ namespace entity {
             }
             sprite::is_hidden(m_sling_shot_sprite, true);
             sprite::is_hidden(m_sling_shot_bg_sprite, true);
-            for (auto& i : m_aabb_ids) {
+            for (auto& i : m_aabbs) {
                 if (aabb::name(i) == aabb::Name::body) {
                     aabb::is_active(i, true);
                 } else {

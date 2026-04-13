@@ -130,7 +130,7 @@ export namespace sheet {
 
 
             cF32 current_fps = 1.0F / ts;
-            m_fps_text.position({ (F32)(view().w - m_fps_text.get_text().size() * m_fps_text.font_size()),
+            m_fps_text.position({ (F32)(view().w - m_fps_text.string().size() * m_fps_text.font_size()),
                                   (F32)(view().h - m_fps_text.font_size()) });
             m_fps_text.set_text(std::to_string((int)current_fps));
 

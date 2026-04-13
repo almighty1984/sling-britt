@@ -19,7 +19,7 @@ static U8 s_scale = 1;
 struct Sprite {
 private:
     I32   m_id            = -1,
-          m_transform  = -1;
+          m_transform     = -1;
     U8    m_layer         = 0,
           m_tile_set      = 0;
     F32   m_angle         = 0.0F,
@@ -70,28 +70,28 @@ public:
         m_sf_texture   = other.m_sf_texture;
         return *this;
     }
-    I32 id()              const { return m_id;            } void id(cI32 id)             { m_id            = id;}
-    I32 transform()    const { return m_transform;  } void transform(cI32 id)   { m_transform  = id;}
-    U8 layer()            const { return m_layer;         } void layer(cU8 l)            { m_layer         = l; }
-    U8 tile_set()         const { return m_tile_set;      } void tile_set(cU8 t)         { m_tile_set      = t; }
-    bool is_bg()          const { return m_is_bg;         } void is_bg(bool q)           { m_is_bg         = q; }
-    bool is_debug()       const { return m_is_debug;      } void is_debug(bool q)        { m_is_debug      = q; }
-    bool is_hidden()      const { return m_is_hidden;     } void is_hidden(bool q)       { m_is_hidden     = q; }
-    bool is_leftward()    const { return m_is_leftward;   } void is_leftward(bool q)     { m_is_leftward   = q; }
-    bool is_upended()     const { return m_is_upended;    } void is_upended(bool q)      { m_is_upended    = q; }
-    bool is_in_view()     const { return m_is_in_view;    } void is_in_view(bool q)      { m_is_in_view    = q; }
-    Vec2F prev_position() const { return m_prev_position; } void prev_position(cVec2F p) { m_prev_position = p; }
-    Vec2F level()         const { return m_level;         } void level(cVec2F l)         { m_level         = l; }
-    Vec2F center()        const { return m_center;        } void center(cVec2F c)        { m_center        = c; }
-    Vec2F offset()        const { return m_offset;        } void offset(cVec2F o)        { m_offset        = o; }
-    void offset_x(cF32 x)     { m_offset.x  = x; }    
-    void offset_y(cF32 y)     { m_offset.y  = y; }
-    void offset_add(cVec2F o) { m_offset   += o; }
-    void offset_add_x(cF32 x) { m_offset.x += x; }
-    void offset_add_y(cF32 y) { m_offset.y += y; }
-    Vec2F start_offset()  const { return m_start_offset;  } void start_offset(cVec2F s)  { m_start_offset  = s; }
-    Color color()       const { return m_color;       } void color(Color c)       { m_color       = c; }
-    Color start_color() const { return m_start_color; } void start_color(Color c) { m_start_color = c; }
+    I32   id()            const { return m_id;            } void id(cI32 id)             { m_id            = id; }
+    I32   transform()     const { return m_transform;     } void transform(cI32 id)      { m_transform     = id; }
+    U8    layer()         const { return m_layer;         } void layer(cU8 l)            { m_layer         =  l; }
+    U8    tile_set()      const { return m_tile_set;      } void tile_set(cU8 t)         { m_tile_set      =  t; }
+    bool  is_bg()         const { return m_is_bg;         } void is_bg(bool q)           { m_is_bg         =  q; }
+    bool  is_debug()      const { return m_is_debug;      } void is_debug(bool q)        { m_is_debug      =  q; }
+    bool  is_hidden()     const { return m_is_hidden;     } void is_hidden(bool q)       { m_is_hidden     =  q; }
+    bool  is_leftward()   const { return m_is_leftward;   } void is_leftward(bool q)     { m_is_leftward   =  q; }
+    bool  is_upended()    const { return m_is_upended;    } void is_upended(bool q)      { m_is_upended    =  q; }
+    bool  is_in_view()    const { return m_is_in_view;    } void is_in_view(bool q)      { m_is_in_view    =  q; }
+    Vec2F prev_position() const { return m_prev_position; } void prev_position(cVec2F p) { m_prev_position =  p; }
+    Vec2F level()         const { return m_level;         } void level(cVec2F l)         { m_level         =  l; }
+    Vec2F center()        const { return m_center;        } void center(cVec2F c)        { m_center        =  c; }
+    Vec2F offset()        const { return m_offset;        } void offset(cVec2F o)        { m_offset        =  o; }
+    void  offset_x(cF32 x)     { m_offset.x  = x; }    
+    void  offset_y(cF32 y)     { m_offset.y  = y; }
+    void  offset_add(cVec2F o) { m_offset   += o; }
+    void  offset_add_x(cF32 x) { m_offset.x += x; }
+    void  offset_add_y(cF32 y) { m_offset.y += y; }
+    Vec2F start_offset()  const { return m_start_offset;  } void start_offset(cVec2F s)  { m_start_offset  = s;  }
+    Color color()         const { return m_color;         } void color(Color c)          { m_color         = c;  }
+    Color start_color()   const { return m_start_color;   } void start_color(Color c)    { m_start_color   = c;  }
     Vec2U texture_size() { return { m_sf_sprite.getTexture().getSize().x, m_sf_sprite.getTexture().getSize().y }; }
     sf::Sprite& sf_sprite() { return m_sf_sprite; }
     Vec2F origin() const { return m_origin; }
@@ -200,11 +200,11 @@ export namespace sprite {
 
     size_t  size()        { return s_sprites.size();    }
     size_t  unused_size() { return s_unused_ids.size(); }
+    Sprite* get(cI32 i)   { return is_valid(i) ? s_sprites.at(i) : nullptr; }
 
-    Sprite* get(cI32 i) { return is_valid(i) ? s_sprites.at(i) : nullptr; }
-    void update(cI32 i) { if (is_valid(i)) s_sprites.at(i)->update(); }
+    void  update(cI32 i)         { if (is_valid(i)) s_sprites.at(i)->update(); }
         
-    I32   transform(cI32 i)   { return is_valid(i) ? s_sprites.at(i)->transform()  :     -1;  }
+    I32   transform(cI32 i)      { return is_valid(i) ? s_sprites.at(i)->transform()     :     -1;  }
     U8    layer(cI32 i)          { return is_valid(i) ? s_sprites.at(i)->layer()         :      0;  }
     U8    tile_set(cI32 i)       { return is_valid(i) ? s_sprites.at(i)->tile_set()      :      0;  } 
     bool  is_bg(cI32 i)          { return is_valid(i) ? s_sprites.at(i)->is_bg()         :  false;  }
@@ -224,10 +224,10 @@ export namespace sprite {
     F32   radians(cI32 i)        { return is_valid(i) ? s_sprites.at(i)->radians()       :    0.0F; }
     Color color(cI32 i)          { return is_valid(i) ? s_sprites.at(i)->color()         : Color{}; }
     Color start_color(cI32 i)    { return is_valid(i) ? s_sprites.at(i)->start_color()   : Color{}; }
-    RectI rect(cI32 i)    { return is_valid(i) ? s_sprites.at(i)->rect()   : RectI{}; }
+    RectI rect(cI32 i)           { return is_valid(i) ? s_sprites.at(i)->rect()          : RectI{}; }
     Vec2U texture_size(cI32 i)   { return is_valid(i) ? s_sprites.at(i)->texture_size()  : Vec2U{}; }
 
-    void transform(cI32 i, cI32 t)    { if (is_valid(i)) s_sprites.at(i)->transform(t);  }
+    void transform(cI32 i, cI32 t)       { if (is_valid(i)) s_sprites.at(i)->transform(t);     }
     void layer(cI32 i, cU8 l)            { if (is_valid(i)) s_sprites.at(i)->layer(l);         }
     void tile_set(cI32 i, cU8 t)         { if (is_valid(i)) s_sprites.at(i)->tile_set(t);      }
     void is_bg(cI32 i, bool q)           { if (is_valid(i)) s_sprites.at(i)->is_bg(q);         }
@@ -325,6 +325,31 @@ export namespace sprite {
             }
         }        
     }
+    void save_prefab(const std::filesystem::path& path, std::vector<I32>& sprites) {
+        std::ofstream out_file(path, std::ios::out | std::ios::binary);
+
+        cU16 size = (U16)sprites.size();
+
+        out_file.write((I8*)&size, sizeof(U16));
+
+        for (auto& i : sprites) {
+            cU8  tile_set = s_sprites.at(i)->tile_set();
+            cU8  layer    = s_sprites.at(i)->layer();
+            cU16 source_y = (U16)s_sprites.at(i)->rect().y,
+                 source_x = (U16)s_sprites.at(i)->rect().x;
+            cU16 y        = (U16)s_sprites.at(i)->offset().y,
+                 x        = (U16)s_sprites.at(i)->offset().x;
+
+            out_file.write((I8*)&tile_set, sizeof(U8));
+            out_file.write((I8*)&layer, sizeof(U8));
+            out_file.write((I8*)&source_y, sizeof(U16));
+            out_file.write((I8*)&source_x, sizeof(U16));
+            out_file.write((I8*)&y, sizeof(U16));
+            out_file.write((I8*)&x, sizeof(U16));
+            console::log("sprite::save_prefab() source: ", source_x, " ", source_y, "\n");
+        }
+        out_file.close();
+    }
     void save_level(const std::filesystem::path& path, std::vector<I32>& grid_sprites) {
         console::log("sprite::save_level...");
         std::vector<Sprite*> to_save;
@@ -374,17 +399,15 @@ export namespace sprite {
             out_file.write((I8*)&y, sizeof(U16));
             out_file.write((I8*)&x, sizeof(U16));
         }
+        out_file.close();
         console::log("done\n");
     }
-    std::vector<Data> load_level(const std::filesystem::path& path) {
+    std::vector<Data> load_level_data(const std::filesystem::path& path) {
         std::ifstream in_file(path, std::ios::in | std::ios::binary);
         if (!in_file.is_open()) return {};
 
         U16 size = 0;
         in_file.read((I8*)&size, sizeof(U16));
-
-        console::log("sprite::load_level(", path.string(), ") size: ", size, "\n");
-
         std::vector<Data> sprite_data_vec;
         for (U16 i = 0; i < size; ++i) {
             Data sprite_data{};
@@ -396,9 +419,7 @@ export namespace sprite {
             in_file.read((I8*)&sprite_data.x, sizeof(U16));
             sprite_data_vec.emplace_back(sprite_data);
         }
-
         in_file.close();
-
         return sprite_data_vec;
     }
 }

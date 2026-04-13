@@ -109,12 +109,12 @@ namespace sheet {
                 
                 release(button);
 
-                if (button == input::Button::left) {
+                if (button == input::Button::left) {                    
                     console::log("sheet::Edit::handle_menu_down() save\n");
                     m_time_left_saving = m_time_to_save;
                     save_typed_text_bar();
                 }
-                else if (button == input::Button::right) {
+                else if (button == input::Button::right) {                    
                     if (!m_is_typing_text_bar) {
                         init_typing_text_bar();
                         m_is_typing_text_bar = true;

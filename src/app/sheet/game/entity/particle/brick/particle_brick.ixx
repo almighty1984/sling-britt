@@ -19,7 +19,7 @@ export namespace entity {
                 //m_time_left_alive = m_time_to_be_alive + random::number(0, 50);
                 //console::log(class_name(), "::state_idle() m_time_left_alive: ", m_time_left_alive, "\n");
                 
-                for (auto& i : m_aabb_ids) {
+                for (auto& i : m_aabbs) {
                     aabb::is_active(i, false);
                 }
             }
@@ -29,7 +29,7 @@ export namespace entity {
                 ++m_time_in_state;
             }
             if (m_time_in_state == 5) {
-                for (auto& i : m_aabb_ids) {                    
+                for (auto& i : m_aabbs) {                    
                     aabb::is_active(i, true);
                 }
             }

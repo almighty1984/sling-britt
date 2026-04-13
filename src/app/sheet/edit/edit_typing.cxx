@@ -2,16 +2,33 @@ module sheet.edit;
 
 namespace sheet {
     bool Edit::init_typing_text_bar() {
+        if (!m_selection_on_level_sprites.empty()) {
+            console::log("init typing prefab\n");
+
+            //m_level_path = m_text_bar.string();
+            //console::log("level path: ", m_level_path, "\n");
+
+            std::string type_str = m_prefab_directory.string();
+            type_str.append("_.bin");
+            m_is_typing_text_bar = true;
+            m_typing_pos = type_str.size() - 5;
+
+            m_text_bar.set_text(type_str);
+
+            m_prefab_path = type_str;
+
+            return true;
+        }
         if (m_is_showing_tile_set) {
             if (m_tile_set != 255) return false;
-            std::string type_str = m_text_bar.get_text();
+            std::string type_str = m_text_bar.string();
             m_typing_pos = type_str.size();
             type_str.append("_");
             m_text_bar.set_text(type_str);
             return true;
         } else {
             std::string level_path_str;
-            if (m_text_bar.get_text().empty()) {
+            if (m_text_bar.string().empty()) {
                 std::filesystem::path level_path = std::filesystem::current_path() / "res" / "level" / "";
                 level_path_str = level_path.string();
 
@@ -27,7 +44,7 @@ namespace sheet {
                 level_path_str.erase(0, res_path_pos);
                 level_path_str.insert(level_path_str.size(), ".bin");
             } else {
-                level_path_str = m_text_bar.get_text();
+                level_path_str = m_text_bar.string();
             }
             m_is_typing_text_bar = true;
 
@@ -43,8 +60,20 @@ namespace sheet {
     bool Edit::quit_typing_text_bar() {
         if (!m_is_typing_text_bar) return false;
         m_is_typing_text_bar = false;
+
+        if (!m_selection_on_level_sprites.empty()) {
+            console::log("sheet::Edit::quit_typing_text_bar() prefab\n");
+
+            m_text_bar.is_hidden(false);
+            m_text_bar.erase_char(m_typing_pos);
+
+            m_prefab_path = m_text_bar.string();
+            return true;
+        }
+
+
         if (m_is_showing_tile_set) {
-            if (m_text_bar.get_text().empty()) {
+            if (m_text_bar.string().empty()) {
                 console::log("sheet::Edit::quit_typing_text_bar_current_type empty!\n");
                 return false;
             }
@@ -52,24 +81,24 @@ namespace sheet {
             m_text_bar.erase_char(m_typing_pos);            
 
             if (m_types.find(entity::Info{ 255,  m_tile_number }) != m_types.end()) {
-                m_types.at(entity::Info{ 255, m_tile_number }) = m_text_bar.get_text();
+                m_types.at(entity::Info{ 255, m_tile_number }) = m_text_bar.string();
             } else {
-                m_types.emplace(entity::Info{ 255, m_tile_number }, m_text_bar.get_text());
+                m_types.emplace(entity::Info{ 255, m_tile_number }, m_text_bar.string());
             }
             return true;
         }
         else {
-            if (m_text_bar.get_text().size() < 16) {
+            if (m_text_bar.string().size() < 16) {
                 console::log("sheet::Edit::quit_typing_text_bar_current_level file name empty!\n");
                 for (auto& i : m_text_bar.get_sprites()) {                    
                     sprite::is_hidden(i, false);                    
                 }
                 return false;
             }
-            std::string level_path_str = m_text_bar.get_text();
+            std::string level_path_str = m_text_bar.string();
             level_path_str.erase(m_typing_pos, 1);
             m_text_bar.set_text(level_path_str);
-            //m_level_path = m_text_bar.get_text();
+            //m_level_path = m_text_bar.string();
             m_level_path = level_path_str;
             return true;
         }
@@ -162,7 +191,7 @@ namespace sheet {
             (!m_is_showing_tile_set and m_typing_pos < 12)) {
             return false;
         }        
-        std::string text = m_text_bar.get_text();
+        std::string text = m_text_bar.string();
         std::string c = text.substr(m_typing_pos - 1, 1);
         text.erase(m_typing_pos - 1, 1);
         text.insert(m_typing_pos, c);
@@ -171,11 +200,11 @@ namespace sheet {
         return true;
     }
     bool Edit::shift_text_bar_typing_pos_right() {
-        if ((m_is_showing_tile_set and m_typing_pos >= m_text_bar.get_text().size() - 1) or
-            (!m_is_showing_tile_set and m_typing_pos > m_text_bar.get_text().size() - 6)) {
+        if ((m_is_showing_tile_set and m_typing_pos >= m_text_bar.string().size() - 1) or
+            (!m_is_showing_tile_set and m_typing_pos > m_text_bar.string().size() - 6)) {
             return false;
         }
-        std::string text = m_text_bar.get_text();
+        std::string text = m_text_bar.string();
         std::string c = text.substr(m_typing_pos + 1, 1);
         text.erase(m_typing_pos + 1, 1);
         text.insert(m_typing_pos, c);
@@ -184,11 +213,22 @@ namespace sheet {
         return true;
     }
     bool Edit::save_typed_text_bar() {
-        if (m_text_bar.get_text().empty()) return false;        
+        if (m_text_bar.string().empty()) return false;        
         m_is_typing_text_bar = false;
 
+        if (!m_selection_on_level_sprites.empty()) {
+            //clear_selected_on_level();
+            //m_selection_on_level_sprites.clear();
+
+            console::log("sheet::Edit::save_typed_text_bar() level path: ", m_level_path, "\n");
+            m_text_bar.set_text(m_level_path.string());
+
+            m_time_left_saving = m_time_to_save;
+            return true;
+        }
+
         if (m_is_showing_tile_set) {
-            std::string text = m_text_bar.get_text();
+            std::string text = m_text_bar.string();
             if (text.back() == '_') {
                 if (text.size() == 1) {
                     m_text_bar.clear_text();
@@ -199,37 +239,35 @@ namespace sheet {
                     console::log("sheet::Edit::save_typed_text_bar() text: ", text, "\n");
                 }
             }
-            if (m_types.find(entity::Info{ 255, m_tile_number }) == m_types.end() and !m_text_bar.get_text().empty()) {
-                m_types.emplace(entity::Info{ 255, m_tile_number }, m_text_bar.get_text());                
+            if (m_types.find(entity::Info{ 255, m_tile_number }) == m_types.end() and !m_text_bar.string().empty()) {
+                m_types.emplace(entity::Info{ 255, m_tile_number }, m_text_bar.string());                
             } else {
-                if (m_text_bar.get_text().empty()) {
+                if (m_text_bar.string().empty()) {
                     m_types.erase(entity::Info{ 255, m_tile_number });
                 } else {
-                    m_types.at(entity::Info{ 255, m_tile_number }) = m_text_bar.get_text();
+                    m_types.at(entity::Info{ 255, m_tile_number }) = m_text_bar.string();
                 }
             }
             return true;
         }
         else if (!m_is_showing_tile_set) {
-            if (m_text_bar.get_text().back() == '_' and m_text_bar.get_text().size() < 17 or m_text_bar.get_text().size() < 16) {
-                console::log("sheet::Edit::save_typed_text_bar() text size: ", m_text_bar.get_text().size(), "\n");
+            if (m_text_bar.string().back() == '_' and m_text_bar.string().size() < 17 or m_text_bar.string().size() < 16) {
+                console::log("sheet::Edit::save_typed_text_bar() text size: ", m_text_bar.string().size(), "\n");
                 return false;
             }
             console::log("sheet::Edit::save_typed_text_bar() clicked save\n");
             //sprite::get(m_save_sprite)->rect.x = 16;
             //sprite::get(m_save_sprite)->update();
 
-            std::string text = m_text_bar.get_text();
+            std::string text = m_text_bar.string();
             if (text.substr(text.size() - 4, 4) == "_.bin") {
                 text.erase(m_typing_pos, 1);
                 m_text_bar.set_text(text);
             }
-            m_level_path = m_text_bar.get_text();
+            m_level_path = m_text_bar.string();
 
             m_time_left_saving = m_time_to_save;
 
-            load_menu_up_list(m_menu_up_labels[0], std::filesystem::current_path() / "res" / "level");
-            load_menu_up_list(m_menu_up_labels[1], std::filesystem::current_path() / "res" / "prefab");
             return true;
         }
         return false;

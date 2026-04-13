@@ -15,10 +15,10 @@ export namespace aabb {
 
     class Trait {
     protected:
-        std::vector<I32> m_aabb_ids;
+        std::vector<I32> m_aabbs;
 
     public:
-        std::vector<I32>& aabb_ids() { return m_aabb_ids; } void aabb_ids(const std::vector<I32> ids) { m_aabb_ids = ids; }
+        std::vector<I32>& aabb_ids() { return m_aabbs; } void aabb_ids(const std::vector<I32> ids) { m_aabbs = ids; }
 
         virtual void collide_x(cInfo our, cInfo other) {}
         virtual void collide_y(cInfo our, cInfo other) {}

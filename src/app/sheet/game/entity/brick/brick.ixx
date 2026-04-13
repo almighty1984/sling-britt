@@ -10,7 +10,7 @@ import sprite;
 
 export namespace entity {
     class Brick : public Object {
-        Vec2F m_break_velocity = { 3.5F, 3.5F };
+        Vec2F m_break_velocity = { 2.0F, 3.0F };
     public:
         Brick() {            
             m_state = m_next_state = m_start_state = state::Type::idle;

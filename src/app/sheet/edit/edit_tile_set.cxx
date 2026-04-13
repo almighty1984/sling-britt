@@ -214,15 +214,15 @@ namespace sheet {
             cVec2F tile_offset = offset / 16.0F;
             m_tile_number = std::fmodf(tile_offset.x, 32.0F) + tile_offset.y * 32.0F;
 
-            //if (m_types.at(entity::Info{ 255, m_tile_number }) == m_text_bar.get_text()) {
+            //if (m_types.at(entity::Info{ 255, m_tile_number }) == m_text_bar.string()) {
                 //return false;
             //}
 
             if (m_types.find(entity::Info{ 255, m_tile_number }) != m_types.end()) {
-                if (m_text_bar.get_text() != m_types.at(entity::Info{ 255, m_tile_number })) {
+                if (m_text_bar.string() != m_types.at(entity::Info{ 255, m_tile_number })) {
                     m_text_bar.set_text(m_types.at(entity::Info{ 255, m_tile_number }));
                 }
-                //console::log("sheet::Edit::select_on_tile_set() text bar: ", m_text_bar.get_text(), "\n");
+                //console::log("sheet::Edit::select_on_tile_set() text bar: ", m_text_bar.string(), "\n");
                 //int num = 0;
                 //console::log("sheet::Edit::select_on_tile_set text_bar size: ", m_text_bar.get_sprites().size(), "\n");
                 

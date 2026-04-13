@@ -50,9 +50,9 @@ namespace sheet {
 
                 if (is_pressed(input::Button::left)) {
                     release(input::Button::left);
-                    console::log("sheet::Edit::update menu up clicked on ", level_list_entry, " ", m_menu_up_lists[m_menu_up_labels[0]].text_items.at(level_list_entry).get()->get_text(), "\n");
+                    console::log("sheet::Edit::update menu up clicked on level list ", level_list_entry, " ", m_menu_up_lists[m_menu_up_labels[0]].text_items.at(level_list_entry).get()->string(), "\n");
 
-                    m_level_path = m_menu_up_lists[m_menu_up_labels[0]].text_items.at(level_list_entry).get()->get_text();
+                    m_level_path = m_menu_up_lists[m_menu_up_labels[0]].text_items.at(level_list_entry).get()->string();
 
                     clear_grid_sprites();
                     clear_level_sprites();
@@ -88,7 +88,20 @@ namespace sheet {
                     }
                 }
                 m_menu_up_lists[m_menu_up_labels[1]].text_items.at(list_entry).get()->texture("res/texture/font/8_white.png");
+
+                if (is_pressed(input::Button::left)) {
+                    release(input::Button::left);
+
+                    m_prefab_path = m_menu_up_lists[m_menu_up_labels[1]].text_items.at(list_entry)->string();
+
+                    import_prefab_sprites(m_prefab_path);
+
+
+                    console::log("sheet::Edit::handle_menu_up() clicked on import ", m_prefab_path, "\n");
+                }
             }
+
+            
         }
     }
     bool Edit::add_to_menu_up_bar(const std::string& text) {

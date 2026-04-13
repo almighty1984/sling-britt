@@ -28,7 +28,7 @@ export class QuadTreeNode {
     QuadTreeNode* m_child[4] = {nullptr};
 
     RectF m_rect{ 0, 0, 0, 0 };
-    std::vector<I32> m_aabb_ids;
+    std::vector<I32> m_aabbs;
 
     I32 m_up_line    = -1,
         m_down_line  = -1,
@@ -54,7 +54,7 @@ export class QuadTreeNode {
         m_child[0]->depth = m_child[1]->depth = m_child[2]->depth = m_child[3]->depth = depth + 1;
         //m_child[0]->transform = m_child[1]->transform = m_child[2]->transform = m_child[3]->transform = transform;
 
-        for (auto& aabb_id : m_aabb_ids) {
+        for (auto& aabb_id : m_aabbs) {
             for (size_t i = 0; i < 4; ++i) {
                 m_child[i]->insert_point(aabb_id, aabb::point(aabb_id, 0));
                 m_child[i]->insert_point(aabb_id, aabb::point(aabb_id, 1));
@@ -89,7 +89,7 @@ export class QuadTreeNode {
                 }
             }
         }
-        m_aabb_ids.clear();
+        m_aabbs.clear();
     }
 public:
     I32 id = 0;
@@ -177,7 +177,7 @@ public:
                 return m_child[i]->aabb_ids_at(position);
             }
         }
-        return m_aabb_ids;
+        return m_aabbs;
     }
     void clear() {
         line::erase(m_up_line);
@@ -185,7 +185,7 @@ public:
         line::erase(m_left_line);
         line::erase(m_right_line);
 
-        m_aabb_ids.clear();
+        m_aabbs.clear();
         id = 0;
         depth = 0;
         m_is_parent = false;
@@ -246,16 +246,16 @@ public:
             }
             return false;
         } else {
-            if (m_aabb_ids.size() >= s_max_objects and depth < s_max_depth) {
+            if (m_aabbs.size() >= s_max_objects and depth < s_max_depth) {
                 m_is_parent = true;
                 split();
-                m_aabb_ids.clear();
+                m_aabbs.clear();
             }
             else {
                 //if (point.x >= m_rect.x and point.x <= m_rect.x + m_rect.w and
                 //    point.y >= m_rect.y and point.y <= m_rect.y + m_rect.h) {
-                    if (std::find(m_aabb_ids.begin(), m_aabb_ids.end(), id) == m_aabb_ids.end()) {
-                        m_aabb_ids.emplace_back(id);
+                    if (std::find(m_aabbs.begin(), m_aabbs.end(), id) == m_aabbs.end()) {
+                        m_aabbs.emplace_back(id);
                         return true;
                     }
                 //}
@@ -271,7 +271,7 @@ public:
             }
             return;
         }
-        for (auto& a : m_aabb_ids) {
+        for (auto& a : m_aabbs) {
             if (!aabb::owner(a) or !aabb::is_active(a)) continue;
             //if (aabb::time_left_colliding(a) > 0) {
             //    //console::log("time left colliding: ", a->time_left_colliding, "\n");
@@ -281,7 +281,7 @@ public:
             //    continue;
             //}
                 
-            for (auto& b : m_aabb_ids) {
+            for (auto& b : m_aabbs) {
                 if (a == b or !aabb::owner(b) or aabb::owner(a) == aabb::owner(b) or !aabb::is_active(b)) continue;
                 //a->owner->update();                
 

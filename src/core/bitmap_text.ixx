@@ -73,7 +73,7 @@ public:
         }
     }
 
-    const std::string& get_text() const { return m_text; }
+    const std::string& string() const { return m_text; }
     void clear_text() {
         //if (m_sprites.empty()) return;
 

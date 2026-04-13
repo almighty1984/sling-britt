@@ -78,7 +78,7 @@ namespace entity {
 
             health_is_hidden(true);
 
-            for (auto& i : m_aabb_ids) {
+            for (auto& i : m_aabbs) {
                 aabb::is_active(i, false);
             }
             particle::spawn_fan(this, 0.0F, 360.0F, 8, particle::Type::drop_blood, position() - Vec2F{ 16.0F, 8.0F }, velocity(), 3.0F);
@@ -150,7 +150,7 @@ namespace entity {
             m_time_left_to_react = 0;
             reset_anim("idle");
             sprite_is_hidden(false);
-            for (auto& i : m_aabb_ids) {
+            for (auto& i : m_aabbs) {
                 aabb::is_active(i, true);
             }
             if (m_prev_state == state::Type::dead) {
@@ -261,7 +261,7 @@ namespace entity {
             m_is_first_state_update = false;
             reset_anim("jump");
             sprite_is_hidden(false);
-            for (auto& i : m_aabb_ids) {
+            for (auto& i : m_aabbs) {
                 aabb::is_active(i, true);
             }
             console::log(class_name(), "::state_jump() ", start_acceleration().x, " ", start_acceleration().y, "\n");

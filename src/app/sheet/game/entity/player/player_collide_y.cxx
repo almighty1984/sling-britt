@@ -71,6 +71,8 @@ namespace entity {
                                                   position().y / (app::config::extent().y / 2.0F) });
                     sound_pitch("bump_head", 1.0F - our_velocity.y * 0.1F);
                     sound_play("bump_head");
+                    m_time_left_rising = 0;
+                    m_time_left_ducking = 0;
                 }
             }
         }
@@ -332,7 +334,7 @@ namespace entity {
             }
             if (m_time_left_rising > 0) {
                 return;
-            }
+            }            
             //if (our_points.y < other_points.h - 2.0F) return;
 
             position_add_y(-overlap_y);

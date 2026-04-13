@@ -56,7 +56,7 @@ namespace sheet {
 
         std::map<U16, std::string> types_map = load_types_from_bin();
 
-        std::vector<sprite::Data> sprite_data = sprite::load_level(path);
+        std::vector<sprite::Data> sprite_data = sprite::load_level_data(path);
 
         Vec2I highest_quad_tree_node = { 0, 0 };
 

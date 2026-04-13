@@ -825,7 +825,6 @@ export using cRectU = const Rect<U32>;
 export using  RectF =       Rect<F32>;
 export using cRectF = const Rect<F32>;
 
-
 export struct Color {
     U8 r = 127,
        g = 127,
@@ -839,7 +838,6 @@ export struct Color {
                 
         return { (U8)float_color.x, (U8)float_color.y, (U8)float_color.z };
     }
-
     Color& operator =(const Color& other) {
         r = other.r;
         g = other.g;

@@ -255,7 +255,7 @@ namespace sheet {
             is_to_change_sheet = true;
         }        
         else if (input::mouse.x >= m_game_text.position().x and 
-            input::mouse.x <= m_game_text.position().x + m_game_text.get_text().size() * m_game_text.font_size() and
+            input::mouse.x <= m_game_text.position().x + m_game_text.string().size() * m_game_text.font_size() and
             input::mouse.y >= m_game_text.position().y and
             input::mouse.y <= m_game_text.position().y + m_game_text.font_size()) {
             console::log("sheet::Menu::update() mouse: ", input::mouse.x, " ", input::mouse.y, "\n");
@@ -263,14 +263,14 @@ namespace sheet {
             is_to_change_sheet = is_pressed(input::Button::left);
         }
         else if (input::mouse.x >= m_edit_text.position().x and
-            input::mouse.x <= m_edit_text.position().x + m_edit_text.get_text().size() * m_edit_text.font_size() and
+            input::mouse.x <= m_edit_text.position().x + m_edit_text.string().size() * m_edit_text.font_size() and
             input::mouse.y >= m_edit_text.position().y and
             input::mouse.y <= m_edit_text.position().y + m_edit_text.font_size()) {
             s_selection = 1;
             is_to_change_sheet = is_pressed(input::Button::left);
         }
         else if (input::mouse.x >= m_options_text.position().x and
-            input::mouse.x <= m_options_text.position().x + m_options_text.get_text().size() * m_options_text.font_size() and
+            input::mouse.x <= m_options_text.position().x + m_options_text.string().size() * m_options_text.font_size() and
             input::mouse.y >= m_options_text.position().y and
             input::mouse.y <= m_options_text.position().y + m_options_text.font_size()) {
             s_selection = 2;

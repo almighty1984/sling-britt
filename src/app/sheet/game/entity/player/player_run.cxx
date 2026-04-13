@@ -26,7 +26,7 @@ namespace entity {
                 sprite_angle(0.0F);
             }
 
-            for (auto& i : m_aabb_ids) {
+            for (auto& i : m_aabbs) {
                 if (aabb::name(i) == aabb::Name::body) {
                     aabb::is_active(i, true);
                 } else {

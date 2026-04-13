@@ -13,8 +13,20 @@ namespace sheet {
             if (m_time_left_saving == 0) {
                 sprite::rect_x(m_save_sprite, 0);
             }
-            if (!m_is_showing_tile_set and m_time_left_saving == m_time_to_save - 2) {
-                sprite::save_level(m_level_path, m_grid_sprites);
+            if (m_time_left_saving == m_time_to_save - 2) {
+                if (!m_selection_on_level_sprites.empty()) {
+                    if (m_moving_sprites.empty()) {
+                        start_moving_selected_on_level();
+                    }
+                    sprite::save_prefab(m_prefab_path, m_moving_sprites);
+                    finish_moving_selected_on_level();
+                }
+                else if (!m_is_showing_tile_set) {
+                    sprite::save_level(m_level_path, m_grid_sprites);
+                }
+
+                load_menu_up_list(m_menu_up_labels[0], std::filesystem::current_path() / "res" / "level");
+                load_menu_up_list(m_menu_up_labels[1], std::filesystem::current_path() / "res" / "prefab");
             }
         }
         
@@ -88,7 +100,7 @@ namespace sheet {
             if (is_pressed(input::Key::y)) {
                 release(input::Key::y);
                 m_info_message.is_hidden(true);
-                remove_level(m_menu_up_lists[m_menu_up_labels[0]].text_items.at(m_is_asked_to_remove_level.second).get()->get_text());
+                remove_level(m_menu_up_lists[m_menu_up_labels[0]].text_items.at(m_is_asked_to_remove_level.second).get()->string());
                 m_menu_up_lists[m_menu_up_labels[0]].text_items.at(m_is_asked_to_remove_level.second).reset();
                 m_menu_up_lists[m_menu_up_labels[0]].text_items.clear();
                 load_menu_up_list(m_menu_up_labels[0], std::filesystem::current_path() / "res" / "level");
@@ -103,7 +115,7 @@ namespace sheet {
         }
         if (is_pressed(input::Key::ctrl)) {
             if (is_pressed(input::Key::s)) {
-                release(input::Key::s);
+                release(input::Key::s);                
                 if (is_pressed(input::Key::shift)) {
                     init_typing_text_bar();
                     m_is_typing_text_bar = true;

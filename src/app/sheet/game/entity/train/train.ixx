@@ -88,7 +88,7 @@ export namespace entity {
             
             /*if (!m_is_second_update) {
                 m_is_second_update = true;
-                for (auto& i : m_aabb_ids) {
+                for (auto& i : m_aabbs) {
                     console::log("aabb ", i, " name: ", aabb::name_as_string(aabb::get(i)->name), "\n");
                 }
             }*/

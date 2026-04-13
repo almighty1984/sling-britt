@@ -339,7 +339,7 @@ namespace entity {
 
 
         if (is_pressed(key_melee)) {         
-            if (!is_locked(key_melee) and m_time_left_melee == 0) {                
+            if (!is_locked(key_melee) and m_time_left_melee == 0) {
                 lock(key_melee);
                 m_time_left_melee = m_time_to_melee;
 
@@ -351,16 +351,15 @@ namespace entity {
                                           start_position.y / (app::config::extent().y / 2.0F) });
                 sound_play("shoot");
 
-                Vec2F shot_velocity = { std::cosf(m_radians) * 8.0F, std::sinf(m_radians) * 8.0F };
+                F32 shot_radians = m_radians + (sprite_is_leftward() ? 0.2F : -0.2F);
 
-                //Vec2F shot_velocity = { std::cosf(degrees / 180.0F * 3.1415926535F), std::sinf(degrees / 180.0F * 3.1415926535F) };
+                Vec2F shot_velocity = velocity() * 0.9F + moved_velocity() * 0.9F + Vec2F{ std::cosf(shot_radians) * 6.0F, std::sinf(shot_radians) * 6.0F };
 
-
-                particle::spawn({ .parent   = this,
-                                  .type     = particle::Type::shot,
+                particle::spawn({ .parent = this,
+                                  .type = particle::Type::shot,
                                   .position = start_position,
                                   .velocity = shot_velocity,
-                                  .state    = state::Type::idle });
+                                  .state = state::Type::idle });
             }
         }
         else {

@@ -21,7 +21,7 @@ void entity::Player::state_sling() {
         m_is_first_state_update = false;
         //m_next_state = entity::Type::sling;
 
-        for (auto& i : m_aabb_ids) {
+        for (auto& i : m_aabbs) {
             aabb::is_active(i, false);
             if (!aabb::is_active(i) and aabb::name(i) == aabb::Name::body) {
                 aabb::is_active(i, true);

@@ -11,8 +11,9 @@ namespace entity {
         if (m_is_first_state_update) {
             m_is_first_state_update = false;
             m_time_in_state = 0;
-            m_saved_state = m_prev_state;
-            console::log(class_name(), "::state_slide_wall() prev state: ", state::to_string(m_prev_state), "\n");
+            m_saved_state = m_prev_state == state::Type::dive ? state::Type::run : m_prev_state;
+            
+            console::log(class_name(), "::state_slide_wall() saved state: ", state::to_string(m_saved_state), "\n");
             sprite_is_hidden(false);
             sprite::is_hidden(m_sling_shot_sprite, true);
             sprite::is_hidden(m_sling_shot_bg_sprite, true);
@@ -23,7 +24,7 @@ namespace entity {
                 sprite_is_upended(false);
                 sprite_angle(0.0F);
             }
-            for (auto& i : m_aabb_ids) {
+            for (auto& i : m_aabbs) {
                 if (aabb::name(i) == aabb::Name::body) {
                     aabb::is_active(i, true);
                 } else {

@@ -71,6 +71,9 @@ namespace sheet {
         m_moving_sprites.clear();
     }
     void Edit::deselect_all_on_level() {
+        console::log("sheet::Edit::deselect_on_level() ", m_level_path, "\n");
+        m_text_bar.set_text(m_level_path.string());
+
         for (auto& i : m_selection_on_level_sprites) {
             sprite::erase(i);
         }
@@ -199,7 +202,7 @@ namespace sheet {
         }
         return false;
     }
-    std::vector<I32> Edit::find_sprites_in_selection_on_level() {
+    std::vector<I32> Edit::find_level_sprites_in_selection() {
         std::vector<I32> found_sprites;
         for (auto& sel_sprite : m_selection_on_level_sprites) {
 
@@ -220,7 +223,7 @@ namespace sheet {
     }
     void Edit::copy_selected_start_moving_on_level() {
         console::log("sheet::Edit::init_copy_selection_on_level\n");
-        std::vector<I32> found_sprites = find_sprites_in_selection_on_level();
+        std::vector<I32> found_sprites = find_level_sprites_in_selection();
 
         for (auto& i : m_moving_sprites) {
             sprite::erase(i);
@@ -236,7 +239,7 @@ namespace sheet {
     }
 
     void Edit::start_moving_selected_on_level() {
-        std::vector<I32> found_sprites = find_sprites_in_selection_on_level();
+        std::vector<I32> found_sprites = find_level_sprites_in_selection();
         
         for (auto it = m_level_sprites.begin(); it != m_level_sprites.end(); ++it) {
             if (std::find(found_sprites.begin(), found_sprites.end(), (*it)) != found_sprites.end()) {
@@ -267,7 +270,7 @@ namespace sheet {
         m_undo_counts.push_back(undo_count);
     }
     void Edit::clear_selected_on_level() {
-        std::vector<I32> found_sprites = find_sprites_in_selection_on_level();
+        std::vector<I32> found_sprites = find_level_sprites_in_selection();
 
         for (auto& i : m_moving_sprites) {
             sprite::erase(i);
@@ -468,22 +471,22 @@ namespace sheet {
                 m_undo_info_placed.push_back(m_redo_info_placed.back());
                 m_redo_info_placed.pop_back();
             } else if (m_redo_acts.back() == history::Act::replace and !m_redo_info_replaced.empty()) {
-                cI32 id = level_sprite_at_offset(m_redo_info_replaced.back().layer, m_redo_info_replaced.back().offset);
+                cI32 sprite = level_sprite_at_offset(m_redo_info_replaced.back().layer, m_redo_info_replaced.back().offset);
                 
                 //m_undo_info_replaced.push_back(m_redo_info_replaced.back());
-                m_undo_info_replaced.push_back({ .transform = sprite::transform(id),
-                                                 .layer        = sprite::layer(id),
-                                                 .tile_set     = sprite::tile_set(id),
-                                                 .rect  = sprite::rect(id),
-                                                 .offset       = sprite::offset(id) });
+                m_undo_info_replaced.push_back({ .transform = sprite::transform(sprite),
+                                                 .layer     = sprite::layer(sprite),
+                                                 .tile_set  = sprite::tile_set(sprite),
+                                                 .rect      = sprite::rect(sprite),
+                                                 .offset    = sprite::offset(sprite) });
 
                 console::log("sheet::Edit::redo_last_act redo replace\n");
-                sprite::transform(id, m_redo_info_replaced.back().transform);
-                sprite::layer(id, m_redo_info_replaced.back().layer);
-                sprite::tile_set(id, m_redo_info_replaced.back().tile_set);
-                sprite::rect(id, m_redo_info_replaced.back().rect);
-                sprite::offset(id, m_redo_info_replaced.back().offset);
-                sprite::texture(id, tile_set_texture_path(sprite::tile_set(id)));
+                sprite::transform(sprite, m_redo_info_replaced.back().transform);
+                sprite::layer(sprite, m_redo_info_replaced.back().layer);
+                sprite::tile_set(sprite, m_redo_info_replaced.back().tile_set);
+                sprite::rect(sprite, m_redo_info_replaced.back().rect);
+                sprite::offset(sprite, m_redo_info_replaced.back().offset);
+                sprite::texture(sprite, tile_set_texture_path(sprite::tile_set(sprite)));
 
                 m_redo_info_replaced.pop_back();
             } else if (m_redo_acts.back() == history::Act::move and !m_redo_info_moved.empty()) {
@@ -520,6 +523,29 @@ namespace sheet {
             console::log("sheet::Edit::redo_last_act() next: none\n");
         }
     }
+    void Edit::import_prefab_sprites(const std::filesystem::path& path) {
+        console::log("sheet::Edit::import_prefab_sprites...");
+        auto sprite_data = sprite::load_level_data(path);
+
+        m_is_moving = true;
+        for (auto& i : sprite_data) {
+            cI32 moving_sprite = sprite::make(tile_set_texture_path(i.tile_set));
+            m_moving_sprites.emplace_back(moving_sprite);
+
+            sprite::tile_set(moving_sprite, i.tile_set);
+            sprite::layer(moving_sprite, m_layer);
+            sprite::offset(moving_sprite, Vec2F{ (F32)i.x, (F32)i.y } - transform::position(m_level_transform));
+            sprite::rect(moving_sprite, { i.source_x, i.source_y, 16, 16 });
+            sprite::transform(moving_sprite, m_level_transform);
+
+            cI32 selection_sprite = sprite::make(m_mouse_texture_path);
+            m_selection_on_level_sprites.push_back(selection_sprite);
+            sprite::transform(selection_sprite, m_level_transform);
+            sprite::layer(selection_sprite, SELECTION_ON_LEVEL_LAYER);
+            sprite::offset(selection_sprite, Vec2F{ (F32)i.x, (F32)i.y } - transform::position(m_level_transform));
+        }
+        console::log("done.\n");
+    }
     void Edit::load_level_sprites(const std::filesystem::path& path) {
         console::log("Edit::load_level_sprites ", path, "\n");
 
@@ -529,7 +555,7 @@ namespace sheet {
         m_undo_info_moved.clear();
         m_undo_acts.clear();
 
-        auto sprite_data = sprite::load_level(path);
+        auto sprite_data = sprite::load_level_data(path);
 
         for (auto& i : sprite_data) {
 

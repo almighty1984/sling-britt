@@ -76,13 +76,13 @@ export namespace entity {
                 camera::position.x + 320.0f < m_start_offset.x
                 ) {
                 m_is_in_view = false;
-                for (auto& i : m_aabb_ids) {
+                for (auto& i : m_aabbs) {
                     aabb::is_active(i, false);
                 }
                 //return;
             } else {
                 m_is_in_view = true;
-                for (auto& i : m_aabb_ids) {                    
+                for (auto& i : m_aabbs) {                    
                     aabb::is_active(i, true);                    
                 }
             }

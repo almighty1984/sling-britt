@@ -134,10 +134,10 @@ namespace entity {
 
         //console::log("entity::WaterLine::update() diff_y: ", diff_y, "\n");
 
-        /*aabb::rect(m_aabb_ids.back(), RectF{ aabb::rect(m_aabb_ids.back()).x,
+        /*aabb::rect(m_aabbs.back(), RectF{ aabb::rect(m_aabbs.back()).x,
                                              -diff_y,
-                                             aabb::rect(m_aabb_ids.back()).w,
-                                             aabb::rect(m_aabb_ids.back()).h });*/
+                                             aabb::rect(m_aabbs.back()).w,
+                                             aabb::rect(m_aabbs.back()).h });*/
 
 
 
@@ -247,7 +247,7 @@ namespace entity {
                 cU8 color_amount = (U8)amount;
 
                 if (color_amount >= 0) {
-                    Color aabb_color = aabb::start_color(m_aabb_ids.back());
+                    Color aabb_color = aabb::start_color(m_aabbs.back());
                     if (m_force.x < 0.0F) {
                         aabb_color = { 255,   0,   0 };
                     }
@@ -255,21 +255,21 @@ namespace entity {
                         aabb_color = {   0,   0, 255 };
                     }
 
-                    aabb::color(m_aabb_ids.back(), aabb_color / color_amount);
+                    aabb::color(m_aabbs.back(), aabb_color / color_amount);
                 }
             }
         }
 
         if (m_type == Type::water_line_L) {
-            aabb::color(m_aabb_ids.back(), {   0,   0, 255 });
+            aabb::color(m_aabbs.back(), {   0,   0, 255 });
         }
         else if (m_type == Type::water_line_R) {
-            aabb::color(m_aabb_ids.back(), { 255,   0,   0 });
+            aabb::color(m_aabbs.back(), { 255,   0,   0 });
         }
 
         /*if (m_type == Type::water_line_L and m_number == 0 or 
             m_type == Type::water_line_R and m_number == 3) {
-            aabb::color(m_aabb_ids.back(), { 255, 255, 255 });
+            aabb::color(m_aabbs.back(), { 255, 255, 255 });
         }*/
 
 

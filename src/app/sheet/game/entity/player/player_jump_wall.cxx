@@ -12,7 +12,7 @@ namespace entity {
         ++m_time_in_state;
 
         console::log(class_name(), "::state_jump_wall()\n");
-                
+
         //reset_anim("jump");
 
         velocity({ 0.0F, 0.0F });

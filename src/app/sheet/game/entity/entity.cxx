@@ -16,17 +16,17 @@ namespace entity {
         sprite::draw(window, m_sprite);
     }
     void Object::draw_aabb(std::unique_ptr<Window>& window) {        
-        for (auto& i : m_aabb_ids) {
+        for (auto& i : m_aabbs) {
             aabb::draw(window, i);
         }
     }
     Object::~Object() {
         //console::log(class_name(), "::~Object() ", entity::to_string(m_type), "\n");
         camera::remove_transform(m_transform);
-        for (auto& i : m_aabb_ids) {
+        for (auto& i : m_aabbs) {
             aabb::erase(i);
         }
-        m_aabb_ids.clear();
+        m_aabbs.clear();
         m_input_objects.clear();
 
         for (const auto& [key, anim] : m_anims) {

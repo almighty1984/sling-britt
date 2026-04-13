@@ -77,7 +77,7 @@ namespace entity {
             }
             reset_anim("dead");
 
-            for (auto& i : m_aabb_ids) {
+            for (auto& i : m_aabbs) {
                 aabb::is_active(i, false);
             }
             sprite_is_hidden(true);
@@ -118,7 +118,7 @@ namespace entity {
             m_parent = nullptr;
 
             sprite::is_hidden(m_sprite, false);
-            for (auto& i : m_aabb_ids) {
+            for (auto& i : m_aabbs) {
                 aabb::is_active(i, true);
             }
         }

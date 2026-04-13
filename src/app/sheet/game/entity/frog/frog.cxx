@@ -69,9 +69,8 @@ namespace entity {
             }
             m_sensed_objects.clear();
             m_sensed_objects.emplace_back(culprit->parent());            
-            cF32 amount = std::abs(culprit->velocity().x * culprit->velocity().y) * 1.0F;            
-            //m_next_state = state::Type::hurt;
-            health_amount_add(-amount);
+            m_next_state = state::Type::hurt;
+            health_amount_add(-16.0F);
         }
         else if (culprit->type() == Type::player) {
             if (culprit->state() == state::Type::run) {
@@ -109,7 +108,7 @@ namespace entity {
             m_is_first_state_update = false;
             m_sensed_objects.clear();
             reset_anim("hurt");
-            for (auto& i : m_aabb_ids) {
+            for (auto& i : m_aabbs) {
                 if (aabb::name(i) == aabb::Name::body) {
                     aabb::is_active(i, true);
                 } else {
@@ -151,7 +150,7 @@ namespace entity {
             m_time_left_dead = m_time_to_be_dead;
             reset_anim("dead");
             line::is_hidden(m_tounge_line, true);
-            for (auto& i : m_aabb_ids) {
+            for (auto& i : m_aabbs) {
                 aabb::is_active(i, false);
             }
             particle::spawn_fan(this, 0.0F, 360.0F, 8,
@@ -186,7 +185,7 @@ namespace entity {
         if (m_is_first_state_update) {
             m_is_first_state_update = false;
             reset_anim("stunned");
-            for (auto& i : m_aabb_ids) {
+            for (auto& i : m_aabbs) {
                 if (aabb::name(i) == aabb::Name::body) {
                     aabb::is_active(i, true);
                 } else {
@@ -222,7 +221,7 @@ namespace entity {
         if (m_is_first_state_update) {
             m_is_first_state_update = false;
             reset_anim("hurt");
-            for (auto& i : m_aabb_ids) {
+            for (auto& i : m_aabbs) {
                 if (aabb::name(i) == aabb::Name::body) {
                     aabb::is_active(i, true);
                 }
@@ -285,7 +284,7 @@ namespace entity {
             m_time_left_to_spawn_sense = m_time_to_spawn_sense + 0;
             m_time_left_to_react = 0;
             reset_anim("idle");
-            for (auto& i : m_aabb_ids) {
+            for (auto& i : m_aabbs) {
                 if (aabb::name(i) == aabb::Name::body) {
                     aabb::is_active(i, true);
                 } else {
@@ -490,7 +489,7 @@ namespace entity {
             m_is_first_state_update = false;
             m_sensed_objects.clear();
             reset_anim("stunned");
-            for (auto& i : m_aabb_ids) {
+            for (auto& i : m_aabbs) {
                 if (aabb::name(i) == aabb::Name::body) {
                     aabb::is_active(i, true);
                 }
@@ -523,7 +522,7 @@ namespace entity {
             m_is_on_ground = false;
             //reset_anim(m_anims["swim"]);
 
-            for (auto& i : m_aabb_ids) {
+            for (auto& i : m_aabbs) {
                 if (aabb::name(i) == aabb::Name::body_swim) {
                     aabb::is_active(i, true);
                 }

@@ -13,6 +13,7 @@ namespace entity {
             sound_stop("slide_wall");
 
             max_velocity({ 6.0F, 6.0F });
+            m_saved_state = state::Type::run;
         }
         //console::log(class_name(), "::state_dive() velocity: ", velocity().x, " ", velocity().y, "\n");;
 
@@ -50,7 +51,7 @@ namespace entity {
         }
 
         if (velocity().y > 0.0F) {
-            for (auto& i : m_aabb_ids) {
+            for (auto& i : m_aabbs) {
                 aabb::is_active(i, false);
                 if (aabb::name(i) == aabb::Name::body) {
                     aabb::is_active(i, true);

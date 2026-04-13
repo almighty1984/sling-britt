@@ -19,7 +19,7 @@ namespace entity {
     void ParticleShot::state_idle() {
         if (m_is_first_state_update) {
             m_is_first_state_update = false;
-            for (auto& i : m_aabb_ids) {
+            for (auto& i : m_aabbs) {
                 aabb::is_active(i, false);
             }
         }
@@ -28,7 +28,7 @@ namespace entity {
             ++m_time_in_state;
         //}
         if (m_time_in_state == 2) {
-            for (auto& i : m_aabb_ids) {
+            for (auto& i : m_aabbs) {
                 aabb::is_active(i, true);
             }
         }
@@ -52,7 +52,7 @@ namespace entity {
             m_time_left_alive = 0;
             m_time_left_dead = m_time_to_be_dead;
 
-            for (auto& i : m_aabb_ids) {
+            for (auto& i : m_aabbs) {
                 aabb::is_active(i, false);
             }
         }

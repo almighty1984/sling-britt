@@ -9,7 +9,7 @@ namespace entity {
             m_is_first_state_update = false;
             m_is_down_thrusting = false;
             m_is_carrying = false;
-            for (auto& i : m_aabb_ids) {
+            for (auto& i : m_aabbs) {
                 aabb::is_active(i, false);
             }
             sprite::is_hidden(m_sprite, true);
