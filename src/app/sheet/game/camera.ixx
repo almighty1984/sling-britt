@@ -111,7 +111,7 @@ export namespace camera {
         s_shake_min.y *= (1.0F - s_sum_shake_dec);
         s_shake_max.y *= (1.0F - s_sum_shake_dec);
 
-        console::log("camera::shake() sum_shake_dec: ", s_sum_shake_dec, "\n");
+        //console::log("camera::shake() sum_shake_dec: ", s_sum_shake_dec, "\n");
         s_sum_shake_dec += s_shake_dec;
         if (s_sum_shake_dec > 1.0F) {
             s_sum_shake_dec = 1.0F;
@@ -146,12 +146,11 @@ export namespace camera {
         else if (is_idle_recentered) {
             ++s_time_focus_idle;
             if (s_time_focus_idle > s_time_focus_idle_until_recenter) {
-                if (focus_offset.x < 0.0F) focus_offset.x += recenter_acc;
+                if      (focus_offset.x < 0.0F) focus_offset.x += recenter_acc;
                 else if (focus_offset.x > 0.0F) focus_offset.x -= recenter_acc;
 
-                if (focus_offset.y < 0.0F) focus_offset.y += recenter_acc;
+                if      (focus_offset.y < 0.0F) focus_offset.y += recenter_acc;
                 else if (focus_offset.y > 0.0F) focus_offset.y -= recenter_acc;
-
 
                 if (focus_offset.x > -recenter_acc and camera::focus_offset.x < recenter_acc and
                     focus_offset.y > -recenter_acc and camera::focus_offset.y < recenter_acc) {

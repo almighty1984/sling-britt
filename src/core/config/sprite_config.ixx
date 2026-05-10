@@ -26,7 +26,7 @@ export bool sprite::parse_config(const std::string& text, Trait* owner, cI32 tra
 
             RectI sprite_rect = { 0, 0, 16, 16 };
             Vec2F sprite_offset{},
-                sprite_origin{};
+                  sprite_origin{};
 
             const size_t texture_label = text.find("texture", sprite_open);
             if (texture_label < sprite_close) {

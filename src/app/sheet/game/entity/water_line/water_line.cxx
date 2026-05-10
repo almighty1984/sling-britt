@@ -13,93 +13,92 @@ namespace entity {
 
         if (time_left_colliding_with(other_type) > 0) return;
 
-        cRectF our_points = { aabb::point(our.id, 0).x, aabb::point(our.id, 0).y,
-                            aabb::point(our.id, 3).x, aabb::point(our.id, 3).y };
-        cRectF other_points = { aabb::point(other.id, 0).x, aabb::point(other.id, 0).y,
-                              aabb::point(other.id, 3).x, aabb::point(other.id, 3).y };
-
-        if (other_type != Type::player and
-            other_type != Type::bug and
-            other_type != Type::mole) {
-            return;
-        }
+        cVec2F our_UL = aabb::UL(our.id);
+        cVec2F our_DR = aabb::DR(our.id);
+        cVec2F other_UL = aabb::UL(other.id);
+        cVec2F other_DR = aabb::DR(other.id);
 
         cVec2F other_velocity = other.owner->velocity();
         cVec2F our_velocity = velocity();
 
+        cF32 overlap_y = our_UL.y < other_UL.y ? our_DR.y - other_UL.y : -(other_DR.y - our_UL.y);
 
-        cF32 overlap_y = our_points.y < other_points.y ? our_points.h - other_points.y : -(other_points.h - our_points.y);
-        if (other_type == Type::bug) {
-            if (m_type == Type::water_line_L or m_type == Type::water_line_R) return;
-
-            other.owner->velocity_x(m_force.x * 0.1F + other_velocity.x * 0.9F);
-            m_force.x = m_force.x * 0.5F + other_velocity.x * 0.5F;
-
-
-            if (std::abs(other_velocity.y) > 0.2F) {
-                velocity_y(other_velocity.y * 0.5F + our_velocity.y * 0.5F);
-            }
-        }
-        else if (other_type == Type::mole) {
-            if (other.owner->state() == state::Type::swim) {
+        switch (other_type) {
+            case Type::bug: {
                 if (m_type == Type::water_line_L or m_type == Type::water_line_R) return;
-
-                //if (other.owner->time_left_colliding_with(Type::water_line) > 0) {
-                //    m_force.x = other_velocity.x * 0.5F;
-                //    //if (m_force.x < -1.0F) m_force.x = -1.0F;
-                //    //if (m_force.x >  1.0F) m_force.x =  1.0F;
-                //    return;
-                //}
 
                 other.owner->velocity_x(m_force.x * 0.1F + other_velocity.x * 0.9F);
                 m_force.x = m_force.x * 0.5F + other_velocity.x * 0.5F;
 
+
                 if (std::abs(other_velocity.y) > 0.2F) {
                     velocity_y(other_velocity.y * 0.5F + our_velocity.y * 0.5F);
                 }
+                break;
             }
-        }
-        else if (other_type == Type::player) {
-            cF32 start_diff_y = start_offset().y - position_on_level().y;
-            if (std::abs(start_diff_y) > 8.0F or std::abs(other_velocity.y) < 1.0F) {
-                return;
-            }
-            //console::log("start_diff_y: ", start_diff_y, "\n");
+            case Type::mole: {
+                if (other.owner->state() == state::Type::swim) {
+                    if (m_type == Type::water_line_L or m_type == Type::water_line_R) return;
 
-            //if (velocity().y < 0.0F)
-                //velocity_y(other.owner->velocity().y * 1.0F;
-            //else
-            velocity_y(other.owner->velocity().y * 0.3F);
+                    //if (other.owner->time_left_colliding_with(Type::water_line) > 0) {
+                    //    m_force.x = other_velocity.x * 0.5F;
+                    //    //if (m_force.x < -1.0F) m_force.x = -1.0F;
+                    //    //if (m_force.x >  1.0F) m_force.x =  1.0F;
+                    //    return;
+                    //}
 
-            //console::log("WaterLine::collide_y velocity y: ", velocity().y, "\n");
+                    other.owner->velocity_x(m_force.x * 0.1F + other_velocity.x * 0.9F);
+                    m_force.x = m_force.x * 0.5F + other_velocity.x * 0.5F;
 
-        //if (std::abs(start_diff_y) < 8.0F/* and std::abs(other.owner->velocity().y) > 0.5F*/) {
-            //velocity_y(other.owner->velocity().y * 0.9F;
-            //moved_velocity_y(other.owner->velocity().y * 1.0F;
-        //}
-            //velocity_y(other.owner->velocity().y / std::abs(start_diff_y);
-            //velocity_y(other.owner->velocity().y * 1.0F;
-
-
-
-            /*if (inputs().front()) {
-                inputs().front()->velocity_y(velocity().y * 0.3F + inputs().front()->velocity().y * 0.5F;
-                if (inputs().front()->inputs().front()) {
-                    inputs().front()->inputs().front()->velocity_y(inputs().front()->velocity().y;
+                    if (std::abs(other_velocity.y) > 0.2F) {
+                        velocity_y(other_velocity.y * 0.5F + our_velocity.y * 0.5F);
+                    }
                 }
+                break;
             }
-            if (inputs().back()) {
-                inputs().back()->velocity_y(velocity().y * 0.3F + inputs().back()->velocity().y * 0.5F;
-                if (inputs().back()->inputs().back()) {
-                    inputs().back()->inputs().back()->velocity_y(inputs().back()->velocity().y;
+            case Type::player: {
+                cF32 start_diff_y = start_offset().y - position_on_level().y;
+                if (std::abs(start_diff_y) > 8.0F or std::abs(other_velocity.y) < 1.0F) {
+                    return;
                 }
-            }*/
+                //console::log("start_diff_y: ", start_diff_y, "\n");
 
+                //if (velocity().y < 0.0F)
+                    //velocity_y(other.owner->velocity().y * 1.0F;
+                //else
+                velocity_y(other.owner->velocity().y * 0.3F);
 
+                //console::log("WaterLine::collide_y velocity y: ", velocity().y, "\n");
+
+            //if (std::abs(start_diff_y) < 8.0F/* and std::abs(other.owner->velocity().y) > 0.5F*/) {
+                //velocity_y(other.owner->velocity().y * 0.9F;
+                //moved_velocity_y(other.owner->velocity().y * 1.0F;
             //}
+                //velocity_y(other.owner->velocity().y / std::abs(start_diff_y);
+                //velocity_y(other.owner->velocity().y * 1.0F;
+
+
+
+                /*if (inputs().front()) {
+                    inputs().front()->velocity_y(velocity().y * 0.3F + inputs().front()->velocity().y * 0.5F;
+                    if (inputs().front()->inputs().front()) {
+                        inputs().front()->inputs().front()->velocity_y(inputs().front()->velocity().y;
+                    }
+                }
+                if (inputs().back()) {
+                    inputs().back()->velocity_y(velocity().y * 0.3F + inputs().back()->velocity().y * 0.5F;
+                    if (inputs().back()->inputs().back()) {
+                        inputs().back()->inputs().back()->velocity_y(inputs().back()->velocity().y;
+                    }
+                }*/
+
+
+                //}
+                break;
+            }
         }
     }
-    void WaterLine::update() {
+    void WaterLine::update(cF32 dt) {
         if (m_input_objects.empty()) return;
 
         if (m_is_first_update) {
@@ -172,50 +171,56 @@ namespace entity {
         }
         else {
             m_wave_timer = 0;
-            if (m_type == Type::water_line) {
-                if (m_input_objects.size() == 2) {
-                    //m_force.x *= 0.4F;
+            switch (m_type) {
+                case Type::water_line: {
+                    if (m_input_objects.size() == 2) {
+                        //m_force.x *= 0.4F;
 
-                    //if (m_input_objects.front()->force().x > 0.0F) {
-                    //    m_force.x += m_input_objects.front()->force().x * 0.3F;
-                    //}
-                    //if (m_input_objects.back()->force().x < 0.0F) {
-                        //m_force.x += m_input_objects.back()->force().x * 0.3F;
-                    //}
-                    //if      (m_force.x < -1.0F) m_force.x = -1.0F;
-                    //else if (m_force.x >  1.0F) m_force.x =  1.0F;
-                    m_force.x = m_input_objects.front()->force().x * 0.4F + m_input_objects.back()->force().x * 0.4F + m_force.x * 0.2F;
+                        //if (m_input_objects.front()->force().x > 0.0F) {
+                        //    m_force.x += m_input_objects.front()->force().x * 0.3F;
+                        //}
+                        //if (m_input_objects.back()->force().x < 0.0F) {
+                            //m_force.x += m_input_objects.back()->force().x * 0.3F;
+                        //}
+                        //if      (m_force.x < -1.0F) m_force.x = -1.0F;
+                        //else if (m_force.x >  1.0F) m_force.x =  1.0F;
+                        m_force.x = m_input_objects.front()->force().x * 0.4F + m_input_objects.back()->force().x * 0.4F + m_force.x * 0.2F;
 
+                    }
+                    break;
                 }
-            }            
-            else if (m_type == Type::water_line_L) {
-                if (m_input_objects.back()->force().x < 0.0F) {
-                    //m_input_objects.back()->force_x(-m_input_objects.back()->force().x * 1.0F);
-                    //m_force.x = m_input_objects.back()->force().x;
-                }
-                //m_force.x *= 0.5F;
+                case Type::water_line_L: {
+                    if (m_input_objects.back()->force().x < 0.0F) {
+                        //m_input_objects.back()->force_x(-m_input_objects.back()->force().x * 1.0F);
+                        //m_force.x = m_input_objects.back()->force().x;
+                    }
+                    //m_force.x *= 0.5F;
 
-                m_force.x = m_input_objects.back()->force().x * 0.8F + m_force.x * 0.2F;
-            } 
-            else if (m_type == Type::water_line_R) {
-                if (m_input_objects.back()->force().x > 0.0F) {
-                    //m_input_objects.back()->force_x(-m_input_objects.back()->force().x * 1.0F);
-                    //m_force.x = m_input_objects.back()->force().x;
+                    m_force.x = m_input_objects.back()->force().x * 0.8F + m_force.x * 0.2F;
+                    break;
                 }
-                //m_force.x *= 0.5F;
-                m_force.x = m_input_objects.back()->force().x * 0.8F + m_force.x * 0.2F;
-                if (m_input_objects.size() == 1) {
-                    //if (m_input_objects.back()->force().x < 0.0F and m_input_objects.back()->position().x > position().x) {
-                    //    m_force.x -= m_input_objects.back()->force().x * 10.0F;
-                    //}
-                    //else if (m_input_objects.back()->force().x > 0.0F and m_input_objects.back()->position().x < position().x) {
-                    //    m_force.x -= m_input_objects.back()->force().x * 10.0F;
-                    //}
-                    //// high value so wave bounces back
-                    //if      (m_force.x < -5.0F) m_force.x = -5.0F;
-                    //else if (m_force.x >  5.0F) m_force.x =  5.0F;
+                case Type::water_line_R: {
+                    if (m_input_objects.back()->force().x > 0.0F) {
+                        //m_input_objects.back()->force_x(-m_input_objects.back()->force().x * 1.0F);
+                        //m_force.x = m_input_objects.back()->force().x;
+                    }
+                    //m_force.x *= 0.5F;
+                    m_force.x = m_input_objects.back()->force().x * 0.8F + m_force.x * 0.2F;
+                    if (m_input_objects.size() == 1) {
+                        //if (m_input_objects.back()->force().x < 0.0F and m_input_objects.back()->position().x > position().x) {
+                        //    m_force.x -= m_input_objects.back()->force().x * 10.0F;
+                        //}
+                        //else if (m_input_objects.back()->force().x > 0.0F and m_input_objects.back()->position().x < position().x) {
+                        //    m_force.x -= m_input_objects.back()->force().x * 10.0F;
+                        //}
+                        //// high value so wave bounces back
+                        //if      (m_force.x < -5.0F) m_force.x = -5.0F;
+                        //else if (m_force.x >  5.0F) m_force.x =  5.0F;
+                    }
+                    break;
                 }
             }
+            
             //m_force.x *= 0.99F;
 
             //m_force.x *= 0.9F;

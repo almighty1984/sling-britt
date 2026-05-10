@@ -24,6 +24,9 @@ namespace sheet {
             if (position.x == transform::position(m_menu_right_transform).x) {
                 sprite::offset_y(m_active_layer_sprite, position.y);
                 m_layer = (U8)(position.y / 16.0F);
+                for (auto& i : m_moving_sprites) {
+                    sprite::layer(i, m_layer);
+                }
             } else if (position.x == transform::position(m_menu_right_transform).x + 16.0F) {
                 U8 layer = (U8)(position.y / 16.0F);
                 if (layer < m_is_hidden_layer_sprites.size() and m_is_hidden_layer_sprites.at(layer)) {

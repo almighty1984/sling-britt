@@ -89,13 +89,15 @@ public:
         line::set(m_right_line, { r.x + r.w, r.y }, { r.x + r.w, r.y + r.h });        
     }
 
-    cVec2F point_0() { return transform::position(m_transform) + Vec2F{ m_rect.x,  m_rect.y }; }
-    cVec2F point_1() { return transform::position(m_transform) + Vec2F{ m_rect.x + m_rect.w, m_rect.y }; }
-    cVec2F point_2() { return transform::position(m_transform) + Vec2F{ m_rect.x,  m_rect.y + m_rect.h }; }
-    cVec2F point_3() { return transform::position(m_transform) + Vec2F{ m_rect.x + m_rect.w, m_rect.y + m_rect.h }; }
+    cVec2F UL() { return transform::position(m_transform) + Vec2F{ m_rect.x,  m_rect.y }; }
+    cVec2F UR() { return transform::position(m_transform) + Vec2F{ m_rect.x + m_rect.w, m_rect.y }; }
+    cVec2F DL() { return transform::position(m_transform) + Vec2F{ m_rect.x,  m_rect.y + m_rect.h }; }
+    cVec2F DR() { return transform::position(m_transform) + Vec2F{ m_rect.x + m_rect.w, m_rect.y + m_rect.h }; }
+
+    cVec2F center() { return transform::position(m_transform) + Vec2F{ m_rect.x + m_rect.w / 2.0F, m_rect.y + m_rect.h / 2.0F }; }
 
     const std::vector<Vec2F> points() {
-        return { point_0(), point_1(), point_2(), point_3() };
+        return { UL(), UR(), DL(), DR() };
     }    
 
     Color color() const { return m_color; }    
@@ -173,16 +175,12 @@ export namespace aabb {
     entity::Object*  owner(cI32 i)       { return is_valid(i) ? s_aabbs.at(i)->owner()       :    nullptr; }
     //entity::Object* owner(cI32 i);
 
-    Vec2F point(cI32 i, cU8 p) {
-        if (!is_valid(i) or p > 3) return {};
-        switch (p) {
-            case 0:  return s_aabbs.at(i)->point_0();
-            case 1:  return s_aabbs.at(i)->point_1();
-            case 2:  return s_aabbs.at(i)->point_2();
-            case 3:  return s_aabbs.at(i)->point_3();
-            default: return {};
-        }
-    }
+    Vec2F UL(cI32 i) { return is_valid(i) ? s_aabbs.at(i)->UL() : Vec2F{}; }
+    Vec2F UR(cI32 i) { return is_valid(i) ? s_aabbs.at(i)->UR() : Vec2F{}; }
+    Vec2F DL(cI32 i) { return is_valid(i) ? s_aabbs.at(i)->DL() : Vec2F{}; }
+    Vec2F DR(cI32 i) { return is_valid(i) ? s_aabbs.at(i)->DR() : Vec2F{}; }
+    Vec2F center(cI32 i) { return is_valid(i) ? s_aabbs.at(i)->center() : Vec2F{}; }
+
     //Vec2U time_left_colliding(cI32 i) { return IS_VALID(i) ? s_aabbs.at(i)->time_left_colliding : Vec2U{}; }
     I32 transform(cI32 i) { return is_valid(i) ? s_aabbs.at(i)->transform() : -1; }
 

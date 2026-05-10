@@ -31,7 +31,7 @@ public:
     void load(const std::filesystem::path& path) {
         m_path = path;
         m_sound = std::make_unique<sf::Sound>(load_sound_buffer(path));        
-
+        m_sound->setAttenuation(0.005F);
         //m_sound->setLooping(false);
     }
     ~Sound() {
@@ -41,9 +41,8 @@ public:
     void position(cVec2F p) {
         if (!m_sound) return;
         m_position = p;
-        m_sound->setPosition(sf::Vector3f{ p.x, p.y, 1.0F });
-        
-        //m_sound->setMinDistance(1.0F);
+        m_sound->setPosition(sf::Vector3f{ p.x, p.y, 1.0F });        
+        //m_sound->setMinDistance(16.0F);
         //m_sound->setRelativeToListener(true);
     }
     F32 offset() const { return m_sound->getPlayingOffset().asSeconds(); }
@@ -90,7 +89,7 @@ export namespace sound {
     bool is_playing(cI32 i)         { return is_valid(i) and s_sounds.at(i)->is_playing(); }
     bool is_stopped(cI32 i)         { return is_valid(i) and s_sounds.at(i)->is_stopped(); }
     bool is_paused(cI32 i)          { return is_valid(i) and s_sounds.at(i)->is_paused();  }
-    F32 pitch(cI32 i)               { return is_valid(i) ? s_sounds.at(i)->pitch() : 0.0F; }    
+    F32  pitch(cI32 i)              { return is_valid(i) ? s_sounds.at(i)->pitch() : 0.0F; }    
     void pitch(cI32 i, cF32 v)      { if (is_valid(i))  s_sounds.at(i)->pitch(v); }
     void position(cI32 i, cVec2F p) { if (is_valid(i)) s_sounds.at(i)->position(p); }
     bool erase(cI32 i) {

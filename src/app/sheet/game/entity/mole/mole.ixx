@@ -30,15 +30,15 @@ export namespace entity {
         void collide_x(aabb::cInfo our, aabb::cInfo other) override;
         void collide_y(aabb::cInfo our, aabb::cInfo other) override;
 
-        void state_dead()  override;
-        void state_enter() override;
-        void state_exit()  override;
-        void state_idle()  override;
-        void state_jump()  override;
-        void state_shoot() override;
-        void state_swim()  override;
+        void state_dead(cF32 dt)  override;
+        void state_enter(cF32 dt) override;
+        void state_exit(cF32 dt)  override;
+        void state_idle(cF32 dt)  override;
+        void state_jump(cF32 dt)  override;
+        void state_shoot(cF32 dt) override;
+        void state_swim(cF32 dt)  override;
 
-        void update() override {
+        void update(cF32 dt) override {
             if (m_is_first_update) {
                 m_is_first_update = false;
             }
@@ -51,8 +51,6 @@ export namespace entity {
             }
 
             //console::log("near wall: ", m_is_near_wall_L, " ", m_is_near_wall_R, "\n");
-
-            
             //console::log("state: ", entity::to_string(m_state), " ", m_is_on_ground, "\n");
 
             if (m_time_left_hurt > 0) --m_time_left_hurt;
@@ -63,7 +61,7 @@ export namespace entity {
                 }
             }
 
-            state_update();
+            state_update(dt);
 
             sprite_rect(anim::source(m_current_anim));
 

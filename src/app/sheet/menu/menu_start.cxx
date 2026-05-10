@@ -56,8 +56,6 @@ namespace sheet {
         m_options_text.set_text("Options");
         m_options_text.position(m_game_text.position() + Vec2F{ 0.0F, 32.0F });
 
-        m_circle.update();
-
         m_visible_layers.insert(0);
     }
     MenuStart::~MenuStart() {
@@ -69,7 +67,7 @@ namespace sheet {
         line::erase(m_proj_on_normal_id);
     }
 
-    void MenuStart::update(cF32 ts) {
+    void MenuStart::update(cF32 dt) {
         //console::log("mouse: ", input::mouse.x, " ", input::mouse.y, "\n");
 
         //console::log("sheet::Game::update() delta: ", line::delta(m_normal).x, " ", line::delta(m_normal).y, "\n");
@@ -77,6 +75,12 @@ namespace sheet {
         if (is_pressed(input::Key::esc)) {
             release(input::Key::esc);
             app::shutdown();
+            return;
+        }
+
+        if (is_pressed(input::Key::p)) {
+            release(input::Key::p);
+            transform::remove_unused();            
             return;
         }
 
@@ -236,7 +240,7 @@ namespace sheet {
 
 
 
-        m_circle.update();
+        m_circle.update(dt);
 
 
         //console::log("state::Menu::update() circle position: ", m_circle.position().x, " ", m_circle.position().y, "\n");

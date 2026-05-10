@@ -11,7 +11,7 @@ export namespace entity {
         Track() {
             m_input_limit = 1;
         }
-        void update() override {                        
+        void update(cF32 dt) override {
             m_time_left_alive = 0;
 
             //sprite()->is_hidden = false;

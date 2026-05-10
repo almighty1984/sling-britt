@@ -144,7 +144,7 @@ namespace sheet {
         camera::set_position(camera_position);
 
         //m_camera.add_transform(m_transform);
-
+        camera::focus_offset = {};
     }
 
     void Game::check_to_add_input_from(entity::Object* trigger_entity) {
@@ -273,7 +273,7 @@ namespace sheet {
         for (std::pair<Vec2I, QuadTreeNode*>& quad_tree_node : m_level_quad_trees) {
             if (!quad_tree_node.second) continue;
 
-            auto quad_trees_check_collision = [&]() {
+            auto check_collision_lambda = [&]() {
                 std::unique_lock<std::mutex> quad_tree_node_lock(quad_tree_node_mutex);
 
                 quad_tree_node.second->clear();
@@ -293,16 +293,16 @@ namespace sheet {
                         //quad_tree_node.second->insert_point(aabb_id, point);
                     //}
                     
-                    quad_tree_node.second->insert_point(aabb_id, aabb::point(aabb_id, 0));
-                    quad_tree_node.second->insert_point(aabb_id, aabb::point(aabb_id, 1));
-                    quad_tree_node.second->insert_point(aabb_id, aabb::point(aabb_id, 2));
-                    quad_tree_node.second->insert_point(aabb_id, aabb::point(aabb_id, 3));
+                    quad_tree_node.second->insert_point(aabb_id, aabb::UL(aabb_id));
+                    quad_tree_node.second->insert_point(aabb_id, aabb::UR(aabb_id));
+                    quad_tree_node.second->insert_point(aabb_id, aabb::DL(aabb_id));
+                    quad_tree_node.second->insert_point(aabb_id, aabb::DR(aabb_id));
                 }
                 quad_tree_node_lock.unlock();
 
                 quad_tree_node.second->check_collision();
                 };
-            threads.emplace_back(std::thread(quad_trees_check_collision));
+            threads.emplace_back(std::thread(check_collision_lambda));
         }
         //console::log("sheet::Game::quad_trees_check_collision() num threads: ", threads.size(), "\n");
         for (auto& thread : threads) {

@@ -39,19 +39,21 @@ export namespace entity {
             aabb::Name other_name = aabb::name(other.id);
 
             state::cType other_state = other.owner->state();
-
-            
-            if (other_type == entity::Type::particle_interact) {
-                //console::log("entity::Lever::collide_x() other state: ", to_string(other_state), "\n");
-                if (other_state == state::Type::run /*and !other.owner->parent()->is_carrying()*/) {
-                    flip_it();
+                        
+            switch (other_type) {
+                case Type::particle_interact: {
+                    //console::log("entity::Lever::collide_x() other state: ", to_string(other_state), "\n");
+                    if (other_state == state::Type::run /*and !other.owner->parent()->is_carrying()*/) {
+                        flip_it();
+                    }
+                    break;
                 }
-            }
+            }            
         }
         void collide_y(aabb::cInfo our, aabb::cInfo other) override {
             //collide_x(our, other);
         }
-        void update() override {
+        void update(cF32 dt) override {
             
             /*if (m_time_left_colliding > 0) {
                 console::log("m_time_left_colliding: ", (int)m_time_left_colliding, "\n");
@@ -112,7 +114,7 @@ export namespace entity {
                 anim::speed(m_current_anim, 0.0F);
                 anim::source_x(m_current_anim,
                     (anim::source(m_current_anim).w *
-                    anim::texture_size(m_current_anim).x / anim::source(m_current_anim).w)
+                    anim::texture_extent(m_current_anim).x / anim::source(m_current_anim).w)
                     - anim::source(m_current_anim).w);
                 // start at last frame
             }

@@ -2,6 +2,7 @@ module sheet.game;
 import sheet.game.save;
 import camera;
 import console;
+import entity.bee;
 import entity.brick;
 import entity.bridge;
 import entity.bug;
@@ -129,7 +130,10 @@ namespace sheet {
 
                         bool is_random_leftward = false;
 
-                        if (entity_type == entity::Type::brick) {
+                        if (entity_type == entity::Type::bee) {
+                            m_entity_objects.emplace_back(new entity::Bee);
+                        }
+                        else if (entity_type == entity::Type::brick) {
                             m_entity_objects.emplace_back(new entity::Brick);
                         }
                         else if (entity_type == entity::Type::bridge) {

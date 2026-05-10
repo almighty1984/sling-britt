@@ -36,6 +36,8 @@ export namespace entity {
         std::vector<Object*> m_input_objects;
 
         std::list<Object*> m_sensed_objects;
+
+        Vec2F m_sensed_position = {};
         
         U8 m_num_jumps   = 0,
            m_start_layer = 0;
@@ -44,8 +46,7 @@ export namespace entity {
 
         U16 m_time_left_alive          =  U16_MAX, m_time_to_be_alive    = U16_MAX,
             m_time_left_blocked        =  0,
-            m_time_left_dead           =  0,       m_time_to_be_dead     = 0,
-            m_time_left_ducking        =  0,       m_time_to_duck        = 10,
+            m_time_left_dead           =  0,       m_time_to_be_dead     = 0,            
             m_time_left_hurt           =  0,       m_time_to_hurt        = 10,
             m_time_left_interacting    =  0,       m_time_to_interact    = 10,
             m_time_left_rising         =  0,       m_time_to_rise        = 10,
@@ -85,7 +86,7 @@ export namespace entity {
         virtual void interact(Object* object) {}
         
 
-        virtual void update() {
+        virtual void update(cF32 dt = 1.0F) {
             if (m_current_anim == -1) {
                 return;
             }
@@ -138,11 +139,11 @@ export namespace entity {
             m_sensed_objects.emplace_back(object);
             return true;
         }
+        Vec2F sensed_position() const { return m_sensed_position; } void sensed_position(cVec2F p) { m_sensed_position = p; }
 
         bool is_blocked()     const { return m_time_left_blocked > 0; }
         bool is_carrying()    const { return m_is_carrying; }               void is_carrying(bool is) { m_is_carrying = is; }
-        bool is_dead()        const { return m_time_left_dead > 0 and m_time_left_alive == 0; }
-        bool is_ducking()     const { return m_time_left_ducking > 0; }
+        bool is_dead()        const { return m_time_left_dead > 0 and m_time_left_alive == 0; }        
         bool is_hurting()     const { return m_time_left_hurt > 0; }
         bool is_near_wall_L() const { return m_is_near_wall_L; }            void is_near_wall_L(bool is) { m_is_near_wall_L = is; } 
         bool is_near_wall_R() const { return m_is_near_wall_R; }            void is_near_wall_R(bool is) { m_is_near_wall_R = is; }
@@ -150,6 +151,7 @@ export namespace entity {
         bool is_interacting() const { return m_time_left_interacting > 0; }
         bool is_powered()     const { return m_is_powered; }                void is_powered(bool is) { m_is_powered = is; }
         bool is_tossed()      const { return m_state == state::Type::tossed; }
+        bool is_reacting()    const { return m_time_left_to_react > 0; }
         
         Type  type()   const { return m_type;   } void type(cType t)   { m_type = t;   }
         U8    number() const { return m_number; } void number(cU8 n)   { m_number = n; }
@@ -158,7 +160,7 @@ export namespace entity {
         Vec2F start_position_on_level() const { return camera::position + start_position(); }
 
         F32 rotation_speed() const { return m_rotation_speed; }
-        F32 radians() const { return m_radians; }
+        F32 radians() const { return m_radians; }  void radians(cF32 r) { m_radians = r; }
         F32 degrees() const { return m_radians * 180.0F / 3.1415926535F; }
 
         Vec2F force() const { return m_force; }    void force(cVec2F f) { m_force = f; }
@@ -193,6 +195,8 @@ export namespace entity {
 
         bool is_start_in_view() { return start_position().x + sprite_rect().w > 0.0F and start_position().x < app::config::extent().x and
                                          start_position().y + sprite_rect().h > 0.0F and start_position().y < app::config::extent().y; }
+
+        bool is_start_offset_in_view() { return camera::position.x < m_start_offset.x and camera::position.x + app::config::extent().x > m_start_offset.x; }
 
         //Vec2F sensed_position() const { return m_sensed_position; } void sensed_position(cVec2F p) { m_sensed_position = p; }
     };

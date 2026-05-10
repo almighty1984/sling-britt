@@ -10,7 +10,7 @@ export namespace entity {
         LogicNot() {
             m_input_limit = 1;
         }
-        void update() override {
+        void update(cF32 dt) override {
             //console::log("LogicNot is_powered: ", m_is_powered, "\n");
             for (auto& i : m_input_objects) {
                 m_time_left_alive = i->time_left_alive() > 0 ? 0 : U16_MAX;

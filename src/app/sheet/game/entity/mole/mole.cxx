@@ -13,62 +13,70 @@ namespace entity {
 
         Vec2F add_to_position = { 0.0F, 0.0F };
 
-        if (culprit->type() == Type::brick) {
-            health_amount_add(-health_max());
-            m_next_state = state::Type::enter;
-        }
-        else if (culprit->type() == Type::particle_brick) {
-            health_amount_add(-1.0f);
-            m_next_state = state::Type::enter;
-        }
-        else if (culprit->type() == Type::particle_down_thrust) {
-            if (culprit->parent()) {
-                F32 vel_x = (position().x - culprit->parent()->position().x) / 16.0F;
-                if      (vel_x < -1.5F) vel_x = -1.5F;
-                else if (vel_x > 1.5F) vel_x  =  1.5F;
-                console::log(class_name(), "::hurt() vel_x: ", vel_x, "\n");
-
-                velocity_x(vel_x);
+        switch (culprit->type()) {
+            case Type::brick: {
+                health_amount_add(-health_max());
+                m_next_state = state::Type::enter;
+                break;
             }
-            health_amount_add(-1.0f);
-            m_next_state = state::Type::jump;
-            m_time_left_in_state = 0;
-        }
-        else if (culprit->type() == Type::particle_melee) {
-            if (m_state == state::Type::jump) {
+            case Type::particle_brick: {
+                health_amount_add(-1.0f);
+                m_next_state = state::Type::enter;
+                break;
+            }
+            case Type::particle_down_thrust: {
                 if (culprit->parent()) {
-                    if (sprite::is_leftward(culprit->parent()->sprite())) {
-                        velocity_x(-5.0F);
-                    } else {
-                        velocity_x(5.0F);
-                    }
-                }
-                //velocity_y(-1.0F);
-            }
-            health_amount_add(-16.0f);
+                    F32 vel_x = (position().x - culprit->parent()->position().x) / 16.0F;
+                    if (vel_x < -1.5F) vel_x = -1.5F;
+                    else if (vel_x > 1.5F) vel_x = 1.5F;
+                    console::log(class_name(), "::hurt() vel_x: ", vel_x, "\n");
 
-            if (culprit->position().x < position().x + 8.0F) {
-                add_to_position.x = 4.0F;
+                    velocity_x(vel_x);
+                }
+                health_amount_add(-1.0f);
+                m_next_state = state::Type::jump;
+                m_time_left_in_state = 0;
+                break;
             }
-            else if (culprit->position().x + 8.0F > position().x) {
-                add_to_position.x = -4.0F;
-            }            
+            case Type::particle_melee: {
+                if (m_state == state::Type::jump) {
+                    if (culprit->parent()) {
+                        if (sprite::is_leftward(culprit->parent()->sprite())) {
+                            velocity_x(-5.0F);
+                        } else {
+                            velocity_x(5.0F);
+                        }
+                    }
+                    //velocity_y(-1.0F);
+                }
+                health_amount_add(-16.0f);
+
+                if (culprit->position().x < position().x + 8.0F) {
+                    add_to_position.x = 4.0F;
+                } else if (culprit->position().x + 8.0F > position().x) {
+                    add_to_position.x = -4.0F;
+                }
+                break;
+            }
+            default: {
+                health_amount_add(-8.0f);
+                m_next_state = state::Type::enter;
+                break;
+            }
         }
-        else {
-            health_amount_add(-8.0f);
-            m_next_state = state::Type::enter;
-        }
+        
         sprite_is_leftward(!sprite_is_leftward());
 
-        sound_position("melee", { position().x / (app::config::extent().x / 2.0F), position().y / (app::config::extent().y / 2.0F) });
-        sound_play("melee");
+        sound_position("hit", { position().x - app::config::extent().x / 2.0F,
+                                position().y - app::config::extent().y / 2.0F });
+        sound_play("hit");
 
 
         position_add(add_to_position);
 
         return true;
     }
-    void Mole::state_dead() {
+    void Mole::state_dead(cF32 dt) {
         if (m_is_first_state_update) {
             m_is_first_state_update = false;
             m_time_left_dead = m_time_to_be_dead;
@@ -85,7 +93,7 @@ namespace entity {
 
             particle::spawn(this, particle::Type::health, position() + Vec2F{ 0.0F, -4.0F }, {});
 
-            sound_position("dead", { position().x / (app::config::extent().x / 2.0F), position().y / (app::config::extent().y / 2.0F) });
+            sound_position("dead", { position().x - app::config::extent().x / 2.0F, position().y - app::config::extent().y / 2.0F });
             sound_play("dead");
 
             if (m_parent) {
@@ -102,7 +110,7 @@ namespace entity {
         velocity({});
         moved_velocity({});
     }
-    void Mole::state_enter() {
+    void Mole::state_enter(cF32 dt) {
         if (m_is_first_state_update) {
             m_is_first_state_update = false;
             reset_anim("enter");
@@ -118,7 +126,7 @@ namespace entity {
             m_next_state = state::Type::idle;
         }
     }
-    void Mole::state_exit() {
+    void Mole::state_exit(cF32 dt) {
         if (m_is_first_state_update) {
             m_is_first_state_update = false;
             reset_anim("exit");
@@ -137,7 +145,7 @@ namespace entity {
             }
         }
     }
-    void Mole::state_idle() {
+    void Mole::state_idle(cF32 dt) {
         if (m_is_first_state_update) {
             m_is_first_state_update = false;
             //sprite_angle(0.0F);
@@ -256,7 +264,7 @@ namespace entity {
             }
         }
     }
-    void Mole::state_jump() {
+    void Mole::state_jump(cF32 dt) {
         if (m_is_first_state_update) {
             m_is_first_state_update = false;
             reset_anim("jump");
@@ -283,16 +291,16 @@ namespace entity {
         velocity_add_y(acceleration().y);
 
         F32 radians = std::atan2(velocity().y, velocity().x);
-        if (radians < 0.0F) radians += 3.1415926535f * 2.0F;
+        if (radians < 0.0F) radians += PI * 2.0F;
 
-        cF32 degrees = radians * 180.0F / 3.1415926535F;
+        cF32 degrees = radians * 180.0F / PI;
 
         sprite_angle(degrees + 90.0F);
         if (m_is_on_ground) {
             m_next_state = state::Type::idle;
         }
     }
-    void Mole::state_shoot() {
+    void Mole::state_shoot(cF32 dt) {
         if (m_is_first_state_update) {
             m_is_first_state_update = false;
             m_time_left_in_state = 30;
@@ -321,7 +329,7 @@ namespace entity {
                 shot_velocity.x = 2.0F;
             }
             particle::spawn({ .parent = this,
-                              .type = particle::Type::shot,
+                              .type = particle::Type::rock,
                               .position = start_position,
                               .velocity = shot_velocity,
                               .state = state::Type::idle });
@@ -336,7 +344,7 @@ namespace entity {
         //console::log(class_name(), "::shoot() time left in state: ", m_time_left_in_state, "\n");
 
     }
-    void Mole::state_swim() {
+    void Mole::state_swim(cF32 dt) {
         if (m_is_first_state_update) {
             m_is_first_state_update = false;
             m_sensed_objects.clear();

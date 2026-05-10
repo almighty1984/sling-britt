@@ -13,7 +13,8 @@ export namespace entity {
         ParticleBrick() {
             m_type = Type::particle_brick;
         }
-        void state_idle() override {
+        const char* class_name() override { return "entity::ParticleBrick"; }
+        void state_idle(cF32 dt) override {
             if (m_is_first_state_update) {
                 m_is_first_state_update = false;
                 //m_time_left_alive = m_time_to_be_alive + random::number(0, 50);
@@ -25,9 +26,9 @@ export namespace entity {
             }
             m_parent = nullptr;
 
-            if (m_time_in_state <= 5) {
+            //if (m_time_in_state <= 5) {
                 ++m_time_in_state;
-            }
+            //}
             if (m_time_in_state == 5) {
                 for (auto& i : m_aabbs) {                    
                     aabb::is_active(i, true);
@@ -36,17 +37,19 @@ export namespace entity {
 
             if (velocity().x > acceleration().x or velocity().x < -acceleration().x or
                 velocity().y > acceleration().y or velocity().y < -acceleration().y) {
-                F32 radians = std::atan2(velocity().y, velocity().x);
-                if (radians < 0.0F) radians += (3.1415926535F * 2.0F);
+                F32 radians = std::atan2f(velocity().y, velocity().x);
+                if (radians < 0.0F) radians += (2 * PI);
 
-                cF32 degrees = radians * 180.0F / 3.1415926535F;
+                cF32 degrees = radians * 180 / PI;
 
                 sprite::angle(m_sprite, degrees);
             }
             
             if (position().x < -8.0F or position().x > app::config::extent().x or
                 position().y < -8.0F or position().y > app::config::extent().y) {
-                m_is_to_erase = true;
+                if (m_time_in_state > 200) {
+                    m_is_to_erase = true;
+                }
             }
         }
         void collide_x(aabb::cInfo our, aabb::cInfo other) override;

@@ -1,5 +1,6 @@
 module;
 #include <vector>
+#include <sstream>
 
 export module transform;
 import console;
@@ -85,14 +86,42 @@ private:
 };
 
 std::vector<Transform*> s_transforms;
-std::vector<size_t>     s_unused_ids;
+std::vector<size_t>     s_unused;
 
 I32 s_level_transform = -1;
 
 export namespace transform {
     constexpr bool    is_valid(size_t i) { return (i >= 0 and i < s_transforms.size() and s_transforms.at(i)) ? true : false; }
     size_t  size()        { return s_transforms.size(); }
-    size_t  unused_size() { return s_unused_ids.size(); }
+    size_t  unused_size() { return s_unused.size(); }
+
+    // FIXME: this doesn't work
+    void remove_unused() {        
+        console::log("transforms: ", s_transforms.size(), " unused: ", s_unused.size(), "\n");
+
+        std::vector<Transform*> spared_used;
+        std::vector<size_t>     spared_ids;
+
+        for (auto& used : s_transforms) {            
+            if (used) {
+                //console::log("used: ", used->id, "\n");
+                spared_used.emplace_back(used);
+                spared_ids.emplace_back(spared_ids.size());
+            }
+        }
+
+        for (auto& spared_id : spared_ids) {
+            console::log("spared: ", spared_id, "\n");
+        }
+
+        for (size_t i = 0; i < spared_used.size(); ++i) {
+            spared_used.at(i)->id = spared_ids.at(i);
+        }
+
+        s_transforms = spared_used;
+
+        s_unused.clear();
+    }
 
     I32  level_id()       { return s_level_transform; }
     void level_id(cI32 i) { s_level_transform = i; }
@@ -100,9 +129,9 @@ export namespace transform {
 
     I32 make() {
         Transform* object = new Transform;
-        if (!s_unused_ids.empty()) {
-            object->id = s_unused_ids.back();
-            s_unused_ids.pop_back();
+        if (!s_unused.empty()) {
+            object->id = s_unused.back();
+            s_unused.pop_back();
             //console::log("transform::make unused: ", object->id, "\n");
             if (!s_transforms.empty() and object->id >= 0 and object->id < s_transforms.size() and s_transforms.at(object->id)) {
                 delete s_transforms.at(object->id);
@@ -181,7 +210,7 @@ export namespace transform {
         //console::log("transform::erase ", i, "\n");
         delete s_transforms.at(i);
         s_transforms.at(i) = nullptr;
-        s_unused_ids.emplace_back(i);
+        s_unused.emplace_back(i);
         return true;        
     }
     void update() {
@@ -194,6 +223,6 @@ export namespace transform {
             if (s_transforms.at(i)) delete s_transforms.at(i);            
         }
         s_transforms.clear();
-        s_unused_ids.clear();
+        s_unused.clear();
     }
 }

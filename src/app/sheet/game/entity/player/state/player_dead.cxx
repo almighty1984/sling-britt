@@ -4,7 +4,7 @@ import health;
 import particle_system;
 
 namespace entity {
-    void Player::state_dead() {
+    void Player::state_dead(cF32 dt) {
         if (m_is_first_state_update) {
             m_is_first_state_update = false;
             m_is_down_thrusting = false;
@@ -15,6 +15,7 @@ namespace entity {
             sprite::is_hidden(m_sprite, true);
             sprite::is_hidden(m_sling_shot_sprite, true);
             sprite::is_hidden(m_sling_shot_bg_sprite, true);
+            sprite::is_hidden(m_target_sprite, true);
 
             sprite::offset(m_sprite, sprite::start_offset(m_sprite));
             sprite::angle(m_sprite, 0.0F);

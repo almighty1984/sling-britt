@@ -35,6 +35,6 @@ export namespace entity {
             //line::draw(window, m_bottom_line);
         }
 
-        void update() override;
+        void update(cF32 dt) override;
     };
 }

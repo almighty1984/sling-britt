@@ -15,6 +15,8 @@ export namespace sheet {
 
     class Object : public input::Trait {
     protected:
+        U16 m_timer = 0;
+
         Type m_type            = Type::none,
              m_prev            = Type::none,
              m_transition_to   = Type::none,
@@ -45,8 +47,8 @@ export namespace sheet {
             //input::erase(m_input);
             m_visible_layers.clear();
         }
-        virtual void update(cF32 ts) {}
-        virtual void update_unlocked() {}
+        virtual void update(cF32 dt) {}
+        virtual void update_unlocked(cF32 dt) {}
 
         std::set<U8>& get_visible_layers() { return m_visible_layers; }
         

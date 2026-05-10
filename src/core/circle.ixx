@@ -33,7 +33,7 @@ export namespace circle {
         F32 radius() const { return m_circle_shape.getRadius(); } void radius(cF32 r) { m_circle_shape.setRadius(r); }
 
 
-        void update() {
+        void update(cF32 dt) {
             //console::log("circle::Object::update() transform: ", m_transform, "\n");
 
             sf::Vector2f pos = { transform::position(m_transform).x * s_scale,

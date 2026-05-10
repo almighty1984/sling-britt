@@ -92,7 +92,7 @@ public:
     Vec2F start_offset()  const { return m_start_offset;  } void start_offset(cVec2F s)  { m_start_offset  = s;  }
     Color color()         const { return m_color;         } void color(Color c)          { m_color         = c;  }
     Color start_color()   const { return m_start_color;   } void start_color(Color c)    { m_start_color   = c;  }
-    Vec2U texture_size() { return { m_sf_sprite.getTexture().getSize().x, m_sf_sprite.getTexture().getSize().y }; }
+    Vec2U texture_extent() { return { m_sf_sprite.getTexture().getSize().x, m_sf_sprite.getTexture().getSize().y }; }
     sf::Sprite& sf_sprite() { return m_sf_sprite; }
     Vec2F origin() const { return m_origin; }
     void origin(cVec2F o) {
@@ -116,9 +116,11 @@ public:
     }
     cF32 radians() const {
         return sf::degrees(m_angle).asRadians();
-    }    
+    }
+    std::filesystem::path texture_path() const { return m_texture_path; }
     bool texture(const std::filesystem::path path) {
         if (m_texture_path == path) return false;
+        //console::log("Sprite texture: ", path, "\n");
         m_texture_path = path;
         m_sf_texture = texture::load(path);
         if (!m_sf_texture) return false;
@@ -225,7 +227,8 @@ export namespace sprite {
     Color color(cI32 i)          { return is_valid(i) ? s_sprites.at(i)->color()         : Color{}; }
     Color start_color(cI32 i)    { return is_valid(i) ? s_sprites.at(i)->start_color()   : Color{}; }
     RectI rect(cI32 i)           { return is_valid(i) ? s_sprites.at(i)->rect()          : RectI{}; }
-    Vec2U texture_size(cI32 i)   { return is_valid(i) ? s_sprites.at(i)->texture_size()  : Vec2U{}; }
+    Vec2U texture_extent(cI32 i)   { return is_valid(i) ? s_sprites.at(i)->texture_extent()  : Vec2U{}; }
+    std::filesystem::path texture_path(cI32 i) { return is_valid(i) ? s_sprites.at(i)->texture_path() : ""; }
 
     void transform(cI32 i, cI32 t)       { if (is_valid(i)) s_sprites.at(i)->transform(t);     }
     void layer(cI32 i, cU8 l)            { if (is_valid(i)) s_sprites.at(i)->layer(l);         }

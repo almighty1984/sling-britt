@@ -14,6 +14,7 @@ export namespace entity {
             m_type = Type::particle_down_thrust;
             m_time_left_dead = 0;
         }
+        const char* class_name() override { return "entity::ParticleDownThrust"; }
         void collide_x(aabb::cInfo our, aabb::cInfo other) override;
         void collide_y(aabb::cInfo our, aabb::cInfo other) override;
     };

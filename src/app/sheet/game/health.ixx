@@ -67,7 +67,7 @@ public:
             line::end_x(m_bar_hit_line, line::end(m_bar_line).x);
         } else if (line::end(m_bar_hit_line).x > line::end(m_bar_line).x) {
             cF32 diff_x = line::end(m_bar_hit_line).x - line::end(m_bar_line).x;
-            line::add_end_x(m_bar_hit_line, -diff_x / 5.0f);
+            line::end_add_x(m_bar_hit_line, -diff_x / 5.0f);
         }
 
         line::offset(m_bar_bg_line, offset);

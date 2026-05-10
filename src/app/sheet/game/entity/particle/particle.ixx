@@ -9,14 +9,15 @@ export namespace entity {
     class Particle : public Object {
     protected:
         bool m_is_to_erase = false;
-    public:        
+        const F32 m_play_bounce_vel = 1.0F;
+    public:
         bool is_to_erase() const { return m_is_to_erase; }
 
-        void update() override {
+        void update(cF32 dt) override {
             if (m_is_first_update) {
                 m_is_first_update = false;
-                m_time_left_alive = m_time_to_be_alive;
-                m_time_left_dead = m_time_to_be_dead;
+                //m_time_left_alive = m_time_to_be_alive;
+                //m_time_left_dead = m_time_to_be_dead;
                 //m_start_offset = position_on_level();
             }
             /*if (m_time_left_alive == 0 and m_time_left_dead == 0) {
@@ -38,25 +39,39 @@ export namespace entity {
             velocity_add_y(acceleration().y);
 
             switch (m_state) {
-                case state::Type::idle: state_idle();  break;                
-                case state::Type::dead: state_dead();  break;
-                default:                               break;
+                case state::Type::idle:
+                    state_idle(dt);
+                    break;
+                case state::Type::dead:
+                    state_dead(dt);
+                    break;
+                case state::Type::slide_wall:
+                    state_slide_wall(dt);
+                    break;
+                default:
+                    break;
             }
-            if (m_time_left_alive > 0) {
-                --m_time_left_alive;
-                if (m_time_left_alive == 0) {
-                    m_time_left_dead = m_time_to_be_dead;
-                    if (m_time_to_be_dead == 0) {
-                        m_is_to_erase = true;
+            if (m_time_left_alive == 0 and m_time_left_dead == 0) {
+                m_is_to_erase = true;
+            }
+            else if (m_time_left_alive > 0) {
+                if (m_time_left_alive != U16_MAX) {
+                    --m_time_left_alive;
+                    if (m_time_left_alive == 0) {
+                        m_time_left_dead = m_time_to_be_dead;
+                        if (m_time_to_be_dead == 0) {
+                            m_is_to_erase = true;
+                        }
                     }
-                }
+                }                
                 if (m_current_anim != anim("idle")) {
                     m_current_anim = anim("idle");
                     anim::source_x(anim("idle"), anim::first_frame(anim("idle")));                    
                 }
             }
             else if (m_time_left_dead > 0) {
-                velocity({});
+                //velocity({});
+                m_next_state = state::Type::dead;
 
                 if (m_time_left_dead != U16_MAX) {
                     --m_time_left_dead;
@@ -69,7 +84,7 @@ export namespace entity {
                     anim::source_x(anim("dead"), anim::first_frame(anim("dead")));
                 }
             }
-            sprite::rect(m_sprite, anim::source(m_current_anim));
+            sprite_rect(anim::source(m_current_anim));
         }
     };
 }

@@ -2,6 +2,7 @@ module;
 #include <concepts>
 #include <string>
 #include <map>
+#include <cmath>
 
 export module types;
 export using   U8 =       unsigned char;
@@ -28,6 +29,8 @@ export using cF64 = const double;
 export constexpr U16 U16_MAX            = 65535;
 export constexpr  U8 NUM_VISIBLE_LAYERS =    15;
 export constexpr  U8 NUM_LEVEL_LAYERS   =    10;
+
+export constexpr F32 PI = 3.1415926535F;
 
 export namespace aabb {
     enum class Name {
@@ -92,13 +95,13 @@ export namespace anim {
     enum class Type {
         none = 0,
         bounce,
-        crawl,
+        crawl, climb,
         dead, down_thrust, duck,
         fall,
         hurt, hit_ground, hover,
         idle,
         jump, jump_spin, jump_skid,
-        ledge_grab, ledge_climb, lever,
+        ledge, lever,
         melee,
         rise, run,
         skid, slide_ground, slide_wall, stunned, swim, sling,
@@ -110,6 +113,7 @@ export namespace anim {
         switch (t) {
         case Type::bounce:       return "bounce";
         case Type::crawl:        return "crawl";
+        case Type::climb:        return "climb";
         case Type::dead:         return "dead";
         case Type::down_thrust:  return "down_thrust";
         case Type::duck:         return "duck";
@@ -121,8 +125,7 @@ export namespace anim {
         case Type::jump:         return "jump";
         case Type::jump_spin:    return "jump_spin";
         case Type::jump_skid:    return "jump_skid";
-        case Type::ledge_grab:   return "ledge_grab";
-        case Type::ledge_climb:  return "ledge_climb";
+        case Type::ledge:        return "ledge";
         case Type::lever:        return "lever";
         case Type::melee:        return "melee";
         case Type::rise:         return "rise";
@@ -141,6 +144,7 @@ export namespace anim {
     const std::map<std::string, Type> string_to_anim_type_map{
         { "bounce"       , Type::bounce       },
         { "crawl"        , Type::crawl        },
+        { "climb"        , Type::climb        },
         { "dead"         , Type::dead         },
         { "down_thrust"  , Type::down_thrust  },
         { "duck"         , Type::duck         },
@@ -152,8 +156,7 @@ export namespace anim {
         { "jump"         , Type::jump         },
         { "jump_spin"    , Type::jump_spin    },
         { "jump_skid"    , Type::jump_skid    },
-        { "ledge_grab"   , Type::ledge_grab   },
-        { "ledge_climb"  , Type::ledge_climb  },
+        { "ledge"        , Type::ledge        },
         { "lever"        , Type::lever        },
         { "melee"        , Type::melee        },
         { "rise"         , Type::rise         },
@@ -179,8 +182,8 @@ export namespace entity {
     enum class Type {
         none = 0,
         arch_L_1x1, arch_R_1x1, arch_L_2x1_0, arch_L_2x1_1, arch_R_2x1_0, arch_R_2x1_1,
-        brick, bridge, bug,
-        clip, clip_D, clip_LD, clip_RD, clip_L, clip_R, clip_ledge, clip_U,
+        bee, brick, bridge, bug,
+        clip, clip_D, clip_LD, clip_RD, clip_L, clip_R, clip_ledge, clip_U, clip_UD, clip_LR,
         coin,
         conduit_UD, conduit_LR,
         conduit_corner_UL, conduit_corner_UR, conduit_corner_DL, conduit_corner_DR,
@@ -201,7 +204,7 @@ export namespace entity {
         particle_health,
         particle_interact,
         particle_melee,
-        particle_sense, particle_shot,
+        particle_sense, particle_pebble, particle_rock,
         player,
         slope_L_1x1, slope_R_1x1, slope_L_2x1_0, slope_L_2x1_1, slope_R_2x1_0, slope_R_2x1_1, slope_U,
         spring_U,
@@ -222,9 +225,9 @@ export namespace entity {
             t == Type::arch_R_1x1 or t == Type::arch_R_2x1_0 or t == Type::arch_R_2x1_1;
     }
     bool is_slope(cType t) {
-        return t == Type::slope_L_1x1 or t == Type::slope_L_2x1_0 or t == Type::slope_L_2x1_1 or
-            t == Type::slope_R_1x1 or t == Type::slope_R_2x1_0 or t == Type::slope_R_2x1_1 or
-            t == Type::slope_U;
+    return t == Type::slope_L_1x1 or t == Type::slope_L_2x1_0 or t == Type::slope_L_2x1_1 or
+        t == Type::slope_R_1x1 or t == Type::slope_R_2x1_0 or t == Type::slope_R_2x1_1 or
+        t == Type::slope_U;
     }
     bool is_clip(cType t) {
         return t == Type::clip or t == Type::clip_U or t == Type::clip_D or
@@ -271,6 +274,7 @@ export namespace entity {
         { "arch_L_2x1_1"         , Type::arch_L_2x1_1         },
         { "arch_R_2x1_0"         , Type::arch_R_2x1_0         },
         { "arch_R_2x1_1"         , Type::arch_R_2x1_1         },
+        { "bee"                  , Type::bee                  },
         { "brick"                , Type::brick                },
         { "bridge"               , Type::bridge               },
         { "bug"                  , Type::bug                  },
@@ -282,6 +286,8 @@ export namespace entity {
         { "clip_RD"              , Type::clip_RD              },
         { "clip_ledge"           , Type::clip_ledge           },
         { "clip_U"               , Type::clip_U               },
+        { "clip_UD"              , Type::clip_UD              },
+        { "clip_LR"              , Type::clip_LR              },
         { "coin"                 , Type::coin                 },
         { "conduit_trigger_UL"   , Type::conduit_trigger_UL   },
         { "conduit_trigger_UR"   , Type::conduit_trigger_UR   },
@@ -345,7 +351,8 @@ export namespace entity {
         { "particle_interact"    , Type::particle_interact    },
         { "particle_melee"       , Type::particle_melee       },
         { "particle_sense"       , Type::particle_sense       },
-        { "particle_shot"        , Type::particle_shot        },
+        { "particle_pebble"      , Type::particle_pebble      },
+        { "particle_rock"        , Type::particle_rock        },
         { "player"               , Type::player               },
         { "slope_L_1x1"          , Type::slope_L_1x1          },
         { "slope_L_2x1_0"        , Type::slope_L_2x1_0        },
@@ -396,6 +403,7 @@ export namespace entity {
             case Type::arch_L_2x1_1:         return "arch_L_2x1_1";
             case Type::arch_R_2x1_0:         return "arch_R_2x1_0";
             case Type::arch_R_2x1_1:         return "arch_R_2x1_1";
+            case Type::bee:                  return "bee";
             case Type::brick:                return "brick";
             case Type::bridge:               return "bridge";
             case Type::bug:                  return "bug";
@@ -407,6 +415,8 @@ export namespace entity {
             case Type::clip_RD:              return "clip_RD";
             case Type::clip_ledge:           return "clip_ledge";
             case Type::clip_U:               return "clip_U";
+            case Type::clip_UD:              return "clip_UD";
+            case Type::clip_LR:              return "clip_LR";
             case Type::coin:                 return "coin";
             case Type::conduit_trigger_UL:   return "conduit_trigger_UL";
             case Type::conduit_trigger_UR:   return "conduit_trigger_UR";
@@ -470,7 +480,8 @@ export namespace entity {
             case Type::particle_interact:    return "particle_interact";
             case Type::particle_melee:       return "particle_melee";
             case Type::particle_sense:       return "particle_sense";
-            case Type::particle_shot:        return "particle_shot";
+            case Type::particle_pebble:      return "particle_pebble";
+            case Type::particle_rock:        return "particle_rock";
             case Type::player:               return "player";
             case Type::slope_L_1x1:          return "slope_L_1x1";
             case Type::slope_R_1x1:          return "slope_R_1x1";
@@ -529,9 +540,10 @@ export namespace entity {
 export namespace state {
     enum class Type {
         none = 0,
+        attack,
         blocked, bounce,
-        carried,
-        dead, dive,
+        carried, charge, climb,
+        dead, dive, duck,
         enter, exit,
         heal, hurt,
         idle,
@@ -548,30 +560,34 @@ export namespace state {
     using cType = const Type;
     const std::string to_string(cType t) {
         switch (t) {
-        case Type::blocked:    return "blocked";
-        case Type::bounce:     return "bounce";
-        case Type::carried:    return "carried";
-        case Type::dead:       return "dead";
-        case Type::dive:       return "dive";
-        case Type::enter:      return "enter";
-        case Type::exit:       return "exit";
-        case Type::heal:       return "heal";
-        case Type::hurt:       return "hurt";
-        case Type::idle:       return "idle";
-        case Type::jump:       return "jump";
-        case Type::ledge:      return "ledge";
-        case Type::melee:      return "melee";
-        case Type::run:        return "run";
-        case Type::shoot:      return "shoot";
-        case Type::stunned:    return "stunned";
-        case Type::swim:       return "swim";
-        case Type::sling:      return "sling";
-        case Type::slide_wall: return "slide_wall";
-        case Type::jump_wall:  return "jump_wall";
-        case Type::tossed:     return "tossed";
-        case Type::upended:    return "upended";
-        case Type::walk:       return "walk";
-        default:               return "";
+            case Type::attack:     return "attack";
+            case Type::blocked:    return "blocked";
+            case Type::bounce:     return "bounce";
+            case Type::carried:    return "carried";
+            case Type::charge:     return "charge";
+            case Type::climb:      return "climb";
+            case Type::dead:       return "dead";
+            case Type::dive:       return "dive";
+            case Type::duck:       return "duck";
+            case Type::enter:      return "enter";
+            case Type::exit:       return "exit";
+            case Type::heal:       return "heal";
+            case Type::hurt:       return "hurt";
+            case Type::idle:       return "idle";
+            case Type::jump:       return "jump";
+            case Type::ledge:      return "ledge";
+            case Type::melee:      return "melee";
+            case Type::run:        return "run";
+            case Type::shoot:      return "shoot";
+            case Type::stunned:    return "stunned";
+            case Type::swim:       return "swim";
+            case Type::sling:      return "sling";
+            case Type::slide_wall: return "slide_wall";
+            case Type::jump_wall:  return "jump_wall";
+            case Type::tossed:     return "tossed";
+            case Type::upended:    return "upended";
+            case Type::walk:       return "walk";
+            default:               return "";
         }
     }
 }
@@ -707,7 +723,9 @@ export namespace particle {
         health, hit,
         interact,
         melee,
-        sense, shot,
+        pebble, 
+        rock,
+        sense,
         trail_smoke,
         tile_line
     };
@@ -725,8 +743,9 @@ export namespace particle {
         case Type::hit:         return "hit";
         case Type::interact:    return "interact";
         case Type::melee:       return "melee";
+        case Type::pebble:      return "pebble";
+        case Type::rock:        return "rock";
         case Type::sense:       return "sense";
-        case Type::shot:        return "shot";
         case Type::trail_smoke: return "trail_smoke";
         case Type::tile_line:   return "tile_line";
         default:                return "";
@@ -754,6 +773,16 @@ struct Vec2 {
     T x = 0, y = 0;
     Vec2() {}
     Vec2(T in_x, T in_y) : x(in_x), y(in_y) {}
+    static T length(const Vec2& v) { return std::sqrtf(v.x * v.x + v.y * v.y); }
+    T length() { return length(*this); }
+
+    T dot(const Vec2& other) {
+        return { x * other.x + y * other.y };
+    }
+    static T dot(const Vec2& v0, const Vec2& v1) {
+        return { v0.x * v1.x + v0.y * v1.y };
+    }
+    void normalize() { *this = *this / length(); }
     Vec2& operator =(const Vec2& other) { x = other.x, y = other.y;   return *this; }
     Vec2& operator =(const T value) { x = value, y = value;   return *this; }
     Vec2& operator +=(const Vec2& other) { x += other.x, y += other.y; return *this; }

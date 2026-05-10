@@ -9,7 +9,7 @@ export namespace entity {
         ParticleBubble() {
             m_type = Type::particle_bubble;
         }
-        void state_idle() override;
+        void state_idle(cF32 dt) override;
         void collide_x(aabb::cInfo our, aabb::cInfo other) override;
         void collide_y(aabb::cInfo our, aabb::cInfo other) override;
     };

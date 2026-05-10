@@ -1,17 +1,17 @@
 module entity.player;
 
 namespace entity {
-    void Player::state_jump_wall() {
+    void Player::state_jump_wall(cF32 dt) {
         if (m_is_first_state_update) {
             m_is_first_state_update = false;
 
             m_time_in_state = 0;
-            m_num_jumps = 0;
+            //m_num_jumps = 0;
             max_velocity(m_ground_max_velocity * 1.2F);
         }
         ++m_time_in_state;
 
-        console::log(class_name(), "::state_jump_wall()\n");
+        //console::log(class_name(), "::state_jump_wall()\n");
 
         //reset_anim("jump");
 

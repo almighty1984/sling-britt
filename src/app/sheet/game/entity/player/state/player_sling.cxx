@@ -4,7 +4,7 @@ import console;
 import sprite;
 import transform;
 
-void entity::Player::state_sling() {
+void entity::Player::state_sling(cF32 dt) {
     if (!m_parent) {
         m_next_state = state::Type::run;
         return;
@@ -118,7 +118,7 @@ void entity::Player::state_sling() {
         
         sprite_is_leftward(velocity().x < 0.0F);
 
-        sound_position("sling_detach", { position().x / (app::config::extent().x / 2.0F), position().y / (app::config::extent().y / 2.0F) });
+        sound_position("sling_detach", { position().x - app::config::extent().x / 2.0F, position().y - app::config::extent().y / 2.0F });
         sound_play("sling_detach");
     }
 

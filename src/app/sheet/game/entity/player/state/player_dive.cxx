@@ -4,7 +4,7 @@ import random;
 import particle_system;
 
 namespace entity {
-    void Player::state_dive() {
+    void Player::state_dive(cF32 dt) {
         if (m_is_first_state_update) {
             m_is_first_state_update = false;
             m_is_carrying = false;
@@ -13,7 +13,6 @@ namespace entity {
             sound_stop("slide_wall");
 
             max_velocity({ 6.0F, 6.0F });
-            m_saved_state = state::Type::run;
         }
         //console::log(class_name(), "::state_dive() velocity: ", velocity().x, " ", velocity().y, "\n");;
 
@@ -64,10 +63,11 @@ namespace entity {
         anim::source_x(m_current_anim, anim::source(m_current_anim).w * 7);
 
         if (velocity().y >= 0.0F and (m_is_on_ground or is_pressed(key_jump) or is_pressed(key_melee))
-            and
-            m_next_state != state::Type::run) {
+            //and m_next_state != state::Type::run
+            ) {
             console::log(class_name(), "::state_dive() landed on ground\n");
-            m_next_state = state::Type::run;
+            //m_next_state = state::Type::run;
+            m_next_state = m_saved_state;
             return;
             //next_state(state::Type::run);
             //console::log("is_on_ground: ", m_is_on_ground, "\n");
@@ -79,9 +79,9 @@ namespace entity {
         if (radians < 0.0F) {
             radians += 3.1415926535F * 2.0F;
         }
-        F32 degrees = radians * 180.0F / 3.1415926535F;
+        F32 degrees = radians * 180.0F / PI;
         //console::log("degrees: ", degrees, "\n");
-        sprite::origin(m_sprite, { sprite::rect(m_sprite).w / 2.0F, 48.0F });
+        sprite_origin({ sprite_rect().w / 2.0F, 48.0F });
 
         if (is_pressed(key_jump) and m_num_jumps == 0) {
             return;

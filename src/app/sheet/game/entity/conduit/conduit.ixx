@@ -8,7 +8,7 @@ import sprite;
 export namespace entity {
     class Conduit : public Object {
     public:
-        void update() override {
+        void update(cF32 dt) override {
             m_input_limit = 1;
             m_time_left_alive = 0;
 
@@ -23,7 +23,7 @@ export namespace entity {
 
                         if (m_type == Type::conduit_LR) {
                             if (i->start_offset().x > m_start_offset.x) {
-                                cI16 num_frames = anim::texture_size(m_current_anim).x / sprite::rect(m_sprite).w;
+                                cI16 num_frames = anim::texture_extent(m_current_anim).x / sprite::rect(m_sprite).w;
                                 anim::first_frame(anim("idle"), num_frames - 1);
                                 anim::last_frame(anim("idle"), 0);
                                 anim::is_reverse(anim("idle"), true);

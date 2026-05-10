@@ -222,7 +222,7 @@ public:
         return true;
     }
 
-    void update() {
+    void update(cF32 dt) {
         if (m_transforms_map.empty()) return;
         cF32 source_w = (F32)sprite::rect(m_sprites.back()).w;
 

@@ -10,7 +10,7 @@ export namespace entity {
         LogicAnd() {
             m_input_limit = 2;
         }
-        void update() override {
+        void update(cF32 dt) override {
             m_time_left_alive = U16_MAX;
             if (m_input_objects.size() == 2) {
                 for (auto& i : m_input_objects) {

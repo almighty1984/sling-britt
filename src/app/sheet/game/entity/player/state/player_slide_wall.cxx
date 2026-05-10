@@ -7,16 +7,23 @@ import particle_system;
 import input;
 
 namespace entity {
-    void Player::state_slide_wall() {
+    void Player::state_slide_wall(cF32 dt) {
         if (m_is_first_state_update) {
             m_is_first_state_update = false;
             m_time_in_state = 0;
-            m_saved_state = m_prev_state == state::Type::dive ? state::Type::run : m_prev_state;
+
+
+            if (sound_is_playing("hover")) {
+                sound_stop("hover");
+            }
+
+            //m_saved_state = m_prev_state == state::Type::dive ? state::Type::run : m_prev_state;
             
             console::log(class_name(), "::state_slide_wall() saved state: ", state::to_string(m_saved_state), "\n");
             sprite_is_hidden(false);
             sprite::is_hidden(m_sling_shot_sprite, true);
             sprite::is_hidden(m_sling_shot_bg_sprite, true);
+            sprite::is_hidden(m_target_sprite, true);
 
             m_water_line_y = 0.0F;            
             if (sprite_angle() != 0.0F) {
@@ -52,10 +59,16 @@ namespace entity {
             velocity_y(1.0F);
         }
 
-
         if (!sound_is_playing("slide_wall")) {
             sound_play("slide_wall");
         }
+
+        m_num_jumps = 0;
+        /*if (m_time_left_jump_again > 0) {
+            --m_time_left_jump_again;
+        } else {
+            m_num_jumps = 0;
+        }*/
 
 
         ++m_time_in_state;
@@ -85,7 +98,6 @@ namespace entity {
         else {
             set_anim("slide_wall");
             max_velocity(m_ground_max_velocity);
-            m_time_left_ducking = 0;
             m_time_left_rising = 0;
             if (sound_is_stopped("slide_wall")) {
                 //console::log("sliding wall\n");
@@ -94,8 +106,10 @@ namespace entity {
             m_is_on_ground = false;            
         }
 
+        
+
         if (is_pressed(key_jump) and !is_locked(key_jump)) {
-            m_num_jumps = 0;
+            //m_num_jumps = 0;
             m_next_state = state::Type::jump_wall;
             console::log(class_name(), "::state_slide_wall() -> state_jump_wall()\n");
             sound_stop("slide_wall");            

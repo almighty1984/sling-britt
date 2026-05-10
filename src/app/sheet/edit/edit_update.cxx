@@ -386,6 +386,9 @@ namespace sheet {
                 else if (!is_pressed(input::Key::shift) and m_layer < 9) {
                     sprite::offset_add(m_active_layer_sprite, { 0.0F,  16.0F });
                     m_layer += 1;
+                }                
+                for (auto& i : m_moving_sprites) {
+                    sprite::layer(i, m_layer);
                 }
             }
         }

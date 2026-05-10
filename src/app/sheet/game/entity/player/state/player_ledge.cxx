@@ -7,12 +7,10 @@ import health;
 import particle_system;
 
 namespace entity {
-    void Player::state_ledge() {
+    void Player::state_ledge(cF32 dt) {
         if (m_is_first_state_update) {
             m_is_first_state_update = false;
-            m_time_left_ducking = 0;
-            m_time_left_skidding = 0;
-            m_saved_state = m_prev_state;
+                        
             sound_stop("slide_wall");
             sound_stop("hover");
             sprite_is_hidden(false);
@@ -24,6 +22,7 @@ namespace entity {
             }
             sprite::is_hidden(m_sling_shot_sprite, true);
             sprite::is_hidden(m_sling_shot_bg_sprite, true);
+            sprite::is_hidden(m_target_sprite, true);
             for (auto& i : m_aabbs) {
                 if (aabb::name(i) == aabb::Name::body) {
                     aabb::is_active(i, true);
@@ -31,17 +30,22 @@ namespace entity {
                     aabb::is_active(i, false);
                 }
             }
-            reset_anim("ledge_grab");
+            reset_anim("ledge");
 
-            sound_position("ledge_grab", { position().x / (app::config::extent().x / 2.0F),
-                                           position().y / (app::config::extent().y / 2.0F) });
-            sound_play("ledge_grab");
+            sound_position("ledge", { position().x - app::config::extent().x / 2.0F,
+                                      position().y - app::config::extent().y / 2.0F });
+            sound_play("ledge");
         }
 
         m_is_on_ground = false;
         m_num_jumps = 0;
+        /*if (m_time_left_jump_again > 0) {
+            --m_time_left_jump_again;
+        } else {
+            m_num_jumps = 0;
+        }*/
 
-        set_anim("ledge_grab");
+        set_anim("ledge");
 
         sprite::is_leftward(m_sprite, m_is_wall_to_left);
 
@@ -52,21 +56,7 @@ namespace entity {
 
         if (is_pressed(key_up) and !is_locked(key_up)) {
             release(key_up);
-            sound_position("ledge_climb", { position().x / (app::config::extent().x / 2.0F),
-                                            position().y / (app::config::extent().y / 2.0F) });
-            sound_play("ledge_climb");
-
-            m_is_climbing_ledge = true;
-            velocity_y(-2.8F);
-            reset_anim("ledge_climb");
-            ++m_num_jumps;
-            if (m_num_jumps > 2) {
-                m_num_jumps = 2;
-            }
-            m_time_left_jump_again = m_time_to_jump_again;
-            //m_time_left_ducking = m_time_to_duck;
-
-            m_next_state = m_saved_state;
+            m_next_state = state::Type::climb;
         }
         if (is_pressed(key_down) and !is_locked(key_down)) {
             release(key_down);

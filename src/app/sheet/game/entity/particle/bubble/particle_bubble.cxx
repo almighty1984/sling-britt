@@ -3,97 +3,123 @@ import console;
 
 namespace entity {    
     void ParticleBubble::collide_x(aabb::cInfo our, aabb::cInfo other) {
+        if (is_dead()) return;
+
         //collide_y(our, other);
-        cRectF our_points = { aabb::point(our.id, 0).x, aabb::point(our.id, 0).y,
-                            aabb::point(our.id, 3).x, aabb::point(our.id, 3).y };
-        cRectF other_points = { aabb::point(other.id, 0).x, aabb::point(other.id, 0).y,
-                              aabb::point(other.id, 3).x, aabb::point(other.id, 3).y };
+        cVec2F our_UL = aabb::UL(our.id);
+        cVec2F our_DR = aabb::DR(our.id);
+        cVec2F other_UL = aabb::UL(other.id);
+        cVec2F other_DR = aabb::DR(other.id);
 
         cType other_type = other.owner->type();
         aabb::cName   other_name = aabb::name(other.id);
 
 
-        cF32 overlap_x = our_points.x < other_points.x ? our_points.w - other_points.x : -(other_points.w - our_points.x);
+        cF32 overlap_x = our_UL.x < other_UL.x ? our_DR.x - other_UL.x : -(other_DR.x - our_UL.x);
 
-        if (is_clip(other_type)) {
-            m_time_in_state = 0;
-            position_add_x(-overlap_x);
-            velocity_x(0.0F);
-        } else if (other_type == Type::particle_bubble) {
-            position_add_x(-overlap_x);
-            //cF32 vel_x = velocity().x;
-            //velocity_x((other.owner->velocity().x + vel_x) / 2.0F;
-            //other.owner->velocity_x((other.owner->velocity().x + vel_x) / 2.0F;
-            if (std::abs(velocity().x) > std::abs(other.owner->velocity().x)) {
-                other.owner->velocity_x(velocity().x);
+        switch (other_type) {
+            case Type::clip:
+            case Type::clip_U:
+            case Type::clip_D:
+            case Type::clip_L:
+            case Type::clip_R:
+            case Type::clip_LD:
+            case Type::clip_RD:
+            case Type::clip_ledge: {
+                m_time_in_state = 0;
+                position_add_x(-overlap_x);
+                velocity_x(0.0F);
+                break;
             }
-            else {
-                velocity_x(other.owner->velocity().x);
+            case Type::particle_bubble: {
+                position_add_x(-overlap_x);
+                //cF32 vel_x = velocity().x;
+                //velocity_x((other.owner->velocity().x + vel_x) / 2.0F;
+                //other.owner->velocity_x((other.owner->velocity().x + vel_x) / 2.0F;
+                if (std::abs(velocity().x) > std::abs(other.owner->velocity().x)) {
+                    other.owner->velocity_x(velocity().x);
+                } else {
+                    velocity_x(other.owner->velocity().x);
+                }
+                break;
             }
         }
     }
     void ParticleBubble::collide_y(aabb::cInfo our, aabb::cInfo other) {
-        cRectF our_points = { aabb::point(our.id, 0).x, aabb::point(our.id, 0).y,
-                            aabb::point(our.id, 3).x, aabb::point(our.id, 3).y };
-        cRectF other_points = { aabb::point(other.id, 0).x, aabb::point(other.id, 0).y,
-                              aabb::point(other.id, 3).x, aabb::point(other.id, 3).y };
+        if (is_dead()) return;
+
+        cVec2F our_UL = aabb::UL(our.id);
+        cVec2F our_DR = aabb::DR(our.id);
+        cVec2F other_UL = aabb::UL(other.id);
+        cVec2F other_DR = aabb::DR(other.id);
 
         cType other_type = other.owner->type();
         aabb::cName   other_name = aabb::name(other.id);
 
-        cF32 overlap_y = our_points.y < other_points.y ? our_points.h - other_points.y : -(other_points.h - our_points.y);
+        cF32 overlap_y = our_UL.y < other_UL.y ? our_DR.y - other_UL.y : -(other_DR.y - our_UL.y);
 
-        if (is_arch(other_type)) {
-            if (velocity().y > 0.0F) return;
-
-            F32 amount = 0.0F;
-            if (other_type == Type::arch_L_1x1) {
-                amount = 1.0F;
-            }
-            else if (other_type == Type::arch_R_1x1) {
-                amount = -1.0F;
-            }
-            else if (other_type == Type::arch_L_2x1_0 or other_type == Type::arch_L_2x1_1) {
-                amount = 1.0F;
-            }
-            else if (other_type == Type::arch_R_2x1_0 or other_type == Type::arch_R_2x1_1) {
-                amount = -1.0F;
-            }
-            velocity_x(velocity().y * amount);
-            position_add_y(-overlap_y);
-        }
-        else if (is_clip(other_type)) {
-            position_add_y(-overlap_y);
-
-            m_time_in_state = 0;
-
-            //if (our_points.x < other_points.x + (other_points.w - other_points.x) / 2) {
-
-            if (velocity().x == 0.0F) {
-                if (direction().x == 0.0F) {
-                    velocity_x(-0.1F);
-                    //position().x -= overlap_y;
-                } else {
-                    velocity_x(0.1F);
-                    //position().x += overlap_y;
+        switch (other_type) {
+            case Type::arch_L_1x1:
+            case Type::arch_L_2x1_0:
+            case Type::arch_L_2x1_1:
+            case Type::arch_R_1x1:
+            case Type::arch_R_2x1_0:
+            case Type::arch_R_2x1_1: {
+                if (velocity().y > 0.0F) return;
+                F32 amount = 0.0F;
+                switch (other_type) {
+                    case Type::arch_L_1x1:
+                    case Type::arch_L_2x1_0:
+                    case Type::arch_L_2x1_1: amount =  1.0F; break;
+                    case Type::arch_R_1x1:
+                    case Type::arch_R_2x1_0:
+                    case Type::arch_R_2x1_1: amount = -1.0F; break;
                 }
+                velocity_x(velocity().y * amount);
+                position_add_y(-overlap_y);
+                break;
             }
+            case Type::clip:
+            case Type::clip_U:
+            case Type::clip_D:
+            case Type::clip_L:
+            case Type::clip_R:
+            case Type::clip_LD:
+            case Type::clip_RD:
+            case Type::clip_ledge: {
+                position_add_y(-overlap_y);
 
-            /*if (velocity().y < 0.0F) {
-                velocity_x(velocity().y);
-                velocity_y(0.0F);
-            }*/
-        }
-        else
-            if (is_water_line(other.owner->type())) {
-                if (!is_dead()) {
-                    m_time_left_alive = 0;
-                    m_time_left_dead = m_time_to_be_dead;
-                    other.owner->velocity_add_y(our.owner->velocity().y / 4.0F);
+                m_time_in_state = 0;
+
+                //if (our_UL.x < other_UL.x + (other_DR.x - other_UL.x) / 2) {
+
+                if (velocity().x == 0.0F) {
+                    if (direction().x == 0.0F) {
+                        velocity_x(-0.1F);
+                        //position().x -= overlap_y;
+                    } else {
+                        velocity_x(0.1F);
+                        //position().x += overlap_y;
+                    }
                 }
+
+                /*if (velocity().y < 0.0F) {
+                    velocity_x(velocity().y);
+                    velocity_y(0.0F);
+                }*/
+                break;
             }
+            case Type::water_line_L:
+            case Type::water_line_R:
+            case Type::water_line: {                
+                m_time_left_alive = 0;
+                m_time_left_dead = m_time_to_be_dead;
+                other.owner->velocity_add_y(our.owner->velocity().y / 4.0F);                
+                break;
+            }
+        }        
     }
-    void ParticleBubble::state_idle() {
+    void ParticleBubble::state_idle(cF32 dt) {
         //console::log("entity::ParticleBubble::state_idle() direction: ", m_direction.x, "\n");
         //++m_time_in_state;
         //if (m_time_in_state < 10) return;

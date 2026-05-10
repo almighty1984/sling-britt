@@ -98,8 +98,8 @@ export namespace sheet {
         }
         void check_to_add_input_from(entity::Object* trigger_entity);
 
-        void update(cF32 ts) override;
-        void update_unlocked() override;
+        void update(cF32 dt) override;
+        void update_unlocked(cF32 dt) override;
         void draw(std::unique_ptr<Window>& window, cU8 layer) override;
 
         std::filesystem::path level_path_to_save() override {

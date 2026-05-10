@@ -14,13 +14,12 @@ import particle_system;
 import sheet.game.save;
 
 namespace sheet {
-    void Game::update_unlocked() {
+    void Game::update_unlocked(cF32 dt) {
         for (auto& i : m_unlocked_entity_objects) {
-            if (i) i->update();
+            if (i) i->update(dt);
         }
     }
-    void Game::update(cF32 ts) {
-
+    void Game::update(cF32 dt) {
         camera::update(view());
 
         if (is_pressed(input::Key::esc)) {
@@ -64,6 +63,8 @@ namespace sheet {
         if (is_pressed(input::Key::ctrl)) {
             if (m_time_left_moving_camera > 0 and m_time_left_moving_camera < 9) {
                 camera::focal_point = { view().w / 2.0F, view().h / 2.0F }; // quick tap, reset
+                                
+                m_player.radians(m_player.sprite_is_leftward() ? PI : 0.0F);
             }
             m_time_left_moving_camera = 10;
             if (is_pressed(input::Key::left))  camera::focal_point.x += 4.0F;
@@ -77,24 +78,21 @@ namespace sheet {
         //console::log("level transform: ", m_level_transform, " position: ", transform::get(m_level_transform)->position.x, "\n");
         //console::log("transforms: ", transform::size(), " unused: ", transform::unused_size(), "\n");
 
-        particle::check_to_erase();
-        particle::check_to_spawn();
-        particle::update();
 
         //console::log("sheet::Game::update() view: ", view().w, " ", view().h, "\n");
 
         
         m_bg_planes.set_velocity(-camera::difference / 2.0F);
 
-        m_player.update();
+        m_player.update(dt);
 
         
 
-        m_bg_planes.update();
+        m_bg_planes.update(dt);
         //console::log("focus transform: ", camera::focus_transform, " ", m_player.get_transform(), "\n");
 
         std::for_each(/*std::execution::par_unseq, */m_entity_objects.begin(), m_entity_objects.end(),
-            [](auto& entity) {
+            [dt](auto& entity) {
                 if (entity and !entity::is_water_line(entity->type()) and !entity::is_track(entity->type())) {
                     if (!entity->is_start_in_view() and
                         entity->state() == state::Type::dead and
@@ -103,14 +101,14 @@ namespace sheet {
                         entity->next_state(entity->start_state());
                         entity->position(entity->start_position());
                     }
-                    entity->update();
+                    entity->update(dt);
                 }
             }
         );
 
         std::for_each(m_water_entity_objects.begin(), m_water_entity_objects.end(),
-            [](auto& e) {
-                if (e) e->update();
+            [dt](auto& e) {
+                if (e) e->update(dt);
             }
         );
 
@@ -171,8 +169,8 @@ namespace sheet {
         }
 
         
-        //m_player2.update();
-        //m_player3.update();
+        //m_player2.update(dt);
+        //m_player3.update(dt);
 
         
        /* for (auto& i : m_entity_objects) {
@@ -227,8 +225,14 @@ namespace sheet {
         }
 
         //app::config::view(view());
+        particle::update(dt);
 
         quad_trees_check_collision();
 
+
+
+        particle::check_to_erase();
+        particle::check_to_spawn();
+        
     }
 }

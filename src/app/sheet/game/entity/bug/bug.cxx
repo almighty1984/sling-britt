@@ -13,8 +13,8 @@ namespace entity {
 
         if (culprit->type() == entity::Type::player) {
             console::log("entity::Bug::hurt player vel y: ", culprit->velocity().y, "\n");
-            sound_position("bounce", { position().x / (app::config::extent().x / 2.0F),
-                                       position().y / (app::config::extent().y / 2.0F) });
+            sound_position("bounce", { position().x - app::config::extent().x / 2.0F,
+                                       position().y - app::config::extent().y / 2.0F });
             sound_play("bounce");
             return true;
         }
@@ -22,55 +22,69 @@ namespace entity {
         //m_state = state::Type::upended;
         m_next_state = state::Type::hurt;
 
-        if (culprit->type() == Type::brick or culprit->type() == Type::bug) {            
-            cF32 amount = std::abs(culprit->velocity().x * culprit->velocity().y) * 2.5F;
-            health_amount_add(-amount);
+        switch (culprit->type()) {
+            case Type::brick:
+            case Type::bug: {
+                //cF32 amount = std::abs(culprit->velocity().x * culprit->velocity().y) * 2.5F;
+                health_amount_add(-64.0F);
 
-            m_next_state = health_amount() > 0.0F ? state::Type::hurt : state::Type::dead;
+                m_next_state = health_amount() > 0.0F ? state::Type::hurt : state::Type::dead;
 
-            if      (culprit->position().x < position().x + 8.0F) add_to_position.x =  4.0F;
-            else if (culprit->position().x + 8.0F > position().x) add_to_position.x = -4.0F;
-            if      (culprit->position().y < position().y + 8.0F) add_to_position.y =  4.0F;
-            else if (culprit->position().y + 8.0F > position().y) add_to_position.y = -4.0F;
-        }
-        else if (culprit->type() == entity::Type::particle_melee) {
-            velocity_x(culprit->velocity().x * 0.1F + velocity().x * 0.5F);
-            health_amount_add(-16.0f);
+                if      (culprit->position().x < position().x + 8.0F) add_to_position.x =  4.0F;
+                else if (culprit->position().x + 8.0F > position().x) add_to_position.x = -4.0F;
+                if      (culprit->position().y < position().y + 8.0F) add_to_position.y =  4.0F;
+                else if (culprit->position().y + 8.0F > position().y) add_to_position.y = -4.0F;
+                break;
+            }        
+            case Type::particle_melee: {
+                velocity_x(culprit->velocity().x * 0.1F + velocity().x * 0.5F);
+                health_amount_add(-16.0f);
             
-            if      (culprit->position().x < position().x + 8.0F) add_to_position.x =  2.0F;
-            else if (culprit->position().x + 8.0F > position().x) add_to_position.x = -2.0F;
-            if      (culprit->position().y < position().y + 8.0F) add_to_position.y =  2.0F;
-            else if (culprit->position().y + 8.0F > position().y) add_to_position.y = -2.0F;
-        }
-        else {
-            health_amount_add(-2.0f);
+                if      (culprit->position().x < position().x + 8.0F) add_to_position.x =  2.0F;
+                else if (culprit->position().x + 8.0F > position().x) add_to_position.x = -2.0F;
+                if      (culprit->position().y < position().y + 8.0F) add_to_position.y =  2.0F;
+                else if (culprit->position().y + 8.0F > position().y) add_to_position.y = -2.0F;
+                break;
+            }        
+            case Type::particle_rock: {
+                if (culprit->parent()) {
+                    console::log(class_name(), "::hurt() particle_rock parent: ", to_string(culprit->parent()->type()), "\n");
+                } else {
+                    console::log(class_name(), "::hurt() parent is nullptr\n");
+                }
+                m_sensed_objects.clear();
+                m_sensed_objects.emplace_back(culprit->parent());
+                m_next_state = state::Type::hurt;
+                health_amount_add(-16.0F);
+                break;
+            }
+            default: {
+                health_amount_add(-2.0f);
+                break;
+            }
         }
         sprite_is_leftward(!sprite_is_leftward());
-
-        sound_position("melee", { position().x / (app::config::extent().x / 2.0F),
-                                  position().y / (app::config::extent().y / 2.0F) });
-        sound_play("melee");
 
         position_add(add_to_position);
 
         return true;
     }
 
-    void Bug::state_bounce() {
+    void Bug::state_bounce(cF32 dt) {
         if (m_is_first_state_update) {
             m_is_first_state_update = false;
-            /*sound::position(sound("bounce"), { position().x / (app::config::extent().x / 2.0F), position().y / (app::config::extent().y / 2.0F) });
+            /*sound::position(sound("bounce"), { position().x - app::config::extent().x / 2.0F, position().y - app::config::extent().y / 2.0F });
             sound::play(sound("bounce"));*/
 
             reset_anim("bounce");
         }
-        //int num_frames = anim()->texture_size.x / anim()->source.w;
+        //int num_frames = anim()->texture_extent.x / anim()->source.w;
         //console::log("num_frames: ", anim()->current_frame(), "\n");
         if (anim::current_frame(m_current_anim) + 1 == anim::num_frames(m_current_anim)) {
             m_next_state = state::Type::upended;
         }
     }
-    void Bug::state_carried() {
+    void Bug::state_carried(cF32 dt) {
         if (!m_parent) {
             m_next_state = state::Type::walk;            
             return;
@@ -118,7 +132,7 @@ namespace entity {
         /*if (m_parent->is_ducking()) {
             position_add_y(4.0F);
         }*/
-        if (m_parent->is_ducking() or !m_parent->is_carrying()) {
+        if (m_parent->state() == state::Type::duck or !m_parent->is_carrying()) {
             m_parent->is_carrying(false);
             velocity({ m_parent->velocity().x, velocity().y });
             if (sprite::is_leftward(m_sprite)) {
@@ -147,7 +161,7 @@ namespace entity {
             m_is_first_state_update = true;
         }
     }
-    void Bug::state_dead() {
+    void Bug::state_dead(cF32 dt) {
         if (m_is_first_state_update) {
             m_is_first_state_update = false;
             m_time_left_dead = m_time_to_be_dead;
@@ -168,7 +182,7 @@ namespace entity {
             //particle::spawn({ this, particle::Type::health, position() , {} });
             particle::spawn(this, particle::Type::health, position(), {});
 
-            sound_position("dead", { position().x / (app::config::extent().x / 2.0F), position().y / (app::config::extent().y / 2.0F) });
+            sound_position("dead", { position().x - app::config::extent().x / 2.0F, position().y - app::config::extent().y / 2.0F });
             sound_play("dead");
 
             if (m_parent) {
@@ -185,7 +199,7 @@ namespace entity {
         velocity({});
         moved_velocity({});
     }
-    void Bug::state_hurt() {
+    void Bug::state_hurt(cF32 dt) {
         if (m_is_first_state_update) {
             m_is_first_state_update = false;
             reset_anim("hurt");
@@ -198,7 +212,7 @@ namespace entity {
             m_next_state = state::Type::upended;
         }
     }
-    void Bug::state_swim() {
+    void Bug::state_swim(cF32 dt) {
         if (m_is_first_state_update) {
             m_is_first_state_update = false;
             m_sensed_objects.clear();
@@ -235,7 +249,7 @@ namespace entity {
             sprite::angle(m_sprite, degrees() + 270.0F);
         }
     }
-    void Bug::state_tossed() {
+    void Bug::state_tossed(cF32 dt) {
         if (m_is_first_state_update) {
             m_is_first_state_update = false;
             m_is_on_ground = false;
@@ -252,7 +266,7 @@ namespace entity {
             //console::log("entity::Bug toss not on ground\n");
         }
     }
-    void Bug::state_upended() {
+    void Bug::state_upended(cF32 dt) {
         if (m_is_first_state_update) {
             m_is_first_state_update = false;
         }
@@ -271,7 +285,7 @@ namespace entity {
             }
         }
     }
-    void Bug::state_walk() {
+    void Bug::state_walk(cF32 dt) {
         if (m_is_first_state_update) {
             m_is_first_state_update = false;
 

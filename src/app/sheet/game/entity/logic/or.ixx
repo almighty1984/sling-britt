@@ -10,7 +10,7 @@ export namespace entity {
         LogicOr() {
             m_input_limit = 2;
         }
-        void update() override {
+        void update(cF32 dt) override {
             m_time_left_alive = 0;
             for (auto& i : m_input_objects) {
                 if (i->time_left_alive() > 0) {

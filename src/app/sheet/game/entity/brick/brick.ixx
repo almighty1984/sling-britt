@@ -30,23 +30,39 @@ export namespace entity {
             //} else {
                 //reset_anim(anim("hurt"));
                 //m_break_velocity = { 1.5F, 1.5F };
-            //}            
-
-            sound_position("melee", { position().x / (app::config::extent().x / 2.0F), position().y / (app::config::extent().y / 2.0F) });
-            sound_play("melee");            
+            //}
             
+            switch (culprit->type()) {
+                case Type::bug:
+                case Type::brick:
+                case Type::frog: {
+                    sound_position("hit", { position().x - app::config::extent().x / 2.0F,
+                                            position().y - app::config::extent().y / 2.0F });
+                    sound_play("hit");
+                    break;
+                }                
+                default: {
+                    sound_position("hit", { position().x - app::config::extent().x / 2.0F,
+                                            position().y - app::config::extent().y / 2.0F });
+                    sound_play("hit");
+                    sound_position("dead", { position().x - app::config::extent().x / 2.0F,
+                                             position().y - app::config::extent().y / 2.0F });
+                    sound_play("dead");
+                    break;
+                }
+            }
             return true;
         }
         void collide_x(aabb::cInfo our, aabb::cInfo other) override;
         void collide_y(aabb::cInfo our, aabb::cInfo other) override;
 
-        void state_carried() override;
-        void state_dead()    override;
-        void state_idle()    override;
-        void state_swim()    override;
-        void state_tossed()  override;
+        void state_carried(cF32 dt) override;
+        void state_dead(cF32 dt)    override;
+        void state_idle(cF32 dt)    override;
+        void state_swim(cF32 dt)    override;
+        void state_tossed(cF32 dt)  override;
 
-        void update() override {
+        void update(cF32 dt) override {
             if (m_is_first_update) {
                 m_is_first_update = false;
                 reset_anim("idle");
@@ -63,7 +79,7 @@ export namespace entity {
                 m_is_first_state_update = true;
             }
 
-            state_update();
+            state_update(dt);
 
             sprite::rect(m_sprite, anim::source(m_current_anim));
 

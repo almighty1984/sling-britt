@@ -9,9 +9,9 @@ import types;
 export namespace sprite {
     class Trait {
     protected:
-        I32 m_sprite = -1;
+        I32 m_sprite = -1;        
     public:
-        I32   sprite()           const { return m_sprite;                       }
+        I32   sprite()              const { return m_sprite;                       }
         RectI sprite_rect()         const { return sprite::rect(m_sprite);         }
         F32   sprite_angle()        const { return sprite::angle(m_sprite);        }        
         Vec2F sprite_offset()       const { return sprite::offset(m_sprite);       }
@@ -21,9 +21,14 @@ export namespace sprite {
         bool  sprite_is_upended()   const { return sprite::is_upended(m_sprite);   }
         bool  sprite_is_hidden()    const { return sprite::is_hidden(m_sprite);    }
         bool  sprite_layer()        const { return sprite::layer(m_sprite);        }
+        const std::filesystem::path sprite_texture_path() const { return sprite::texture_path(m_sprite); }
 
-        void sprite(cI32 id)                  { m_sprite = id; }
+        void sprite(cI32 id)                     { m_sprite = id; }
         void sprite_rect(cRectI r)         const { sprite::rect(m_sprite, r);         }
+        void sprite_rect_x(cF32 x)         const { sprite::rect_x(m_sprite, x);       }
+        void sprite_rect_y(cF32 y)         const { sprite::rect_y(m_sprite, y);       }
+        void sprite_rect_w(cF32 w)         const { sprite::rect_w(m_sprite, w);       }
+        void sprite_rect_h(cF32 h)         const { sprite::rect_h(m_sprite, h);       }
         void sprite_angle(cF32 a)          const { sprite::angle(m_sprite, a);        }
         void sprite_angle_add(cF32 a)      const { sprite::angle_add(m_sprite, a);    }
         void sprite_offset(cVec2F o)       const { sprite::offset(m_sprite, o);       }
@@ -34,7 +39,8 @@ export namespace sprite {
         void sprite_is_leftward(bool q)    const { sprite::is_leftward(m_sprite, q);  }
         void sprite_is_upended(bool q)     const { sprite::is_upended(m_sprite, q);   }
         void sprite_is_hidden(bool q)      const { sprite::is_hidden(m_sprite, q);    }
-        void sprite_layer(cU8 l)           const { sprite::layer(m_sprite, l);        }        
+        void sprite_layer(cU8 l)           const { sprite::layer(m_sprite, l);        }
+        void sprite_texture(const std::filesystem::path& p) { sprite::texture(m_sprite, p); }
     };
     bool parse_config(const std::string& text, Trait* owner, cI32 transform, cU8 layer, cVec2F start_offset);
 }

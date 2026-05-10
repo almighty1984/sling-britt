@@ -185,7 +185,7 @@ export namespace app {
 
                 for (auto& sheet : m_sheet_objects) {
                     if (!sheet) continue;
-                    sheet->update_unlocked();                    
+                    sheet->update_unlocked(0.0F);                    
                 }
 
                 /*F32 r = std::clamp(input::mouse.x, 0.0F, 255.0F);

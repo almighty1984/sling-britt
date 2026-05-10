@@ -4,7 +4,7 @@ import aabb;
 import particle_system;
 
 namespace entity {
-    void Brick::state_carried() {
+    void Brick::state_carried(cF32 dt) {
         if (!m_parent) {
             m_next_state = state::Type::idle;
             return;
@@ -49,7 +49,7 @@ namespace entity {
         /*if (m_parent->is_ducking()) {
             position_add_y(4.0F);
         }*/
-        if (m_parent->is_ducking() or !m_parent->is_carrying()) {
+        if (m_parent->state() == state::Type::duck or !m_parent->is_carrying()) {
             m_parent->is_carrying(false);
             velocity({ m_parent->velocity().x, velocity().y });
             if (sprite::is_leftward(m_sprite)) {
@@ -65,7 +65,7 @@ namespace entity {
             m_next_state = state::Type::idle;
         }
     }
-    void Brick::state_dead() {
+    void Brick::state_dead(cF32 dt) {
         if (m_is_first_state_update) {
             m_is_first_state_update = false;
             m_time_left_dead = m_time_to_be_dead;
@@ -81,8 +81,6 @@ namespace entity {
                 aabb::is_active(i, false);
             }
             sprite_is_hidden(true);
-            sound_position("dead", { position().x / (app::config::extent().x / 2.0F), position().y / (app::config::extent().y / 2.0F) });
-            sound_play("dead");
             //particle::spawn(this, particle::Type::hit, position(), {});
 
             console::log(class_name(), "::dead velocity.x ", velocity().x, "\n");
@@ -90,11 +88,11 @@ namespace entity {
             particle::spawn_fan(this, 0.0F, 360.0F, 8,
                                 particle::Type::brick,
                                 position() + Vec2F{ 6.0F, -4.0F },
-                                velocity() / 4.0F, 2.0F,
+                                velocity() * 1.0F, 1.0F,
                                 state::Type::idle);
         }
-        velocity({});
-        moved_velocity({});
+        //velocity({});
+        //moved_velocity({});
 
         set_anim("dead");
 
@@ -103,13 +101,11 @@ namespace entity {
         if (m_time_left_dead > 0 and m_time_to_be_dead != U16_MAX) {
             --m_time_left_dead;
             if (m_time_left_dead == 0) {
-                console::log(class_name(), "::dead done being dead\n");
-                acceleration(start_acceleration());
-                max_velocity(start_max_velocity());
+                console::log(class_name(), "::dead done being dead\n");                
             }
         }
     }
-    void Brick::state_idle() {
+    void Brick::state_idle(cF32 dt) {
         if (m_is_first_state_update) {
             m_is_first_state_update = false;
             m_time_in_state = 0;
@@ -121,20 +117,23 @@ namespace entity {
             for (auto& i : m_aabbs) {
                 aabb::is_active(i, true);
             }
+            velocity({});
+            moved_velocity({});
+            acceleration(start_acceleration());
+            max_velocity(start_max_velocity());
         }
         if (m_is_on_ground) {
             deceleration({ 0.2F, 0.0F });
         }
-        ++m_time_in_state;
     }
-    void Brick::state_swim() {
+    void Brick::state_swim(cF32 dt) {
         if (m_is_first_state_update) {
             m_is_first_state_update = false;
         }
         acceleration({ 0.05F, 0.05F });
         max_velocity({ 1.0F, 1.0F });
     }
-    void Brick::state_tossed() {
+    void Brick::state_tossed(cF32 dt) {
         if (m_is_first_state_update) {
             m_is_first_state_update = false;
             m_is_on_ground = false;

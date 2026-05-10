@@ -8,7 +8,7 @@ import particle_system;
 F32 swim_speed = 0.0F, prev_swim_speed = 0.0F;
 
 namespace entity {
-    void Player::state_swim() {
+    void Player::state_swim(cF32 dt) {
         if (m_is_first_state_update) {
             m_is_first_state_update = false;
             //m_num_jumps = 0;
@@ -22,8 +22,10 @@ namespace entity {
 
             sprite::is_hidden(m_sling_shot_sprite, true);
             sprite::is_hidden(m_sling_shot_bg_sprite, true);
+            sprite::is_hidden(m_target_sprite, true);
         }
-        
+        m_is_on_ground = false;
+
         //console::log(class_name(), "::state_swim() velocity: ", velocity().x, " ", velocity().y, "\n");;
 
         //if (m_num_jumps != prev_num_jumps) {
@@ -152,19 +154,7 @@ namespace entity {
 
         
 
-        m_radians = std::atan2(velocity().y, velocity().x);
-        if (m_radians < 0.0F) {
-            m_radians += 3.1415926535F * 2.0F;
-        }
-
-        if (velocity().x == 0.0F) {
-            if (sprite_is_upended() and m_radians == 0.0F) {
-                m_radians = 3.1415926535F;
-            }
-        }
-
-        F32 degrees = m_radians * 180.0F / 3.1415926535F;
-        //console::log("degrees: ", degrees, "\n");
+        
         sprite_origin({ sprite_rect().w / 2.0F, 48.0F });
 
         if (is_pressed(key_jump)) {
@@ -176,6 +166,20 @@ namespace entity {
             is_pressed(key_left) or is_pressed(key_right) or
             is_pressed(key_up) or is_pressed(key_down)
             ) {
+
+            F32 radians = std::atan2(velocity().y, velocity().x);
+            if (radians < 0.0F) {
+                radians += PI * 2.0F;
+            }
+
+            if (velocity().x == 0.0F) {
+                if (sprite_is_upended() and radians == 0.0F) {
+                    radians = PI;
+                }
+            }
+
+            F32 degrees = radians * 180.0F / PI;
+            //console::log("degrees: ", degrees, "\n");
 
             //if (degree_diff > 10.0F) {
                 //sprite::angle_add(m_sprite, degree_diff * 0.1F);

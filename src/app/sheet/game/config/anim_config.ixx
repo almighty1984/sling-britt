@@ -67,13 +67,13 @@ export namespace anim {
 
                 cI32 sprite = owner->sprite();
 
-                anim::texture_size(id, sprite::texture_size(sprite));
+                anim::texture_extent(id, sprite::texture_extent(sprite));
                 anim::source(id, { 0, source_y, sprite::rect(sprite).w, sprite::rect(sprite).h });
                 anim::loops(id, num_loops);
                 anim::type(id, anim::string_to_type(current_label_str));
 
                 anim::first_frame(id, 0);
-                int num_frames = anim::texture_size(id).x / sprite::rect(sprite).w;
+                int num_frames = anim::texture_extent(id).x / sprite::rect(sprite).w;
                 anim::last_frame(id, num_frames - 1);
                 if (speed < 0.0F) {
                     speed = -speed;

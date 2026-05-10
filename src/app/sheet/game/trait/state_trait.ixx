@@ -26,31 +26,37 @@ export namespace state {
         Type start_state() const { return m_start_state; }
         Type prev_state()  const { return m_prev_state;  }
 
-        virtual void state_blocked()    {}
-        virtual void state_bounce()     {}
-        virtual void state_carried()    {}
-        virtual void state_dead()       {}
-        virtual void state_dive()       {}
-        virtual void state_enter()      {}
-        virtual void state_exit()       {}
-        virtual void state_heal()       {}
-        virtual void state_hurt()       {}
-        virtual void state_idle()       {}
-        virtual void state_jump()       {}
-        virtual void state_ledge()      {}
-        virtual void state_melee()      {}
-        virtual void state_walk()       {}
-        virtual void state_run()        {}
-        virtual void state_shoot()      {}
-        virtual void state_sling()      {}
-        virtual void state_stunned()    {}
-        virtual void state_swim()       {}
-        virtual void state_tossed()     {}
-        virtual void state_upended()    {}
-        virtual void state_slide_wall() {}
-        virtual void state_jump_wall()  {}
+        U16 time_left_in_next_state() const { return m_time_left_in_next_state; } void time_left_in_next_state(cU16 t) { m_time_left_in_next_state = t; }
 
-        void state_update() {
+        virtual void state_attack(cF32 dt)     {}
+        virtual void state_blocked(cF32 dt)    {}
+        virtual void state_bounce(cF32 dt)     {}
+        virtual void state_carried(cF32 dt)    {}
+        virtual void state_charge(cF32 dt)     {}
+        virtual void state_climb(cF32 dt)      {}
+        virtual void state_dead(cF32 dt)       {}
+        virtual void state_dive(cF32 dt)       {}
+        virtual void state_duck(cF32 dt)       {}
+        virtual void state_enter(cF32 dt)      {}
+        virtual void state_exit(cF32 dt)       {}
+        virtual void state_heal(cF32 dt)       {}
+        virtual void state_hurt(cF32 dt)       {}
+        virtual void state_idle(cF32 dt)       {}
+        virtual void state_jump(cF32 dt)       {}
+        virtual void state_ledge(cF32 dt)      {}
+        virtual void state_melee(cF32 dt)      {}
+        virtual void state_walk(cF32 dt)       {}
+        virtual void state_run(cF32 dt)        {}
+        virtual void state_shoot(cF32 dt)      {}
+        virtual void state_sling(cF32 dt)      {}
+        virtual void state_stunned(cF32 dt)    {}
+        virtual void state_swim(cF32 dt)       {}
+        virtual void state_tossed(cF32 dt)     {}
+        virtual void state_upended(cF32 dt)    {}
+        virtual void state_slide_wall(cF32 dt) {}
+        virtual void state_jump_wall(cF32 dt)  {}
+
+        void state_update(cF32 dt) {
             if (m_next_state != m_state) {
                /* m_prev_state = m_state;
                 m_state = m_next_state;
@@ -69,30 +75,34 @@ export namespace state {
             }
 
             switch (m_state) {
-            case Type::blocked:    state_blocked();    break;
-            case Type::bounce:     state_bounce();     break;
-            case Type::carried:    state_carried();    break;
-            case Type::dead:       state_dead();       break;
-            case Type::dive:       state_dive();       break;
-            case Type::enter:      state_enter();      break;
-            case Type::exit:       state_exit();       break;
-            case Type::heal:       state_heal();       break;
-            case Type::hurt:       state_hurt();       break;
-            case Type::idle:       state_idle();       break;
-            case Type::jump:       state_jump();       break;
-            case Type::ledge:      state_ledge();      break;
-            case Type::melee:      state_melee();      break;
-            case Type::walk:       state_walk();       break;
-            case Type::run:        state_run();        break;
-            case Type::shoot:      state_shoot();      break;
-            case Type::sling:      state_sling();      break;
-            case Type::stunned:    state_stunned();    break;
-            case Type::swim:       state_swim();       break;
-            case Type::tossed:     state_tossed();     break;
-            case Type::upended:    state_upended();    break;
-            case Type::slide_wall: state_slide_wall(); break;
-            case Type::jump_wall:  state_jump_wall();  break;
-            default:                                   break;
+                case Type::attack:     state_attack(dt);     break;
+                case Type::blocked:    state_blocked(dt);    break;
+                case Type::bounce:     state_bounce(dt);     break;
+                case Type::carried:    state_carried(dt);    break;
+                case Type::charge:     state_charge(dt);     break;
+                case Type::climb:      state_climb(dt);      break;
+                case Type::dead:       state_dead(dt);       break;
+                case Type::dive:       state_dive(dt);       break;
+                case Type::duck:       state_duck(dt);       break;
+                case Type::enter:      state_enter(dt);      break;
+                case Type::exit:       state_exit(dt);       break;
+                case Type::heal:       state_heal(dt);       break;
+                case Type::hurt:       state_hurt(dt);       break;
+                case Type::idle:       state_idle(dt);       break;
+                case Type::jump:       state_jump(dt);       break;
+                case Type::ledge:      state_ledge(dt);      break;
+                case Type::melee:      state_melee(dt);      break;
+                case Type::walk:       state_walk(dt);       break;
+                case Type::run:        state_run(dt);        break;
+                case Type::shoot:      state_shoot(dt);      break;
+                case Type::sling:      state_sling(dt);      break;
+                case Type::stunned:    state_stunned(dt);    break;
+                case Type::swim:       state_swim(dt);       break;
+                case Type::tossed:     state_tossed(dt);     break;
+                case Type::upended:    state_upended(dt);    break;
+                case Type::slide_wall: state_slide_wall(dt); break;
+                case Type::jump_wall:  state_jump_wall(dt);  break;
+                default:                                     break;
             }
         }
     };

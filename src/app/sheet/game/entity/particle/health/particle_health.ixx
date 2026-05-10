@@ -11,7 +11,8 @@ export namespace entity {
         ParticleHealth() {
             m_type = Type::particle_health;
             m_state = state::Type::idle;
-        }        
+        }
+        void state_dead(cF32 dt) override;
         void collide_x(aabb::cInfo our, aabb::cInfo other) override;
         void collide_y(aabb::cInfo our, aabb::cInfo other) override;
     };

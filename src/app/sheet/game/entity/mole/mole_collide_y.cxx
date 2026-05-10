@@ -8,10 +8,10 @@ namespace entity {
     void Mole::collide_y(aabb::cInfo our, aabb::cInfo other) {
         if (is_dead() or !other.owner or other.owner->is_dead()) return;
         
-        cRectF our_points = { aabb::point(our.id, 0).x, aabb::point(our.id, 0).y,
-                            aabb::point(our.id, 3).x, aabb::point(our.id, 3).y };
-        cRectF other_points = { aabb::point(other.id, 0).x, aabb::point(other.id, 0).y,
-                              aabb::point(other.id, 3).x, aabb::point(other.id, 3).y };
+        cVec2F our_UL = aabb::UL(our.id);
+        cVec2F our_DR = aabb::DR(our.id);
+        cVec2F other_UL = aabb::UL(other.id);
+        cVec2F other_DR = aabb::DR(other.id);
 
         entity::cType other_type = other.owner->type();
         aabb::cName   other_name = aabb::name(other.id);
@@ -21,23 +21,23 @@ namespace entity {
         cVec2F our_velocity = velocity() + moved_velocity();
         cVec2F other_velocity = other.owner->velocity() + other.owner->moved_velocity();
 
-        cF32 overlap_y = our_points.y < other_points.y ? our_points.h - other_points.y : -(other_points.h - our_points.y);
+        cF32 overlap_y = our_UL.y < other_UL.y ? our_DR.y - other_UL.y : -(other_DR.y - our_UL.y);
 
 
         /*if (is_slope(other_type) and other_type != Type::slope_U) {
-            if (our_points.h - 4.0F < other_points.h) return;
+            if (our_DR.y - 4.0F < other_DR.y) return;
         }*/
 
         if (our_velocity.y < 0.0F) {
-            if (m_state == state::Type::jump and our_points.y > other_points.h - 4.0F) {
+            if (m_state == state::Type::jump and our_UL.y > other_DR.y - 4.0F) {
                 if (is_arch(other_type)         or
                     other_type == Type::clip    or
                     other_type == Type::clip_D  or
                     other_type == Type::clip_LD or
                     other_type == Type::clip_RD or
                     other_type == Type::clip_ledge) {
-                    sound_position("bump_head", { position().x / (app::config::extent().x / 2.0F),
-                                                  position().y / (app::config::extent().y / 2.0F) });
+                    sound_position("bump_head", { position().x - app::config::extent().x / 2.0F,
+                                                  position().y - app::config::extent().y / 2.0F });
                     sound_pitch("bump_head", 1.0F - our_velocity.y * 0.1F);
                     sound_play("bump_head");
                     position_add_y(-overlap_y);
@@ -61,9 +61,9 @@ namespace entity {
             m_is_on_slope = other_type == Type::slope_U;
 
             if (other_type == Type::clip_ledge) {
-                if (other_points.x < our_points.x) {
+                if (other_UL.x < our_UL.x) {
                     sprite_is_leftward(false);
-                } else if (other_points.w > our_points.w) {
+                } else if (other_DR.x > our_DR.x) {
                     sprite_is_leftward(true);
                 }
             }
@@ -135,7 +135,7 @@ namespace entity {
             else if (velocity().y > 0.0F and m_next_state != state::Type::swim) {
                 m_next_state = state::Type::swim;
                 if (velocity().y > 0.0F and !sound_is_playing("water_enter")) {
-                    //sound::position(sound("water_enter"), { position().x / (app::config::extent().x / 2.0F), position().y / (app::config::extent().y / 2.0F) });
+                    //sound::position(sound("water_enter"), { position().x - app::config::extent().x / 2.0F, position().y - app::config::extent().y / 2.0F });
                     //sound::play(sound("water_enter"));
                     sound_position("water_enter", { (position().x + sprite_rect().w / 2.0F) / (app::config::extent().y / 2.0F),
                                                     (position().y + sprite_rect().h / 2.0F) / (app::config::extent().y / 2.0F) });
@@ -145,7 +145,7 @@ namespace entity {
             }
             if (is_to_splash) {
                 console::log(class_name(), "::collide_y() velocity y: ", velocity().y, "\n");
-                cVec2F pos = Vec2F{ our_points.x, other_points.y } + Vec2F{ 0.0F, is_upwards ? -12.0F : -6.0F };
+                cVec2F pos = Vec2F{ our_UL.x, other_UL.y } + Vec2F{ 0.0F, is_upwards ? -12.0F : -6.0F };
                 cVec2F vel = Vec2F{ velocity().x * 0.9F, -std::abs(velocity().y * 0.1F) };
 
                 particle::splash_water(this, pos, vel, 2.0F);

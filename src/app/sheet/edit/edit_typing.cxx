@@ -142,7 +142,8 @@ namespace sheet {
         else if (is_pressed(input::Key::backspace)) {
             release(input::Key::backspace);
             console::log("sheet::Edit::handle_typing_text_bar() typing pos: ", m_typing_pos, "\n");
-            if (m_typing_pos > 10) {
+            
+            if (m_is_showing_tile_set and m_typing_pos > 0 or m_typing_pos > 10) {
                 if (m_text_bar.erase_char(m_typing_pos - 1)) {
                     --m_typing_pos;
                 }
@@ -166,18 +167,21 @@ namespace sheet {
                 key = input::Key::subtract;
             } else if (is_pressed(input::Key::period)) {
                 key = input::Key::period;
-            } else {
+            } else {                
                 for (I32 k = input::alphabet_begin(); k != input::alphabet_end(); ++k) {
                     if (is_pressed((input::Key)k)) {
-                        key = (input::Key)k; goto found_a_key;
+                        key = (input::Key)k;
+                        break;
                     }
                 }
-                for (I32 k = input::numbers_begin(); k != input::numbers_end(); ++k) {
-                    if (is_pressed((input::Key)k)) {
-                        key = (input::Key)k; goto found_a_key;
+                if (key == input::Key::none) {
+                    for (I32 k = input::numbers_begin(); k != input::numbers_end(); ++k) {
+                        if (is_pressed((input::Key)k)) {
+                            key = (input::Key)k;
+                            break;
+                        }
                     }
-                }
-                found_a_key:;
+                }                
             }
             if (key != input::Key::none) {
                 release(key);
@@ -321,9 +325,7 @@ namespace sheet {
             m_types.emplace(entity::Info{ 255, number }, type);
             
         }
-
         in_file.close();
-
         return true;
     }
 }

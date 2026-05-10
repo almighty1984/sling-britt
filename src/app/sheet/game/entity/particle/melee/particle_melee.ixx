@@ -1,5 +1,5 @@
 export module entity.particle.melee;
-import camera;
+import app.config;
 import console;
 import entity;
 import entity.particle;
@@ -10,6 +10,8 @@ import sound;
 export namespace entity {
     class ParticleMelee : public Particle {
     public:
+        const char* class_name() override { return "entity::ParticleMelee"; }
+
         ParticleMelee() {
             m_type = Type::particle_melee;
             m_next_state = state::Type::idle;
@@ -19,12 +21,7 @@ export namespace entity {
         void collide_x(aabb::cInfo our, aabb::cInfo other) override;
         void collide_y(aabb::cInfo our, aabb::cInfo other) override;
 
-        void state_idle() override {
-            if (m_is_first_state_update) {
-                m_is_first_state_update = false;
-                console::log("run this\n");
-                sound_play("idle");
-            }
-        }
+        void state_idle(cF32 dt) override;
+        void state_dead(cF32 dt) override;
     };
 }

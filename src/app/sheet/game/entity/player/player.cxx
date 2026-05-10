@@ -24,7 +24,6 @@ namespace entity {
 
         load_config("res/entity/player/britt.cfg");
 
-
         m_sling_shot_sprite = sprite::make("res/texture/sling_shot.png");
         sprite::rect(m_sling_shot_sprite, { 0, 0, 32, 32 });
         sprite::origin(m_sling_shot_sprite, { 12, 16 });
@@ -38,14 +37,27 @@ namespace entity {
         sprite::offset(m_sling_shot_bg_sprite, sprite::offset(m_sling_shot_sprite));
         sprite::is_hidden(m_sling_shot_bg_sprite, sprite::is_hidden(m_sling_shot_sprite));
         sprite::transform(m_sling_shot_bg_sprite, sprite::transform(m_sling_shot_sprite));
-        
-        //sprite::offset(m_sling_shot_sprite, { 64.0F, 64.0F });
 
+        m_target_sprite = sprite::make("res/texture/target.png");
+        sprite::rect(m_target_sprite, { 0, 0, 16, 16 });
+        sprite::origin(m_target_sprite, { 8, 8 });
+        sprite::offset(m_target_sprite, { 0.0F, 0.0F });
+        sprite::is_hidden(m_target_sprite, true);
+        sprite::transform(m_target_sprite, m_transform);
+
+        m_target_anim = anim::make();
+        anim::speed(m_target_anim, 0.2F);
+        anim::loops(m_target_anim, 0);
+        anim::texture_extent(m_target_anim, { 32, 16 });
     }
 
     Player::~Player() {
         console::log("Player::~Player() input\n");
         input::erase(m_input);
+        sprite::erase(m_sling_shot_sprite);
+        sprite::erase(m_sling_shot_bg_sprite);
+        sprite::erase(m_target_sprite);
+        anim::erase(m_target_anim);
     }
 
     bool Player::hurt(Object* culprit) {
@@ -58,23 +70,38 @@ namespace entity {
 
         Vec2F add_to_position = { 0.0F, 0.0F };
 
-        if (culprit->type() == Type::particle_melee) {
-            if (!culprit->parent() or culprit->parent() == this) {
-                return false;
-            }
-            if (culprit->parent()->type() == Type::frog) {
-                health::amount_add(m_health_id, -16.0f);
+        console::log(class_name(), "::hurt() ", to_string(culprit->type()), "\n");
 
-                if      (culprit->position().x < position().x + 8.0F) add_to_position.x =  4.0F;
-                else if (culprit->position().x + 8.0F > position().x) add_to_position.x = -4.0F;
-                if      (culprit->position().y < position().y + 8.0F) add_to_position.y =  4.0F;
-                else if (culprit->position().y + 8.0F > position().y) add_to_position.y = -4.0F;
+        switch (culprit->type()) {
+            case Type::bee: {
+                health::amount_add(m_health_id, -16.0f);
+                break;
             }
-            console::log(class_name(), "::hurt() culprit: ", to_string(culprit->parent()->type()), " health: ", health::amount(m_health_id), "\n");
-        } else if (culprit->type() == Type::particle_shot) {            
-            health::amount_add(m_health_id, -16.0f);
-            //console::log("\n\nentity::Player::hurt() culprit: ", to_string(culprit->type()), " health: ", health::amount(m_health_id), "\n");
+            case Type::particle_melee: {
+                if (!culprit->parent() or culprit->parent() == this) {
+                    return false;
+                }
+                if (culprit->parent()->type() == Type::frog) {
+                    health::amount_add(m_health_id, -16.0f);
+
+                    if      (culprit->position().x < position().x + 8.0F) add_to_position.x =  4.0F;
+                    else if (culprit->position().x + 8.0F > position().x) add_to_position.x = -4.0F;
+                    if      (culprit->position().y < position().y + 8.0F) add_to_position.y =  4.0F;
+                    else if (culprit->position().y + 8.0F > position().y) add_to_position.y = -4.0F;
+                }
+                
+                console::log(class_name(), "::hurt() culprit: ", to_string(culprit->parent()->type()), " health: ", health::amount(m_health_id), "\n");
+                break;
+            }
+            case Type::particle_rock: {
+                health::amount_add(m_health_id, -16.0f);
+                //console::log("\n\nentity::Player::hurt() culprit: ", to_string(culprit->type()), " health: ", health::amount(m_health_id), "\n");
+                break;
+            }
         }
+        sound_position("hit", { position().x - app::config::extent().x / 2.0F,
+                                position().y - app::config::extent().y / 2.0F });
+        sound_play("hit");
         position_add(add_to_position);
         return true;
     }
@@ -97,7 +124,8 @@ namespace entity {
                 object->time_left_alive(0);
             }
 
-            sound_position("lever", { position().x / (app::config::extent().x / 2.0F), position().y / (app::config::extent().y / 2.0F) });
+            sound_position("lever", { position().x - app::config::extent().x / 2.0F,
+                                      position().y - app::config::extent().y / 2.0F });
             sound_play("lever");
         }
         else if (object->type() == Type::brick or object->type() == Type::bug) {
@@ -111,7 +139,8 @@ namespace entity {
                 object->parent(this);
                 object->next_state(state::Type::carried);
                 sprite::layer(object->sprite(), sprite::layer(m_sprite) + 1);
-                sound_position("pick_up", { position().x / (app::config::extent().x / 2.0F), position().y / (app::config::extent().y / 2.0F) });
+                sound_position("pick_up", { position().x - app::config::extent().x / 2.0F,
+                                            position().y - app::config::extent().y / 2.0F });
                 sound_play("pick_up");
             }
             else if (object->parent() and m_is_carrying) {
@@ -144,17 +173,17 @@ namespace entity {
                 object->next_state(state::Type::tossed);
                 //object->time_left_interacting(10);
 
-                sound_position("toss", { position().x / (app::config::extent().x / 2.0F), position().y / (app::config::extent().y / 2.0F) });
+                sound_position("toss", { position().x - app::config::extent().x / 2.0F,
+                                         position().y - app::config::extent().y / 2.0F });
                 sound_play("toss");
             }
         }
         else if (object->type() == Type::clip_ledge) {            
-            m_is_climbing_ledge = true;            
+            m_next_state = state::Type::climb;
             input::press(m_input, key_up);
             m_is_wall_to_left = sprite::is_leftward(m_sprite);
-            //position().y = object->other_points.y - 8;
+            //position().y = object->other_UL.y - 8;
             velocity_y(0.0F);
-            reset_anim("ledge_climb");
         }
     }
 
@@ -178,7 +207,7 @@ namespace entity {
     }
 
 
-    void Player::update() {
+    void Player::update(cF32 dt) {
         for (auto& i : m_time_left_colliding_with) {
             if (i.second > 0) {
                 --i.second;
@@ -187,9 +216,9 @@ namespace entity {
         //console::log(class_name(), "::update() water line y: ", m_water_line_y, "\n");
         if (m_time_left_hurt > 0)        --m_time_left_hurt;        
         if (m_time_left_interacting > 0) --m_time_left_interacting;
-        if (m_time_left_ducking > 0)     --m_time_left_ducking;        
-        if (m_time_left_rising > 0)      --m_time_left_rising;
 
+        //console::log(class_name(), "::update() saved state: ", to_string(m_saved_state), "\n");
+        
         if (is_pressed(input::Key::ctrl)) {
             lock(key_up);
             lock(key_down);
@@ -200,17 +229,20 @@ namespace entity {
             if (!is_pressed(key_down))  unlock(key_down);
             if (!is_pressed(key_left))  unlock(key_left);
             if (!is_pressed(key_right)) unlock(key_right);
+            if (!is_pressed(key_jump))  unlock(key_jump);            
         }
 
         if (m_current_anim == anim("run") or m_current_anim == anim("walk")) {
             if (anim::source(m_current_anim).x == 128 or anim::source(m_current_anim).x == 384) {
-                sound_position("step_grass", { position().x / (app::config::extent().x / 2.0F),
-                                               position().y / (app::config::extent().y / 2.0F) });
+                sound_position("step_grass", { position().x - app::config::extent().x / 2.0F,
+                                               position().y - app::config::extent().y / 2.0F });
                 sound_play("step_grass");
             }
         }
 
-        state_update();
+        //sprite_angle(sprite_angle() + 1.0F);
+
+        state_update(dt);
 
         //console::log("Player::update() anim source x: ", anim::source(m_current_anim).x, "\n");
         sprite_rect(anim::source(m_current_anim));

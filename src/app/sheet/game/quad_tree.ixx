@@ -54,39 +54,13 @@ export class QuadTreeNode {
         m_child[0]->depth = m_child[1]->depth = m_child[2]->depth = m_child[3]->depth = depth + 1;
         //m_child[0]->transform = m_child[1]->transform = m_child[2]->transform = m_child[3]->transform = transform;
 
-        for (auto& aabb_id : m_aabbs) {
+        for (auto& aabb : m_aabbs) {
             for (size_t i = 0; i < 4; ++i) {
-                m_child[i]->insert_point(aabb_id, aabb::point(aabb_id, 0));
-                m_child[i]->insert_point(aabb_id, aabb::point(aabb_id, 1));
-                m_child[i]->insert_point(aabb_id, aabb::point(aabb_id, 2));
-                m_child[i]->insert_point(aabb_id, aabb::point(aabb_id, 3));
-            }
-
-            // aabb too large? insert in-between points
-            if (aabb::w(aabb_id) > size_at_depth(depth + 1) or aabb::h(aabb_id) > size_at_depth(depth + 1)) {
-                for (size_t i = 0; i < 4; ++i) {
-
-                    for (F32 scalar = 0.25F; scalar < 1.0F; scalar += 0.25F) {
-                        m_child[i]->insert_point(aabb_id, aabb::point(aabb_id, 0) + Vec2F{ aabb::w(aabb_id) * scalar, 0.0F });  // U
-                        m_child[i]->insert_point(aabb_id, aabb::point(aabb_id, 0) + Vec2F{ 0.0F, aabb::h(aabb_id) * scalar }); // L
-                        m_child[i]->insert_point(aabb_id, aabb::point(aabb_id, 2) + Vec2F{ aabb::w(aabb_id) * scalar, 0.0F});  // D
-                        m_child[i]->insert_point(aabb_id, aabb::point(aabb_id, 1) + Vec2F{ 0.0F, aabb::h(aabb_id) * scalar }); // R
-
-                        //m_child[i]->insert_point(object, object->point_0() + Vec2F{ object->width() * scalar, object->height() * scalar });
-                        //m_child[i]->insert_point(object, object->point_1() + Vec2F{ object->width() * -scalar, object->height() * scalar });
-                    }
-                    m_child[i]->insert_point(aabb_id, aabb::point(aabb_id, 0) + Vec2F{ aabb::w(aabb_id) * 0.25F, aabb::h(aabb_id) * 0.25F });
-                    m_child[i]->insert_point(aabb_id, aabb::point(aabb_id, 0) + Vec2F{ aabb::w(aabb_id) * 0.5F, aabb::h(aabb_id) * 0.5F });
-                    m_child[i]->insert_point(aabb_id, aabb::point(aabb_id, 0) + Vec2F{ aabb::w(aabb_id) * 0.75F, aabb::h(aabb_id) * 0.75F });
-
-                    m_child[i]->insert_point(aabb_id, aabb::point(aabb_id, 1) + Vec2F{ aabb::w(aabb_id) * -0.25F, aabb::h(aabb_id) * 0.25F });
-                    m_child[i]->insert_point(aabb_id, aabb::point(aabb_id, 1) + Vec2F{ aabb::w(aabb_id) * -0.75F, aabb::h(aabb_id) * 0.75F });
-
-
-
-
-
-                }
+                m_child[i]->insert_point(aabb, aabb::UL(aabb));
+                m_child[i]->insert_point(aabb, aabb::UR(aabb));
+                m_child[i]->insert_point(aabb, aabb::DL(aabb));
+                m_child[i]->insert_point(aabb, aabb::DR(aabb));
+                m_child[i]->insert_point(aabb, aabb::center(aabb));
             }
         }
         m_aabbs.clear();
@@ -205,17 +179,6 @@ public:
         m_is_parent = false;
         m_rect = rect;
 
-        /*if (transform::get(transform)) {
-            m_rect.x = rect.x + transform::get(transform)->position.x;
-            m_rect.y = rect.y + transform::get(transform)->position.y;
-        }*/
-
-        
-        /*if (m_rect.x < -m_rect.w or m_rect.x > window_w or  // FIXME: sometimes though in view??
-            m_rect.y < -m_rect.h or m_rect.y > window_h) {
-            return;
-        }*/
-
         m_up_line    = line::make( {m_rect.x, m_rect.y           }, {m_rect.x + m_rect.w, m_rect.y           } );
         m_down_line  = line::make( {m_rect.x, m_rect.y + m_rect.h}, {m_rect.x + m_rect.w, m_rect.y + m_rect.h} );
         m_left_line  = line::make( {m_rect.x, m_rect.y           }, {m_rect.x,            m_rect.y + m_rect.h} );
@@ -286,48 +249,65 @@ public:
                 //a->owner->update();                
 
                 //console::log(a->point_0(c).x, " ", b->point_0().x, "\n");
-                if (is_aabb_overlap_y(a, b)) {
-                    aabb::cInfo a_info = { a, aabb::owner(a) };
-                    aabb::cInfo b_info = { b, aabb::owner(b) };
-                    
-                    aabb::owner(a)->collide_y(a_info, b_info);
-                    aabb::owner(b)->collide_y(b_info, a_info);
-                }
-                if (is_aabb_overlap_x(a, b)) {
-                    aabb::cInfo a_info = { a, aabb::owner(a) };
-                    aabb::cInfo b_info = { b, aabb::owner(b) };
 
-                    aabb::owner(a)->collide_x(a_info, b_info);
-                    aabb::owner(b)->collide_x(b_info, a_info);
+                cVec2F relative_vel = aabb::owner(a)->velocity() - aabb::owner(b)->velocity();
+
+                bool is_x_larger = std::abs(relative_vel.x) > std::abs(relative_vel.y);
+
+                auto check_overlap_x = [&]() {
+                    if (is_aabb_overlap_x(a, b)) {
+                        aabb::cInfo a_info = { a, aabb::owner(a) };
+                        aabb::cInfo b_info = { b, aabb::owner(b) };
+
+                        aabb::owner(a)->collide_x(a_info, b_info);
+                        aabb::owner(b)->collide_x(b_info, a_info);
+                    }
+                };
+                auto check_overlap_y = [&]() {
+                    if (is_aabb_overlap_y(a, b)) {
+                        aabb::cInfo a_info = { a, aabb::owner(a) };
+                        aabb::cInfo b_info = { b, aabb::owner(b) };
+
+                        aabb::owner(a)->collide_y(a_info, b_info);
+                        aabb::owner(b)->collide_y(b_info, a_info);
+                    }
+                };
+
+                if (is_x_larger) {
+                    check_overlap_x();
+                    check_overlap_y();
+                } else {
+                    check_overlap_y();
+                    check_overlap_x();
                 }
             }
         }
     }
     bool is_aabb_overlap_x(cI32 a, cI32 b) {
-        F32 y_dec = (aabb::point(a, 2).y - aabb::point(a, 0).y) / 16.0F;
+        F32 y_dec = (aabb::DL(a).y - aabb::UL(a).y) / 16.0F;
         if      (y_dec < 1.0F) y_dec = 1.0F;
         else if (y_dec > 4.0F) y_dec = 4.0F;
         //cF32 h_dec = 3.0F;
 
-        cVec2F a_vel = (aabb::owner(a)->velocity() + aabb::owner(a)->moved_velocity()) * 0.05F;
-        cVec2F b_vel = (aabb::owner(b)->velocity() + aabb::owner(b)->moved_velocity()) * 0.05F;
+        cVec2F a_vel = (aabb::owner(a)->velocity() + aabb::owner(a)->moved_velocity()) * 1.0F;
+        cVec2F b_vel = (aabb::owner(b)->velocity() + aabb::owner(b)->moved_velocity()) * 1.0F;
         
-        return aabb::point(a, 1).x + a_vel.x > aabb::point(b, 0).x + b_vel.x and
-               aabb::point(a, 0).x + a_vel.x < aabb::point(b, 1).x + b_vel.x and
-               aabb::point(a, 2).y + a_vel.y - y_dec > aabb::point(b, 0).y + b_vel.y and
-               aabb::point(a, 0).y + a_vel.y + y_dec < aabb::point(b, 2).y + b_vel.y;
+        return aabb::UR(a).x + a_vel.x > aabb::UL(b).x + b_vel.x and
+               aabb::UL(a).x + a_vel.x < aabb::UR(b).x + b_vel.x and
+               aabb::DL(a).y + a_vel.y - y_dec > aabb::UL(b).y + b_vel.y and
+               aabb::UL(a).y + a_vel.y + y_dec < aabb::DL(b).y + b_vel.y;
     }
     bool is_aabb_overlap_y(cI32 a, cI32 b) {
-        F32 x_dec = (aabb::point(a, 1).x - aabb::point(a, 0).x) / 16.0F;
+        F32 x_dec = (aabb::UR(a).x - aabb::UL(a).x) / 16.0F;
         if      (x_dec < 1.0F) x_dec = 1.0F;
         else if (x_dec > 4.0F) x_dec = 4.0F;
 
-        cVec2F a_vel = (aabb::owner(a)->velocity() + aabb::owner(a)->moved_velocity()) * 0.05F;
-        cVec2F b_vel = (aabb::owner(b)->velocity() + aabb::owner(b)->moved_velocity()) * 0.05F;
+        cVec2F a_vel = (aabb::owner(a)->velocity() + aabb::owner(a)->moved_velocity()) * 1.0F;
+        cVec2F b_vel = (aabb::owner(b)->velocity() + aabb::owner(b)->moved_velocity()) * 1.0F;
 
-        return aabb::point(a, 2).y + a_vel.y > aabb::point(b, 0).y + b_vel.y and
-               aabb::point(a, 0).y + a_vel.y < aabb::point(b, 2).y + b_vel.y and
-               aabb::point(a, 1).x + a_vel.x - x_dec > aabb::point(b, 0).x + b_vel.x and
-               aabb::point(a, 0).x + a_vel.x + x_dec < aabb::point(b, 1).x + b_vel.x;
+        return aabb::DL(a).y + a_vel.y > aabb::UL(b).y + b_vel.y and
+               aabb::UL(a).y + a_vel.y < aabb::DL(b).y + b_vel.y and
+               aabb::UR(a).x + a_vel.x - x_dec > aabb::UL(b).x + b_vel.x and
+               aabb::UL(a).x + a_vel.x + x_dec < aabb::UR(b).x + b_vel.x;
     }
 };

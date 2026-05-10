@@ -13,7 +13,7 @@ private:
                m_first_frame  = 0,
                m_last_frame   = 0;
     RectI      m_source       = {  0,  0, 16, 16 };
-    Vec2U      m_texture_size = { 16, 16 };
+    Vec2U      m_texture_extent = { 16, 16 };
     bool       m_is_reverse   = false;
     F32        m_timer        = 0.0F;
 
@@ -30,11 +30,11 @@ public:
     void source_y(cF32 y) { m_source.y = y; }
     void source_w(cF32 w) { m_source.w = w; }
     void source_h(cF32 h) { m_source.h = h; }
-    Vec2U texture_size() const { return m_texture_size; }   void texture_size(Vec2U s) { m_texture_size = s; }
-    void texture_size_x(cF32 x) { m_texture_size.x = x; }
-    void texture_size_y(cF32 y) { m_texture_size.y = y; }
+    Vec2U texture_extent() const { return m_texture_extent; }   void texture_extent(Vec2U s) { m_texture_extent = s; }
+    void texture_extent_x(cF32 x) { m_texture_extent.x = x; }
+    void texture_extent_y(cF32 y) { m_texture_extent.y = y; }
     bool is_reverse()    const { return m_is_reverse;   }   void is_reverse(bool q)    { m_is_reverse   = q; }
-    cU16 num_frames()    const { return m_texture_size.x / m_source.w; }
+    cU16 num_frames()    const { return m_texture_extent.x / m_source.w; }
     cU16 current_frame() const { return m_source.x / m_source.w; }
     bool is_last_frame() const { return (current_frame() == m_last_frame); }
 
@@ -67,13 +67,13 @@ public:
 
         m_source.x += m_source.w;
 
-        if (m_source.x >= m_texture_size.x) {
+        if (m_source.x >= m_texture_extent.x) {
             if (m_loops == 0) {
                 m_source.x = m_first_frame * m_source.w;
             } else {
                 m_loop += 1;
                 if (m_loop >= m_loops) {
-                    m_source.x = m_texture_size.x - m_source.w;
+                    m_source.x = m_texture_extent.x - m_source.w;
                     m_loop = m_loops;
                 } else {
                     m_source.x = 0;
@@ -100,7 +100,7 @@ export namespace anim {
     U16   first_frame(cI32 i)   { return is_valid(i) ? s_anims.at(i)->first_frame()   :                0; }
     U16   last_frame(cI32 i)    { return is_valid(i) ? s_anims.at(i)->last_frame()    :                0; }
     RectI source(cI32 i)        { return is_valid(i) ? s_anims.at(i)->source()        : RectI{0,0,16,16}; }
-    Vec2U texture_size(cI32 i)  { return is_valid(i) ? s_anims.at(i)->texture_size()  :          Vec2U{}; }    
+    Vec2U texture_extent(cI32 i)  { return is_valid(i) ? s_anims.at(i)->texture_extent()  :          Vec2U{}; }    
     cU16  num_frames(cI32 i)    { return is_valid(i) ? s_anims.at(i)->num_frames()    :                0; }
     cU16  current_frame(cI32 i) { return is_valid(i) ? s_anims.at(i)->current_frame() :                0; }
     bool  is_last_frame(cI32 i) { return (current_frame(i) == last_frame(i));                             }
@@ -117,9 +117,9 @@ export namespace anim {
     void source_y(cI32 i, cI32 y)       { if (is_valid(i)) s_anims.at(i)->source_y(y);       }
     void source_w(cI32 i, cI32 w)       { if (is_valid(i)) s_anims.at(i)->source_w(w);       }
     void source_h(cI32 i, cI32 h)       { if (is_valid(i)) s_anims.at(i)->source_h(h);       }
-    void texture_size(cI32 i, cVec2U s) { if (is_valid(i)) s_anims.at(i)->texture_size(s);   }
-    void texture_size_x(cI32 i, cU32 x) { if (is_valid(i)) s_anims.at(i)->texture_size_x(x); }
-    void texture_size_y(cI32 i, cU32 y) { if (is_valid(i)) s_anims.at(i)->texture_size_y(y); }
+    void texture_extent(cI32 i, cVec2U s) { if (is_valid(i)) s_anims.at(i)->texture_extent(s);   }
+    void texture_extent_x(cI32 i, cU32 x) { if (is_valid(i)) s_anims.at(i)->texture_extent_x(x); }
+    void texture_extent_y(cI32 i, cU32 y) { if (is_valid(i)) s_anims.at(i)->texture_extent_y(y); }
     void is_reverse(cI32 i, bool q)     { if (is_valid(i)) s_anims.at(i)->is_reverse(q);     }
 
     I32 make() {

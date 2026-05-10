@@ -25,7 +25,7 @@ export namespace entity {
            m_time_left_bouncing          = 0, m_time_to_bounce         = 20,           
            m_time_left_hitting_ground    = 0, m_time_to_hit_ground     = 20,
            m_time_left_holding_jump      = 0, m_time_to_hold_jump      = 10,
-           m_time_to_jump_wall      =  8,
+           m_time_to_jump_wall           =  8,
            m_time_left_jump_again        = 0, m_time_to_jump_again     =  8,
            m_time_left_lever             = 0, m_time_to_lever          = 10,
            m_time_left_melee             = 0, m_time_to_melee          =  8,
@@ -37,13 +37,12 @@ export namespace entity {
 
         bool m_is_down_thrusting = false,
              m_is_sliding_ground = false,
-             m_is_climbing_ledge = false,
              m_is_hovering       = false;
 
         Vec2F m_ground_max_velocity = { 2.0F, 4.0F };
         Vec2F m_sling_max_velocity  = { 4.0F, 5.0F };
 
-        Vec2F m_slide_ground_max_velocity = { 1.4F, 0.0F };
+        Vec2F m_slide_ground_min_velocity = { 1.4F, 0.0F };
 
         U8 m_time_left_in_state = 0;
         
@@ -53,10 +52,14 @@ export namespace entity {
                    key_right  = input::Key::right,
                    key_jump   = input::Key::x,
                    key_melee  = input::Key::c,
-                   key_sprint = input::Key::z;
+                   key_sprint = input::Key::z,
+                   key_shoot  = input::Key::space;
 
         I32 m_sling_shot_sprite    = -1,
-            m_sling_shot_bg_sprite = -1;
+            m_sling_shot_bg_sprite = -1,
+            m_target_sprite        = -1;
+
+        I32 m_target_anim = -1;
                 
     public:
         Player();
@@ -81,27 +84,31 @@ export namespace entity {
 
         void spawn_down_thrust(cVec2F position);
 
-        void state_dead()       override;
-        void state_dive()       override;
-        void state_ledge()      override;
-        void state_run()        override;
-        void state_swim()       override;
-        void state_shoot()      override;
-        void state_sling()      override;
-        void state_slide_wall() override;
-        void state_jump_wall()  override;
+        void state_climb(cF32 dt)      override;
+        void state_dead(cF32 dt)       override;
+        void state_dive(cF32 dt)       override;
+        void state_duck(cF32 dt)       override;
+        void state_ledge(cF32 dt)      override;
+        void state_run(cF32 dt)        override;
+        void state_swim(cF32 dt)       override;
+        void state_shoot(cF32 dt)      override;
+        void state_sling(cF32 dt)      override;
+        void state_slide_wall(cF32 dt) override;
+        void state_jump_wall(cF32 dt)  override;
 
-        void update() override;
+        void update(cF32 dt) override;
 
         void draw(std::unique_ptr<Window>& window) override {
             sprite::draw(window, m_sling_shot_bg_sprite);
             Object::draw(window);
             sprite::draw(window, m_sling_shot_sprite);
+            sprite::draw(window, m_target_sprite);
 
         }
 
 
         void jump() {
+            console::log(class_name(), "::jump() ", (int)m_num_jumps, "\n");
             lock(key_jump);
             m_time_left_jump_again = m_time_to_jump_again;
             m_is_on_ground = false;
@@ -110,7 +117,6 @@ export namespace entity {
             m_is_sliding_ground = false;
             m_time_left_holding_jump = m_time_to_hold_jump;
             
-            m_time_left_ducking = 0;
             m_time_left_rising = 0;
             
             position_add({ 0.0F, -2.0F });
@@ -122,6 +128,7 @@ export namespace entity {
                 m_num_jumps = 1;
             }
             if (m_num_jumps == 3) {
+                m_num_jumps = 0;
                 m_time_left_skidding = 0;
                 velocity_y(-3.0F);
                 reset_anim("jump_spin");
