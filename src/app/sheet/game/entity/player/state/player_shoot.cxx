@@ -23,10 +23,10 @@ namespace entity {
             camera::is_offset_with_direction = true;
 
             m_rotation_speed = 0.0F;
-            m_rotation_speed_limit = 0.1F;
-            //m_rotation_acc = 0.005F;
-            m_rotation_acc = PI / 8.0F;
-            m_rotation_dec = 0.01F;
+            m_config.rotation_speed_limit(0.1F);
+            //m_config.rotation_acc = 0.005F;
+            m_config.rotation_acc(PI / 8.0F);
+            m_config.rotation_dec(0.01F);
 
             if (sprite_angle() != 0.0F) {
                 sprite_is_leftward(velocity().x < 0.0F);
@@ -36,13 +36,10 @@ namespace entity {
 
             //m_radians = sprite_is_leftward() ? PI : 0.0F;
 
-            for (auto& i : m_aabbs) {
-                if (aabb::name(i) == aabb::Name::body) {
-                    aabb::is_active(i, true);
-                } else {
-                    aabb::is_active(i, false);
-                }
+            for (auto& i : m_aabbs) {                
+                aabb::is_active(i, aabb::name(i) == aabb::Name::body);
             }
+            
             m_time_left_skidding = 0;
 
 
@@ -148,9 +145,9 @@ namespace entity {
             if (velocity().y > acceleration().y) {
                 if (is_pressed(key_jump) and !is_locked(key_jump)) {
                     lock(key_jump);
-                    if (moved_velocity().y != 0.0F) {
-                        velocity_add({ 0.0F, moved_velocity().y });
-                        moved_velocity_y(0.0F);
+                    if (move_velocity().y != 0.0F) {
+                        velocity_add({ 0.0F, move_velocity().y });
+                        move_velocity_y(0.0F);
                     }
                     m_is_hovering = true;
                     m_time_left_rising = 0;
@@ -168,7 +165,7 @@ namespace entity {
             if (velocity().x > -max_velocity().x * (is_pressed(key_sprint) ? 1.2F : 1.0F)) {
                 velocity_add_x(-acceleration().x);
             }
-            if (!is_locked(key_shoot)) {
+            if (!is_pressed(key_sprint)) {
                 sprite_is_leftward(true);
             }            
         }
@@ -176,7 +173,7 @@ namespace entity {
             if (velocity().x < max_velocity().x * (is_pressed(key_sprint) ? 1.2F : 1.0F)) {
                 velocity_add_x(acceleration().x);
             }
-            if (!is_locked(key_shoot)) {
+            if (!is_pressed(key_sprint)) {
                 sprite_is_leftward(false);
             }            
         }
@@ -205,9 +202,9 @@ namespace entity {
 
         direction_x(sprite_is_leftward() ? -1.0F : 1.0F);
 
-        m_rotation_acc = 0.01F;
-        m_rotation_dec = 0.005F;
-        m_rotation_speed_limit = is_pressed(key_sprint) ? 0.02F : 0.1F;
+        m_config.rotation_acc(0.02F);
+        m_config.rotation_dec(0.01F);
+        m_config.rotation_speed_limit(is_pressed(key_sprint) ? 0.02F : 0.08F);
 
         if (is_pressed(key_up)) {
             if (!is_locked(key_up)) {
@@ -215,11 +212,11 @@ namespace entity {
                 if (sprite_is_leftward()) {
                     //console::log("radians: ", m_radians, " ", RADIAN_UP_LEFTWARD, "\n");
                     if (m_radians < RADIAN_UP_LEFTWARD) {
-                        m_rotation_speed += m_rotation_acc;
+                        m_rotation_speed += m_config.rotation_acc();
                     }                    
                 } else {
                     if (m_radians > RADIAN_UP_RIGHTWARD) {                        
-                        m_rotation_speed -= m_rotation_acc;
+                        m_rotation_speed -= m_config.rotation_acc();
                     }
                     
                 }
@@ -233,12 +230,12 @@ namespace entity {
                 //lock(key_down);
                 if (sprite_is_leftward()) {
                     if (m_radians > RADIAN_DOWN) {
-                        m_rotation_speed -= m_rotation_acc;
+                        m_rotation_speed -= m_config.rotation_acc();
                     }
                 }
                 else {
                     if (m_radians < RADIAN_DOWN) {
-                        m_rotation_speed += m_rotation_acc;
+                        m_rotation_speed += m_config.rotation_acc();
                     }
                 }
             }
@@ -248,24 +245,24 @@ namespace entity {
         //}
 
         /*if (m_rotation_speed > 0.0F) {
-            m_rotation_speed -= m_rotation_dec;
+            m_rotation_speed -= m_config.rotation_dec;
         }*/
 
 
 
         if (m_rotation_speed < 0.0F) {
-            if (m_rotation_speed < -m_rotation_speed_limit) {
-                m_rotation_speed = -m_rotation_speed_limit;
+            if (m_rotation_speed < -m_config.rotation_speed_limit()) {
+                m_rotation_speed = -m_config.rotation_speed_limit();
             }
             else {
-                m_rotation_speed += m_rotation_dec;
+                m_rotation_speed += m_config.rotation_dec();
             }
         }
         else if (m_rotation_speed > 0.0F) {
-            if (m_rotation_speed > m_rotation_speed_limit) {
-                m_rotation_speed = m_rotation_speed_limit;
+            if (m_rotation_speed > m_config.rotation_speed_limit()) {
+                m_rotation_speed = m_config.rotation_speed_limit();
             } else {
-                m_rotation_speed -= m_rotation_dec;
+                m_rotation_speed -= m_config.rotation_dec();
             }
         }
 
@@ -278,7 +275,7 @@ namespace entity {
             m_radians = RADIAN_UP_LEFTWARD;
             m_rotation_speed = 0.0F;
         }
-        if (m_rotation_speed > -m_rotation_dec and m_rotation_speed < m_rotation_dec) {
+        if (m_rotation_speed > -m_config.rotation_dec() and m_rotation_speed < m_config.rotation_dec()) {
             m_rotation_speed = 0.0F;
         }
 
@@ -356,13 +353,21 @@ namespace entity {
             sprite::is_hidden(m_target_sprite, false);
         }
 
-        if (is_pressed(key_melee) and !sprite::is_hidden(m_sling_shot_sprite)) {            
+        if (is_pressed(key_melee)) {
             if (!is_locked(key_melee) and m_time_left_melee == 0) {
                 lock(key_melee);
                 m_time_left_melee = m_time_to_melee;
+
+                if (m_current_anim == anim("jump_spin")) {
+                    reset_anim("jump");
+                    sprite::is_hidden(m_sling_shot_sprite, false);
+                    sprite::is_hidden(m_sling_shot_bg_sprite, false);
+                    sprite::is_hidden(m_target_sprite, false);
+                }
+
                 cF32 speed = 7.0F;
 
-                Vec2F shot_velocity = velocity() * 0.25F + moved_velocity() * 0.25F + shot_normal * speed;
+                Vec2F shot_velocity = velocity() * 0.25F + move_velocity() * 0.25F + shot_normal * speed;
 
                 cVec2F start_position = { position() + Vec2F{4.0F, 4.0F} + shot_velocity};
 

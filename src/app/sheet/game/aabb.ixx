@@ -23,11 +23,14 @@ class AABB {
         m_left_line  = -1,
         m_right_line = -1;
 
-    RectF m_rect = { 0.0F, 0.0F, 0.0F, 0.0F };
+    RectF m_rect       = { 0.0F, 0.0F, 0.0F, 0.0F },
+          m_start_rect = { 0.0F, 0.0F, 0.0F, 0.0F };
 
-    Color m_color = { 0, 0, 0 },
+    Vec2F m_prev_position = {};
+    Vec2F m_velocity = {};
+
+    Color m_color       = { 0, 0, 0 },
           m_start_color = { 0, 0, 0 };
-
 
     entity::Object* m_owner = nullptr;
     //U16 time_left_colliding = 0;
@@ -36,7 +39,7 @@ class AABB {
 
 public:
     I32 id()                const { return m_id;        } void id(cI32 id)              { m_id = id;           }
-    I32 transform()      const { return m_transform; } void transform(cI32 id)    { m_transform = id;    }
+    I32 transform()         const { return m_transform; } void transform(cI32 id)       { m_transform = id;    }
         
     entity::Object* owner() const { return m_owner;     } void owner(entity::Object* o) { m_owner = o;         }
     aabb::Name name()       const { return m_name;      } void name(aabb::cName n)      { m_name = n;          }
@@ -44,7 +47,8 @@ public:
     AABB() = delete;
     AABB(cI32 transform, cRectF rect) {
         m_transform = transform;
-        m_rect = rect;
+        m_rect = rect;        
+        m_start_rect = rect;
 
         m_up_line = line::make({ rect.x, rect.y }, { rect.x + rect.w, rect.y });
         m_down_line = line::make({ rect.x, rect.y + rect.h }, { rect.x + rect.w, rect.y + rect.h });
@@ -81,13 +85,23 @@ public:
         line::is_hidden(m_right_line, !q);
     }
     RectF rect() const { return m_rect; }
-    void rect(cRectF r) {
-        m_rect = r;
-        line::set(m_up_line,    { r.x, r.y }, { r.x + r.w, r.y });
-        line::set(m_down_line,  { r.x, r.y + r.h }, { r.x + r.w, r.y + r.h });
-        line::set(m_left_line,  { r.x, r.y }, { r.x,          r.y + r.h });
-        line::set(m_right_line, { r.x + r.w, r.y }, { r.x + r.w, r.y + r.h });        
+    void rect_x(cF32 x) {
+        m_rect.x = x;
+        rect(m_rect);
     }
+    void rect_y(cF32 y) {
+        m_rect.y = y;
+        rect(m_rect);
+    }
+    
+    void rect(cRectF rect) {        
+        m_rect = rect;
+        line::set(m_up_line,    { rect.x, rect.y }, { rect.x + rect.w, rect.y });
+        line::set(m_down_line,  { rect.x, rect.y + rect.h }, { rect.x + rect.w, rect.y + rect.h });
+        line::set(m_left_line,  { rect.x, rect.y }, { rect.x,          rect.y + rect.h });
+        line::set(m_right_line, { rect.x + rect.w, rect.y }, { rect.x + rect.w, rect.y + rect.h });
+    }
+    RectF start_rect() const { return m_start_rect; }
 
     cVec2F UL() { return transform::position(m_transform) + Vec2F{ m_rect.x,  m_rect.y }; }
     cVec2F UR() { return transform::position(m_transform) + Vec2F{ m_rect.x + m_rect.w, m_rect.y }; }
@@ -98,7 +112,7 @@ public:
 
     const std::vector<Vec2F> points() {
         return { UL(), UR(), DL(), DR() };
-    }    
+    }
 
     Color color() const { return m_color; }    
     void color(Color c) {
@@ -117,7 +131,13 @@ public:
         line::start_color(m_right_line, c);
     }
 
-    //void update() {
+    Vec2F velocity() const { return m_velocity; }
+
+    void update() {
+        cVec2F position = { m_rect.x, m_rect.y };
+        m_velocity = position - m_prev_position;
+        m_prev_position = position;
+
         /*if (time_left_colliding > 0) {
             --time_left_colliding;
             color({ 255,0,0 });
@@ -143,7 +163,7 @@ public:
         /*for (auto& i : quad_tree_node_ids) {
             console::log("id: ", i, "\n");
         }*/
-    //}
+    }
 
     void draw(std::unique_ptr<Window>& window) {
         if (!m_is_active) return;
@@ -163,17 +183,19 @@ export namespace aabb {
 
     size_t  size() { return s_aabbs.size(); }
 
+    std::vector<AABB*>& get_aabbs() { return s_aabbs; }    
+
     Color            color(cI32 i)       { return is_valid(i) ? s_aabbs.at(i)->color()       :    Color{}; }
     Color            start_color(cI32 i) { return is_valid(i) ? s_aabbs.at(i)->start_color() :    Color{}; }
     RectF            rect(cI32 i)        { return is_valid(i) ? s_aabbs.at(i)->rect()        :    RectF{}; }
-    F32              rect_x(cI32 i)      { return is_valid(i) ? s_aabbs.at(i)->rect().x      :       0.0F; }
-    F32              rect_y(cI32 i)      { return is_valid(i) ? s_aabbs.at(i)->rect().y      :       0.0F; }
+    RectF            start_rect(cI32 i)  { return is_valid(i) ? s_aabbs.at(i)->start_rect()  :    RectF{}; }
     F32              w(cI32 i)           { return is_valid(i) ? s_aabbs.at(i)->rect().w      :       0.0F; }
     F32              h(cI32 i)           { return is_valid(i) ? s_aabbs.at(i)->rect().h      :       0.0F; }
     bool             is_active(cI32 i)   { return is_valid(i) ? s_aabbs.at(i)->is_active()   :      false; }
     Name             name(cI32 i)        { return is_valid(i) ? s_aabbs.at(i)->name()        : Name::none; }
     entity::Object*  owner(cI32 i)       { return is_valid(i) ? s_aabbs.at(i)->owner()       :    nullptr; }
     //entity::Object* owner(cI32 i);
+    Vec2F            velocity(cI32 i)    { return is_valid(i) ? s_aabbs.at(i)->velocity()    :    Vec2F{}; }
 
     Vec2F UL(cI32 i) { return is_valid(i) ? s_aabbs.at(i)->UL() : Vec2F{}; }
     Vec2F UR(cI32 i) { return is_valid(i) ? s_aabbs.at(i)->UR() : Vec2F{}; }
@@ -181,12 +203,18 @@ export namespace aabb {
     Vec2F DR(cI32 i) { return is_valid(i) ? s_aabbs.at(i)->DR() : Vec2F{}; }
     Vec2F center(cI32 i) { return is_valid(i) ? s_aabbs.at(i)->center() : Vec2F{}; }
 
+    const std::vector<Vec2F> points(cI32 i) {
+        return is_valid(i) ? s_aabbs.at(i)->points() : std::vector<Vec2F>{};
+    }
+
     //Vec2U time_left_colliding(cI32 i) { return IS_VALID(i) ? s_aabbs.at(i)->time_left_colliding : Vec2U{}; }
     I32 transform(cI32 i) { return is_valid(i) ? s_aabbs.at(i)->transform() : -1; }
 
     void color(cI32 i, Color c)           { if (is_valid(i)) s_aabbs.at(i)->color(c);       }
     void start_color(cI32 i, Color c)     { if (is_valid(i)) s_aabbs.at(i)->start_color(c); }
     void rect(cI32 i, cRectF r)           { if (is_valid(i)) s_aabbs.at(i)->rect(r);        }
+    void rect_x(cI32 i, cF32 x)           { if (is_valid(i)) s_aabbs.at(i)->rect_x(x);      }
+    void rect_y(cI32 i, cF32 y)           { if (is_valid(i)) s_aabbs.at(i)->rect_y(y);      }
     void is_active(cI32 i, bool q)        { if (is_valid(i)) s_aabbs.at(i)->is_active(q);   }
     void name(cI32 i, cName n)            { if (is_valid(i)) s_aabbs.at(i)->name(n);        }
     void owner(cI32 i, entity::Object* o) { if (is_valid(i)) s_aabbs.at(i)->owner(o);       }
@@ -222,11 +250,11 @@ export namespace aabb {
         s_unused_ids.emplace_back(i);
         return true;
     }
-    //void update() {
-    //    for (auto& i : s_aabbs) {
-    //        if (i) i->update();
-    //    }
-    //}
+    void update() {
+        for (auto& i : s_aabbs) {
+            if (i) i->update();
+        }
+    }
     void draw(std::unique_ptr<Window>& window, cI32 i) {
         if (is_valid(i)) s_aabbs.at(i)->draw(window);
     }

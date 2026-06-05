@@ -27,8 +27,8 @@ namespace entity {
 
         cF32 overlap_x = our_UL.x < other_UL.x ? our_DR.x - other_UL.x : -(other_DR.x - our_UL.x);
 
-        cVec2F our_velocity = velocity() + moved_velocity();
-        cVec2F other_velocity = other.owner->velocity() + other.owner->moved_velocity();
+        cVec2F our_velocity = velocity() + move_velocity();
+        cVec2F other_velocity = other.owner->velocity() + other.owner->move_velocity();
 
         if (m_state == state::Type::swim) {
             switch (other_type) {
@@ -88,8 +88,8 @@ namespace entity {
                     //force_x(0.0F);
                     //force_x(-1.0F);
 
-                    //moved_velocity_x(moved_velocity().x * -1.0F);
-                    //moved_velocity_x(0.0F);
+                    //move_velocity_x(move_velocity().x * -1.0F);
+                    //move_velocity_x(0.0F);
                     //force_x(force().x * -1.0F);
                     //force_x(0.0F);
 

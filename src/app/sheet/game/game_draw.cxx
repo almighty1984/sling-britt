@@ -2,8 +2,11 @@ module sheet.game;
 import health;
 import line;
 
+import collision_grid;
+
 namespace sheet {
     void Game::draw(std::unique_ptr<Window>& window, cU8 layer) {
+
         //for (auto& i : sprite::ids_in_layer(layer)) {
         //    sprite::draw(window, i);
         //}
@@ -20,6 +23,8 @@ namespace sheet {
             for (auto& i : m_level_quad_trees) {
                 i.second->draw(window);
             }
+
+            //collision_grid::draw(window, layer);
         }
         
         for (auto& i : m_level_sprites) {
@@ -27,7 +32,9 @@ namespace sheet {
                 sprite::draw(window, i);
             }
         }
-        if (sprite::layer(m_player.sprite()) == layer) {            
+        
+        if (m_player.sprite_layer() == layer) {            
+            //console::log("m_player.sprite_layer(): ", (int)m_player.sprite_layer(), "\n");
             m_player.draw(window);
             if (m_is_drawing_debug) {
                 m_player.draw_aabb(window);
@@ -63,6 +70,9 @@ namespace sheet {
             particle::draw_aabb(window, layer);
         }
 
-        health::draw(window, layer);    
+        health::draw(window, layer);
+
+        aabb::draw(window, test_aabb);
+
     }
 }

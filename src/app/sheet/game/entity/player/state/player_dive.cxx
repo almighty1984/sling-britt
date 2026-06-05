@@ -34,7 +34,7 @@ namespace entity {
 
         m_current_anim = anim("swim");
 
-        moved_velocity({});
+        move_velocity({});
 
         Vec2F jump_acc = { 0.05F, 0.2F };
 
@@ -51,11 +51,11 @@ namespace entity {
 
         if (velocity().y > 0.0F) {
             for (auto& i : m_aabbs) {
-                aabb::is_active(i, false);
+                aabb::is_active(i, false);                
                 if (aabb::name(i) == aabb::Name::body) {
                     aabb::is_active(i, true);
                 }
-            }
+            }            
         }
         velocity_add({ 0.0F, acceleration().y });
 

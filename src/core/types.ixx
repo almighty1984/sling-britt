@@ -37,7 +37,7 @@ export namespace aabb {
         none = 0,
         one, two, three, four, five, six, seven, eight, nine,
         up, down, left, right,
-        body, body_swim,
+        body, body_swim, body_wall,
         bone,
         hit_ground,
         track
@@ -60,6 +60,7 @@ export namespace aabb {
         case Name::right:      return "right";      break;
         case Name::body:       return "body";       break;
         case Name::body_swim:  return "body_swim";  break;
+        case Name::body_wall:  return "body_wall";  break;
         case Name::bone:       return "bone";       break;
         case Name::hit_ground: return "hit_ground"; break;
         case Name::track:      return "track";      break;
@@ -82,6 +83,7 @@ export namespace aabb {
         { "right"      , Name::right      },
         { "body"       , Name::body       },
         { "body_swim"  , Name::body_swim  },
+        { "body_wall"  , Name::body_wall  },
         { "bone"       , Name::bone       },
         { "hit_ground" , Name::hit_ground },
         { "track"      , Name::track      }        
@@ -196,7 +198,7 @@ export namespace entity {
         grass_2, grass_2_L_1x1, grass_2_R_1x1, grass_2_L_2x1_0, grass_2_L_2x1_1, grass_2_R_2x1_0, grass_2_R_2x1_1,
         level_center, level_L_0, level_R_0,
         logic_and_UD, logic_and_LR,
-        logic_not_U, logic_not_D, logic_not_L, logic_not_R,
+        logic_not_LR, logic_not_UD,
         logic_or_UD, logic_or_LR,
         mole,
         particle_brick, particle_bubble,
@@ -208,48 +210,50 @@ export namespace entity {
         player,
         slope_L_1x1, slope_R_1x1, slope_L_2x1_0, slope_L_2x1_1, slope_R_2x1_0, slope_R_2x1_1, slope_U,
         spring_U,
-        sling,        
+        sling,
         track_UD, track_LR,
         track_corner_UL, track_corner_UR, track_corner_DL, track_corner_DR,
         track_L_1x1_0, track_L_1x1_1, track_R_1x1_0, track_R_1x1_1,
         track_L_1x2_0, track_L_1x2_1, track_R_1x2_0, track_R_1x2_1,
         track_L_2x1_0, track_L_2x1_1, track_R_2x1_0, track_R_2x1_1,
-        train,
-        trigger, conduit_trigger_UL, conduit_trigger_UR, track_trigger_UL, track_trigger_UR,
+        train_platform, train_saw,
+        trigger, track_trigger_UL, track_trigger_UR,
         water_line, water_line_L, water_line_R
     };
     using cType = const Type;
 
     bool is_arch(cType t) {
         return t == Type::arch_L_1x1 or t == Type::arch_L_2x1_0 or t == Type::arch_L_2x1_1 or
-            t == Type::arch_R_1x1 or t == Type::arch_R_2x1_0 or t == Type::arch_R_2x1_1;
+               t == Type::arch_R_1x1 or t == Type::arch_R_2x1_0 or t == Type::arch_R_2x1_1;
     }
     bool is_slope(cType t) {
     return t == Type::slope_L_1x1 or t == Type::slope_L_2x1_0 or t == Type::slope_L_2x1_1 or
-        t == Type::slope_R_1x1 or t == Type::slope_R_2x1_0 or t == Type::slope_R_2x1_1 or
-        t == Type::slope_U;
+           t == Type::slope_R_1x1 or t == Type::slope_R_2x1_0 or t == Type::slope_R_2x1_1 or
+           t == Type::slope_U;
     }
     bool is_clip(cType t) {
         return t == Type::clip or t == Type::clip_U or t == Type::clip_D or
-            t == Type::clip_L or t == Type::clip_R or t == Type::clip_LD or t == Type::clip_RD or
-            t == Type::clip_ledge;
+               t == Type::clip_L or t == Type::clip_R or t == Type::clip_LR or t == Type::clip_LD or t == Type::clip_RD or
+               t == Type::clip_UD or
+               t == Type::clip_ledge;
+    }
+    bool is_level_geometry(cType t) {
+        return is_arch(t) or is_clip(t) or is_slope(t);
     }
     bool is_conduit(cType t) {
-        return t == Type::conduit_trigger_UL or t == Type::conduit_trigger_UR or
-            t == Type::conduit_UD or t == Type::conduit_LR or            
-            t == Type::conduit_corner_UL or t == Type::conduit_corner_UR or t == Type::conduit_corner_DL or t == Type::conduit_corner_DR or
-            t == Type::conduit_L_1x1_0 or t == Type::conduit_L_1x1_1 or t == Type::conduit_R_1x1_0 or t == Type::conduit_R_1x1_1 or
-            t == Type::conduit_L_1x2_0 or t == Type::conduit_L_1x2_1 or t == Type::conduit_R_1x2_0 or t == Type::conduit_R_1x2_1 or
-            t == Type::conduit_L_2x1_0 or t == Type::conduit_L_2x1_1 or t == Type::conduit_R_2x1_0 or t == Type::conduit_R_2x1_1
-            ;
+        return t == Type::conduit_UD or t == Type::conduit_LR or
+               t == Type::conduit_corner_UL or t == Type::conduit_corner_UR or t == Type::conduit_corner_DL or t == Type::conduit_corner_DR or
+               t == Type::conduit_L_1x1_0 or t == Type::conduit_L_1x1_1 or t == Type::conduit_R_1x1_0 or t == Type::conduit_R_1x1_1 or
+               t == Type::conduit_L_1x2_0 or t == Type::conduit_L_1x2_1 or t == Type::conduit_R_1x2_0 or t == Type::conduit_R_1x2_1 or
+               t == Type::conduit_L_2x1_0 or t == Type::conduit_L_2x1_1 or t == Type::conduit_R_2x1_0 or t == Type::conduit_R_2x1_1;
     }
     
     bool is_grass_0(cType t) { return t == Type::grass_0 or t == Type::grass_0_L_1x1 or t == Type::grass_0_R_1x1 or t == Type::grass_0_L_2x1_0 or t == Type::grass_0_L_2x1_1 or t == Type::grass_0_R_2x1_0 or t == Type::grass_0_R_2x1_1; }
     bool is_grass_1(cType t) { return t == Type::grass_1 or t == Type::grass_1_L_1x1 or t == Type::grass_1_R_1x1 or t == Type::grass_1_L_2x1_0 or t == Type::grass_1_L_2x1_1 or t == Type::grass_1_R_2x1_0 or t == Type::grass_1_R_2x1_1; }
     bool is_grass_2(cType t) { return t == Type::grass_2 or t == Type::grass_2_L_1x1 or t == Type::grass_2_R_1x1 or t == Type::grass_2_L_2x1_0 or t == Type::grass_2_L_2x1_1 or t == Type::grass_2_R_2x1_0 or t == Type::grass_2_R_2x1_1; }
     bool is_grass(cType t) { return is_grass_0(t) or is_grass_1(t) or is_grass_2(t); }
-    bool is_logic_and(cType t) { return t == Type::logic_and_UD or t == Type::logic_and_LR; }
-    bool is_logic_not(cType t) { return t == Type::logic_not_U or t == Type::logic_not_D or t == Type::logic_not_L or t == Type::logic_not_R; }
+    bool is_logic_and(cType t) { return t == Type::logic_and_LR or t == Type::logic_and_UD; }
+    bool is_logic_not(cType t) { return t == Type::logic_not_LR or t == Type::logic_not_UD; }
     bool is_logic_or(cType t) { return t == Type::logic_or_UD or t == Type::logic_or_LR; }
     bool is_logic(cType t) { return is_logic_and(t) or is_logic_not(t) or is_logic_or(t); }
     bool is_particle(cType t) { return t == Type::particle_sense; }
@@ -288,9 +292,7 @@ export namespace entity {
         { "clip_U"               , Type::clip_U               },
         { "clip_UD"              , Type::clip_UD              },
         { "clip_LR"              , Type::clip_LR              },
-        { "coin"                 , Type::coin                 },
-        { "conduit_trigger_UL"   , Type::conduit_trigger_UL   },
-        { "conduit_trigger_UR"   , Type::conduit_trigger_UR   },
+        { "coin"                 , Type::coin                 },        
         { "conduit_UD"           , Type::conduit_UD           },
         { "conduit_LR"           , Type::conduit_LR           },
         { "conduit_corner_UL"    , Type::conduit_corner_UL    },
@@ -334,14 +336,12 @@ export namespace entity {
         { "level_center"         , Type::level_center         },
         { "level_L_0"            , Type::level_L_0            },
         { "level_R_0"            , Type::level_R_0            },
-        { "logic_and_UD"         , Type::logic_and_UD         },
         { "logic_and_LR"         , Type::logic_and_LR         },
-        { "logic_not_U"          , Type::logic_not_U          },
-        { "logic_not_D"          , Type::logic_not_D          },
-        { "logic_not_L"          , Type::logic_not_L          },
-        { "logic_not_R"          , Type::logic_not_R          },
-        { "logic_or_UD"          , Type::logic_or_UD          },
+        { "logic_and_UD"         , Type::logic_and_UD         },
+        { "logic_not_LR"         , Type::logic_not_LR         },
+        { "logic_not_UD"         , Type::logic_not_UD         },
         { "logic_or_LR"          , Type::logic_or_LR          },
+        { "logic_or_UD"          , Type::logic_or_UD          },
         { "mole"                 , Type::mole                 },
         { "particle_brick"       , Type::particle_brick       },
         { "particle_bubble"      , Type::particle_bubble      },
@@ -363,7 +363,8 @@ export namespace entity {
         { "spring_U"             , Type::spring_U             },
         { "slope_U"              , Type::slope_U              },
         { "sling"                , Type::sling                },
-        { "train"                , Type::train                },
+        { "train_platform"       , Type::train_platform       },        
+        { "train_saw"            , Type::train_saw            },
         { "track_trigger_UL"     , Type::track_trigger_UL     },
         { "track_trigger_UR"     , Type::track_trigger_UR     },        
         { "track_UD"             , Type::track_UD             },
@@ -418,8 +419,6 @@ export namespace entity {
             case Type::clip_UD:              return "clip_UD";
             case Type::clip_LR:              return "clip_LR";
             case Type::coin:                 return "coin";
-            case Type::conduit_trigger_UL:   return "conduit_trigger_UL";
-            case Type::conduit_trigger_UR:   return "conduit_trigger_UR";
             case Type::conduit_UD:           return "conduit_UD";
             case Type::conduit_LR:           return "conduit_LR";
             case Type::conduit_corner_UL:    return "conduit_corner_UL";
@@ -463,12 +462,10 @@ export namespace entity {
             case Type::level_center:         return "level_center";
             case Type::level_L_0:            return "level_L_0";
             case Type::level_R_0:            return "level_R_0";
-            case Type::logic_and_UD:         return "logic_and_UD";
             case Type::logic_and_LR:         return "logic_and_LR";
-            case Type::logic_not_U:          return "logic_not_U";
-            case Type::logic_not_D:          return "logic_not_D";
-            case Type::logic_not_L:          return "logic_not_L";
-            case Type::logic_not_R:          return "logic_not_R";
+            case Type::logic_and_UD:         return "logic_and_UD";
+            case Type::logic_not_LR:         return "logic_not_LR";            
+            case Type::logic_not_UD:         return "logic_not_UD";
             case Type::logic_or_UD:          return "logic_or_UD";
             case Type::logic_or_LR:          return "logic_or_LR";
             case Type::mole:                 return "mole";
@@ -512,7 +509,8 @@ export namespace entity {
             case Type::track_L_2x1_1:        return "track_L_2x1_1";
             case Type::track_R_2x1_0:        return "track_R_2x1_0";
             case Type::track_R_2x1_1:        return "track_R_2x1_1";
-            case Type::train:                return "train";
+            case Type::train_platform:       return "train_platform";
+            case Type::train_saw:            return "train_saw";
             case Type::trigger:              return "trigger";
             case Type::water_line:           return "water_line";
             case Type::water_line_L:         return "water_line_L";
@@ -783,6 +781,11 @@ struct Vec2 {
         return { v0.x * v1.x + v0.y * v1.y };
     }
     void normalize() { *this = *this / length(); }
+    static Vec2 normalize(const Vec2& v) {
+        F32 len = length(v);
+        if (len == 0.0F) len = 0.001F;
+        return v / len;
+    }
     Vec2& operator =(const Vec2& other) { x = other.x, y = other.y;   return *this; }
     Vec2& operator =(const T value) { x = value, y = value;   return *this; }
     Vec2& operator +=(const Vec2& other) { x += other.x, y += other.y; return *this; }

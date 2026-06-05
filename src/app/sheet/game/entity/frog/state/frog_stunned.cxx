@@ -6,7 +6,7 @@ namespace entity {
             m_is_first_state_update = false;
             m_sensed_objects.clear();
 
-            m_sensed_position = {};
+            m_sensed_offset = {};
             reset_anim("stunned");
             for (auto& i : m_aabbs) {
                 if (aabb::name(i) == aabb::Name::body) {

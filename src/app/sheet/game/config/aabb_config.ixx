@@ -5,21 +5,21 @@ import types;
 import std;
 
 export namespace aabb {
-    bool parse_config(const std::string& text, entity::Object* owner) {
+    std::vector<I32> parse_config(const std::string& text, cI32 transform, cVec2F start_offset = Vec2F{}) {
         const size_t aabb_set_label = text.find("AABB_Set", 0);
         const size_t aabb_colors_label = text.find("AABB_Colors", 0);
 
         if (aabb_set_label == std::string::npos) {
             //goto end_of_aabb_block;
-            return false;
+            return {};
         }
+        std::vector<I32> aabb_ids;
+
         if (text.find("{", aabb_set_label) != std::string::npos) {
             const size_t aabb_set_open = text.find("{", aabb_set_label) + 1;
             const size_t aabb_set_close = text.find("\n}", aabb_set_open);
 
             if (aabb_set_close != std::string::npos) {
-                std::vector<I32> aabb_ids{};
-
                 size_t aabb_open = text.find("{", aabb_set_open + 1);
 
                 while (aabb_open < aabb_set_close) {
@@ -31,6 +31,9 @@ export namespace aabb {
                     size_t aabb_close = text.find("}", aabb_open);
 
                     size_t prev_endl = text.rfind("\n", aabb_open);
+
+                    std::string aabb_name_str{};
+
                     if (aabb_close < end_line) {
 
                         // See if there's a name in front
@@ -49,7 +52,7 @@ export namespace aabb {
                                 while (text.at(name_start - 1) != '	' and text.at(name_start - 1) != ' ' and name_start > prev_endl) {
                                     --name_start;
                                 }
-                                const std::string aabb_name_str = text.substr(name_start, name_end - name_start);
+                                aabb_name_str = text.substr(name_start, name_end - name_start);
 
                                 aabb_name = aabb::string_to_name(aabb_name_str);
 
@@ -80,31 +83,33 @@ export namespace aabb {
                         aabb_open = text.find("{", end_line);
                     }
 
-                    cI32 aabb_id = aabb::make(owner->transform(), { owner->start_offset().x + aabb_rect.x,
-                                                                       owner->start_offset().y + aabb_rect.y,
-                                                                       aabb_rect.w,
-                                                                       aabb_rect.h });
+                    cI32 aabb_id = aabb::make(transform, { start_offset.x + aabb_rect.x,
+                                                           start_offset.y + aabb_rect.y,
+                                                           aabb_rect.w,
+                                                           aabb_rect.h });
+
                     aabb::name(aabb_id, aabb_name);
-                    aabb::owner(aabb_id, owner);
+                    //aabb::owner(aabb_id, owner);
                     //aabb::get(aabb_id)->update();
                     aabb_ids.emplace_back(aabb_id);
 
+                    //if (!aabb_name_str.empty()) {
+                        //owner->aabb(aabb_name_str, aabb_id);
+                    //}
                     //aabb_set_label = aabb_set_close;
                 }
-                owner->aabb_ids(aabb_ids);
+                //owner->aabbs(aabb_ids);
             }
         }
         if (aabb_colors_label == std::string::npos) {
             //goto end_of_aabb_block;
-            return true;
+            return aabb_ids;
         }
         if (text.find("{", aabb_colors_label) != std::string::npos) {
             const size_t aabb_colors_open = text.find("{", aabb_colors_label) + 1;
             const size_t aabb_colors_close = text.find("\n}", aabb_colors_open);
 
-            if (aabb_colors_close != std::string::npos) {
-                std::vector<I32> aabb_ids{};
-
+            if (aabb_colors_close != std::string::npos) {                
                 size_t color_open = text.find("{", aabb_colors_open + 1);
 
                 while (color_open < aabb_colors_close) {
@@ -158,7 +163,7 @@ export namespace aabb {
                         color_open = text.find("{", end_line);
                     }
 
-                    for (auto& aabb_id : owner->aabb_ids()) {
+                    for (auto& aabb_id : aabb_ids) {
                         if (aabb::name(aabb_id) == aabb_name) {
                             aabb::color(aabb_id, aabb_color);
                             //aabb::start_color(aabb_id, aabb_color);
@@ -168,6 +173,6 @@ export namespace aabb {
                 }
             }
         }
-        return true;
+        return aabb_ids;
     }
 }

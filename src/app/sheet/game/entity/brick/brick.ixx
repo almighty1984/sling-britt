@@ -4,13 +4,13 @@ import anim;
 import camera;
 import console;
 import entity;
-//import particle_system;
+import particle_system;
 import sound;
 import sprite;
 
 export namespace entity {
     class Brick : public Object {
-        Vec2F m_break_velocity = { 2.0F, 3.0F };
+        Vec2F m_break_velocity = { 6.0F, 6.0F };
     public:
         Brick() {            
             m_state = m_next_state = m_start_state = state::Type::idle;
@@ -19,9 +19,9 @@ export namespace entity {
         const char* class_name() override { return "entity::Brick"; }
 
         bool hurt(Object* culprit) override {
-            if (!culprit or m_time_left_hurt > 0) return false;
+            if (!culprit or is_hurting() or is_dead()) return false;
 
-            m_time_left_hurt = m_time_to_hurt;
+            m_time_left_hurt = m_config.time_to_hurt();
 
             console::log(class_name(), "::hurt() culprit: ", to_string(culprit->type()), "\n");
             
@@ -31,16 +31,40 @@ export namespace entity {
                 //reset_anim(anim("hurt"));
                 //m_break_velocity = { 1.5F, 1.5F };
             //}
+
+
+            particle::spawn_fan(this, 0.0F, 360.0F, 8,
+                                particle::Type::brick,
+                                position() + Vec2F{ 6.0F, -4.0F },
+                                velocity() * 1.0F, 1.0F,
+                                state::Type::idle);
             
             switch (culprit->type()) {
+            case Type::brick: {
+                    if (!culprit->is_hurting()) {
+                        sound_position("hit", { position().x - app::config::extent().x / 2.0F,
+                                                    position().y - app::config::extent().y / 2.0F });
+                        sound_play("hit");
+                        sound_position("dead", { position().x - app::config::extent().x / 2.0F,
+                                                 position().y - app::config::extent().y / 2.0F });
+                        sound_play("dead");
+                    }                    
+                    break;
+                }
                 case Type::bug:
-                case Type::brick:
                 case Type::frog: {
                     sound_position("hit", { position().x - app::config::extent().x / 2.0F,
                                             position().y - app::config::extent().y / 2.0F });
                     sound_play("hit");
                     break;
-                }                
+                }
+                case Type::particle_melee:
+                case Type::particle_rock: {
+                    sound_position("dead", { position().x - app::config::extent().x / 2.0F,
+                                             position().y - app::config::extent().y / 2.0F });
+                    sound_play("dead");
+                    break;
+                }
                 default: {
                     sound_position("hit", { position().x - app::config::extent().x / 2.0F,
                                             position().y - app::config::extent().y / 2.0F });
@@ -50,7 +74,7 @@ export namespace entity {
                     sound_play("dead");
                     break;
                 }
-            }
+            }            
             return true;
         }
         void collide_x(aabb::cInfo our, aabb::cInfo other) override;
@@ -70,7 +94,7 @@ export namespace entity {
                         
             //console::log("state: ", entity::to_string(m_state), " ", m_is_on_ground, "\n");
 
-            if (m_time_left_hurt > 0) --m_time_left_hurt;
+            if (m_time_left_hurt > 0)        --m_time_left_hurt;
             if (m_time_left_interacting > 0) --m_time_left_interacting;
 
             if (m_next_state != m_state) {

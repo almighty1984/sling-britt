@@ -14,6 +14,8 @@ export namespace entity {
             //load_config("res/entity/spring_U.cfg");
         }
         void collide_x(aabb::cInfo our, aabb::cInfo other) override {
+            if (other.owner->state() == state::Type::carried) return;
+
             cType other_type = other.owner->type();
 
             switch (other_type) {
@@ -25,7 +27,7 @@ export namespace entity {
 
                     reset_anim("dead");
                     m_time_left_alive = 0;
-                    m_time_left_dead = m_time_to_be_dead;
+                    m_time_left_dead = m_config.time_to_be_dead();
 
                     sound_position("dead", { (position().x + 8.0F) / app::config::extent().x / 2.0F,
                                              (position().y + 8.0F) / app::config::extent().y / 2.0F });

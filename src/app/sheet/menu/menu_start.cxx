@@ -9,6 +9,7 @@ import transform;
 
 namespace sheet {
     MenuStart::MenuStart(cU16 window_w, cU16 window_h) {
+
         console::log("state::MenuStart() ", window_w, " ", window_h, "\n");
         m_type = m_transition_to = m_transition_from = Type::menu_start;
         m_input = input::make();
@@ -68,6 +69,49 @@ namespace sheet {
     }
 
     void MenuStart::update(cF32 dt) {
+
+        if (input::mouse_moved) {
+            m_is_mouse_on_selection = false;
+            if (input::mouse.x >= m_game_text.position().x and
+                input::mouse.x <= m_game_text.position().x + m_game_text.string().size() * m_game_text.font_size() and
+                input::mouse.y >= m_game_text.position().y and
+                input::mouse.y <= m_game_text.position().y + m_game_text.font_size()) {
+                console::log("sheet::Menu::update() mouse: ", input::mouse.x, " ", input::mouse.y, "\n");
+                s_selection = 0;
+                m_is_mouse_on_selection = true;
+            } else if (input::mouse.x >= m_edit_text.position().x and
+                input::mouse.x <= m_edit_text.position().x + m_edit_text.string().size() * m_edit_text.font_size() and
+                input::mouse.y >= m_edit_text.position().y and
+                input::mouse.y <= m_edit_text.position().y + m_edit_text.font_size()) {
+                s_selection = 1;
+                m_is_mouse_on_selection = true;
+            } else if (input::mouse.x >= m_options_text.position().x and
+                input::mouse.x <= m_options_text.position().x + m_options_text.string().size() * m_options_text.font_size() and
+                input::mouse.y >= m_options_text.position().y and
+                input::mouse.y <= m_options_text.position().y + m_options_text.font_size()) {
+                s_selection = 2;
+                m_is_mouse_on_selection = true;
+            }
+        }
+
+        //console::log("is_mouse_on_selection: ", m_is_mouse_on_selection, "\n");
+
+
+        if (s_selection == 0) {
+            m_game_text.texture("res/texture/font/8_white.png");
+            m_edit_text.texture("res/texture/font/8_gray.png");
+            m_options_text.texture("res/texture/font/8_gray.png");
+        } else if (s_selection == 1) {
+            m_game_text.texture("res/texture/font/8_gray.png");
+            m_edit_text.texture("res/texture/font/8_white.png");
+            m_options_text.texture("res/texture/font/8_gray.png");
+
+        } else if (s_selection == 2) {
+            m_game_text.texture("res/texture/font/8_gray.png");
+            m_edit_text.texture("res/texture/font/8_gray.png");
+            m_options_text.texture("res/texture/font/8_white.png");
+        }
+
         //console::log("mouse: ", input::mouse.x, " ", input::mouse.y, "\n");
 
         //console::log("sheet::Game::update() delta: ", line::delta(m_normal).x, " ", line::delta(m_normal).y, "\n");
@@ -181,6 +225,7 @@ namespace sheet {
 
         }
 
+
         if (is_pressed(input::Key::ctrl)) {
             if (is_pressed(input::Key::up)) {
                 transform::velocity_add_y(m_circle.transform(), -move_speed);
@@ -198,12 +243,14 @@ namespace sheet {
         else {
             if (is_pressed(input::Key::up)) {
                 release(input::Key::up);
+                m_is_mouse_on_selection = false;
                 if (s_selection > 0) {
                     s_selection -= 1;
                 }
             }
             if (is_pressed(input::Key::down)) {
                 release(input::Key::down);
+                m_is_mouse_on_selection = false;
                 if (s_selection < 2) {
                     s_selection += 1;
                 }
@@ -252,52 +299,19 @@ namespace sheet {
         //line::update(m_line);
         //line::update(m_normal);
 
+        //console::log("mouse moved: ", input::mouse_moved, "\n");
+
+
 
         bool is_to_change_sheet = false;
         if (is_pressed(input::Key::enter)) {
-            release(input::Key::enter);
+            release(input::Key::enter);            
             is_to_change_sheet = true;
-        }        
-        else if (input::mouse.x >= m_game_text.position().x and 
-            input::mouse.x <= m_game_text.position().x + m_game_text.string().size() * m_game_text.font_size() and
-            input::mouse.y >= m_game_text.position().y and
-            input::mouse.y <= m_game_text.position().y + m_game_text.font_size()) {
-            console::log("sheet::Menu::update() mouse: ", input::mouse.x, " ", input::mouse.y, "\n");
-            s_selection = 0;
-            is_to_change_sheet = is_pressed(input::Button::left);
-        }
-        else if (input::mouse.x >= m_edit_text.position().x and
-            input::mouse.x <= m_edit_text.position().x + m_edit_text.string().size() * m_edit_text.font_size() and
-            input::mouse.y >= m_edit_text.position().y and
-            input::mouse.y <= m_edit_text.position().y + m_edit_text.font_size()) {
-            s_selection = 1;
-            is_to_change_sheet = is_pressed(input::Button::left);
-        }
-        else if (input::mouse.x >= m_options_text.position().x and
-            input::mouse.x <= m_options_text.position().x + m_options_text.string().size() * m_options_text.font_size() and
-            input::mouse.y >= m_options_text.position().y and
-            input::mouse.y <= m_options_text.position().y + m_options_text.font_size()) {
-            s_selection = 2;
-            is_to_change_sheet = is_pressed(input::Button::left);
         }
 
-
-        
-        if (s_selection == 0) {
-            m_game_text.texture("res/texture/font/8_white.png");
-            m_edit_text.texture("res/texture/font/8_gray.png");
-            m_options_text.texture("res/texture/font/8_gray.png");
-        }
-        else if (s_selection == 1) {
-            m_game_text.texture("res/texture/font/8_gray.png");
-            m_edit_text.texture("res/texture/font/8_white.png");
-            m_options_text.texture("res/texture/font/8_gray.png");
-
-        }
-        else if (s_selection == 2) {
-            m_game_text.texture("res/texture/font/8_gray.png");
-            m_edit_text.texture("res/texture/font/8_gray.png");
-            m_options_text.texture("res/texture/font/8_white.png");
+        if (is_pressed(input::Button::left) and m_is_mouse_on_selection) {
+            release(input::Button::left);
+            is_to_change_sheet = true;
         }
 
         if (is_to_change_sheet) {

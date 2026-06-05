@@ -20,13 +20,10 @@ void entity::Player::state_sling(cF32 dt) {
     if (m_is_first_state_update) {
         m_is_first_state_update = false;
         //m_next_state = entity::Type::sling;
-
+                
         for (auto& i : m_aabbs) {
-            aabb::is_active(i, false);
-            if (!aabb::is_active(i) and aabb::name(i) == aabb::Name::body) {
-                aabb::is_active(i, true);
-            }
-        }
+            aabb::is_active(i, aabb::name(i) == aabb::Name::body);
+        }        
 
         m_rotation_speed = -velocity().y * velocity().x * 0.75F;
         //m_rotation_speed = -(velocity().x * velocity().y);

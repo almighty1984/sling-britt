@@ -20,7 +20,7 @@ export namespace sprite {
         bool  sprite_is_leftward()  const { return sprite::is_leftward(m_sprite);  }
         bool  sprite_is_upended()   const { return sprite::is_upended(m_sprite);   }
         bool  sprite_is_hidden()    const { return sprite::is_hidden(m_sprite);    }
-        bool  sprite_layer()        const { return sprite::layer(m_sprite);        }
+        U8    sprite_layer()        const { return sprite::layer(m_sprite);        }
         const std::filesystem::path sprite_texture_path() const { return sprite::texture_path(m_sprite); }
 
         void sprite(cI32 id)                     { m_sprite = id; }
@@ -42,5 +42,5 @@ export namespace sprite {
         void sprite_layer(cU8 l)           const { sprite::layer(m_sprite, l);        }
         void sprite_texture(const std::filesystem::path& p) { sprite::texture(m_sprite, p); }
     };
-    bool parse_config(const std::string& text, Trait* owner, cI32 transform, cU8 layer, cVec2F start_offset);
+    I32 parse_config(const std::string& text, cI32 transform, cU8 layer, cVec2F start_offset);
 }

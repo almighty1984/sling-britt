@@ -122,7 +122,7 @@ namespace entity {
                     }
                 }
                 velocity_y(0.0F);
-                moved_velocity_y(0.0F);
+                move_velocity_y(0.0F);
                 if (our_UL.y < other_UL.y) {
                     m_is_on_ground = true;
                     m_is_on_slope = false;
@@ -165,7 +165,7 @@ namespace entity {
                 position_add_y(-overlap_y);
 
                 velocity_y(0.0F);
-                moved_velocity_y(0.0F);
+                move_velocity_y(0.0F);
                 m_is_on_ground = true;
                 m_is_on_slope = other_type == Type::slope_U;
                 break;
@@ -241,7 +241,7 @@ namespace entity {
                 //console::log(class_name(), "::collide_y player overlap_y: ", overlap_y, "\n");
                 if (m_state == state::Type::swim) {
                     //velocity().y += other_velocity.y;
-                    //moved_velocity_y(other_velocity.y;
+                    //move_velocity_y(other_velocity.y;
                     return;
                 }
                 if (other.owner->state() == state::Type::sling) return;
@@ -268,8 +268,8 @@ namespace entity {
                 position_add_y(-overlap_y);
 
                 velocity_y(-velocity().x);
-                moved_velocity_x(0.0F);
-                moved_velocity_y(0.0F);
+                move_velocity_x(0.0F);
+                move_velocity_y(0.0F);
 
                 m_is_on_ground = true;
                 m_is_on_slope = true;
@@ -280,8 +280,8 @@ namespace entity {
                 position_add_y(-overlap_y);
 
                 velocity_y(velocity().x);
-                moved_velocity_x(0.0F);
-                moved_velocity_y(0.0F);
+                move_velocity_x(0.0F);
+                move_velocity_y(0.0F);
 
                 m_is_on_ground = true;
                 m_is_on_slope = true;
@@ -290,7 +290,7 @@ namespace entity {
             case Type::slope_L_2x1_0:
             case Type::slope_L_2x1_1: {
                 position_add_y(-overlap_y);
-                moved_velocity_y(0.0F);
+                move_velocity_y(0.0F);
                 velocity_y(0.0F);
                 m_is_on_ground = true;
                 m_is_on_slope = true;
@@ -301,7 +301,7 @@ namespace entity {
                 position_add_y(-overlap_y);
 
                 velocity_y(0.0F);
-                moved_velocity_y(0.0F);
+                move_velocity_y(0.0F);
                 //if (velocity().x > 0.0F) {
                     //velocity_y(velocity().x / 2.0F;
                 //}

@@ -6,7 +6,7 @@ namespace entity {
         if (m_is_first_state_update) {
             m_is_first_state_update = false;
             m_time_left_alive = 0;
-            m_time_left_dead = m_time_to_be_dead;
+            m_time_left_dead = m_config.time_to_be_dead();
         }
         //console::log(class_name(), "::state_dead() time left dead: ", m_time_left_dead, "\n");
         velocity({});
@@ -21,9 +21,9 @@ namespace entity {
 
         switch (other.owner->type()) {
             case Type::frog: {
-                if (health::is_max(other.owner->health_id())) return;
+                if (/*health::amount(other.owner->health_id()) <= 0.0F or */health::is_max(other.owner->health_id())) return;
                 m_time_left_alive = 0;
-                m_time_left_dead = m_time_to_be_dead;
+                m_time_left_dead = m_config.time_to_be_dead();
                 break;
             }
             case Type::mole: {
@@ -33,7 +33,7 @@ namespace entity {
                 health::amount_add(other.owner->health_id(), 16.0F);
 
                 m_time_left_alive = 0;
-                m_time_left_dead = m_time_to_be_dead;
+                m_time_left_dead = m_config.time_to_be_dead();
                 is_to_play_sound = true;
                 break;
             }
@@ -42,7 +42,7 @@ namespace entity {
                 if (health::is_max(other.owner->health_id())) return;
 
                 m_time_left_alive = 0;
-                m_time_left_dead = m_time_to_be_dead;
+                m_time_left_dead = m_config.time_to_be_dead();
 
                 health::amount_add(other.owner->health_id(), 64.0F);
 
@@ -55,7 +55,7 @@ namespace entity {
                     //health::amount_add(other.owner->parent()->health_id(), 1.0F);
                     velocity(-other_velocity / 2.0F);
                     m_time_left_alive = 6;
-                    m_time_left_dead = m_time_to_be_dead;
+                    m_time_left_dead = m_config.time_to_be_dead();
                     is_to_play_sound = true;
                 }
                 break;

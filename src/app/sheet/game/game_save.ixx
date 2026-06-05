@@ -24,7 +24,7 @@ export namespace sheet::game {
 
     std::vector<U16>& picked_coins_in_current_level() { return s_picked_coins[s_current_level_path]; };
 
-    bool add_visited_level(const std::filesystem::path& level_path) {
+    bool add_visited_level(const std::filesystem::path level_path) {
         if (level_path.empty()) {
             console::error("state::game::add_visited_level() level path empty!\n");
             return false;
@@ -76,6 +76,10 @@ export namespace sheet::game {
         std::ostringstream oss;
         oss << (int)slot;
         std::ifstream in_file("res/save/" + oss.str() + ".bin", std::ios::in | std::ios::binary);
+        if (!in_file.is_open()) {
+            console::error("sheet::Game::read_save() can't open save ", oss.str(), "\n");
+            return {};
+        }
         char level_path[32]{};
         U8 num_visited_levels = 0;
         in_file.read((I8*)level_path, sizeof(char) * 32);
@@ -85,10 +89,16 @@ export namespace sheet::game {
         //console::log("\n\nstate::game::read_save() num_visited_levels: ", (int)num_visited_levels, "\n\n");
 
 
+
         for (U8 i = 0; i < num_visited_levels; ++i) {
-            char visited_level_path[32]{};
+            char visited_level_path[32] = { 0 };
             in_file.read((I8*)visited_level_path, sizeof(char) * 32);
+
+            //std::filesystem::path file_path = visited_level_path;
+
+            //console::log("file_path: ", file_path, "\n");
             add_visited_level(visited_level_path);
+            
             //s_numVisitedScreensLevel = 0;
             //inFile.read((i8*)&s_numVisitedScreensLevel, sizeof(u8));
             //u8 visitedScreen = 0;
@@ -117,6 +127,10 @@ export namespace sheet::game {
         console::log("state::game::write_save() ", s_current_level_path.string(), "...");
 
         std::ofstream out_file("res/save/0.bin", std::ios::out | std::ios::binary);
+        if (!out_file.is_open()) {
+            console::error("sheet::Game::read_save() can't write save ", (int)slot, "\n");
+            return;
+        }
         
         char save_path[32]{};
         s_current_level_path.string().copy(save_path, 32);

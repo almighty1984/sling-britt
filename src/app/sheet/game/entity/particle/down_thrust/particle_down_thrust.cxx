@@ -40,7 +40,7 @@ namespace entity {
                 other.owner->hurt(this);
                 velocity({});
                 m_time_left_alive = 0;
-                m_time_left_dead = m_time_to_be_dead;
+                m_time_left_dead = m_config.time_to_be_dead();
 
                 sound_position("melee", { position().x - app::config::extent().x / 2.0F,
                                           position().y - app::config::extent().y / 2.0F });
@@ -51,7 +51,8 @@ namespace entity {
                 break;
             }
             case Type::particle_brick: {
-                console::log(class_name(), "::collide_x() vel: ", our_velocity.x, " ", our_velocity.y, "\n");
+                //console::log(class_name(), "::collide_x() particle_brick vel: ", our_velocity.x, " ", our_velocity.y, "\n");
+                //other.owner->collide_y(other, our);
                 break;
             }
         }

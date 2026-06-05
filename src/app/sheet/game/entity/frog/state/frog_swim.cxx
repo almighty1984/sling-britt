@@ -31,7 +31,7 @@ namespace entity {
         }
 
         velocity_y(velocity().y * 0.9F);
-        //moved_velocity({});
+        //move_velocity({});
 
         if (position_on_level().y > m_water_line_y) {
             velocity_add({ 0.0F, -0.3F });

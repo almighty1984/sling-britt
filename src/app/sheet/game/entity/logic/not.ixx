@@ -7,11 +7,13 @@ import sprite;
 export namespace entity {
     class LogicNot : public Object {
     public:
+        const char* class_name() override { return "entity::LogicNot"; }
         LogicNot() {
             m_input_limit = 1;
         }
         void update(cF32 dt) override {
-            //console::log("LogicNot is_powered: ", m_is_powered, "\n");
+            //console::log(class_name(), " start offset: ", start_offset().x, " ", start_offset().y, "\n");
+            //console::log(class_name(), " is_powered: ", m_is_powered, "\n");
             for (auto& i : m_input_objects) {
                 m_time_left_alive = i->time_left_alive() > 0 ? 0 : U16_MAX;
                 if (i->is_powered()) {

@@ -4,7 +4,7 @@ import console;
 
 namespace entity {
     void Frog::collide_x(aabb::cInfo our, aabb::cInfo other) {
-        if (!our.owner or !other.owner) return;
+        if (!our.owner or !other.owner or is_dead()) return;
 
         cType other_type = other.owner->type();
 
@@ -62,29 +62,29 @@ namespace entity {
                     }
                 }
                 velocity_x(0.0F);
-                moved_velocity_x(0.0F);
+                move_velocity_x(0.0F);
                 break;
             }
             case Type::clip_LD:
             case Type::clip_L: {
-                if (velocity().x + moved_velocity().x <= 0.0F) return;
+                if (velocity().x + move_velocity().x <= 0.0F) return;
                 if (m_state == state::Type::swim) {
                     sprite::is_leftward(m_sprite, true);
                 }
                 position_add_x(-overlap_x);
                 velocity_x(0.0F);
-                moved_velocity_x(0.0F);
+                move_velocity_x(0.0F);
                 break;
             }
             case Type::clip_RD:
             case Type::clip_R: {
-                if (velocity().x + moved_velocity().x >= 0.0F) return;
+                if (velocity().x + move_velocity().x >= 0.0F) return;
                 if (m_state == state::Type::swim) {
                     sprite::is_leftward(m_sprite, false);
                 }
                 position_add_x(-overlap_x);
                 velocity_x(0.0F);
-                moved_velocity_x(0.0F);
+                move_velocity_x(0.0F);
                 break;
             }
             case Type::frog: {
@@ -104,7 +104,7 @@ namespace entity {
                 break;
             }
             case Type::particle_health: {
-                if (health::is_max(m_health_id) or m_state == state::Type::heal) return;
+                if (health_amount() <= 0.0F or health_is_max() or m_state == state::Type::heal or m_state == state::Type::dead) return;
                 m_next_state = state::Type::heal;
                 m_time_left_in_next_state = 200;
                 break;
@@ -114,6 +114,7 @@ namespace entity {
                 if (other.owner->state() == state::Type::sling) {
                     velocity_x(-other.owner->rotation_speed() * 0.75F);
                     hurt(other.owner);
+
                     //m_sensed_objects.clear();
                     return;
                 }
@@ -134,7 +135,7 @@ namespace entity {
                     velocity_add({ 1.0F, 0.0F });
                     other.owner->velocity_add({ -force_x, 0.0F });
                 }
-                moved_velocity_x(0.0F);
+                move_velocity_x(0.0F);
                 break;
             }
             case Type::slope_L_1x1: {

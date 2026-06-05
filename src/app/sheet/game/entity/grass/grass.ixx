@@ -57,7 +57,7 @@ export namespace entity {
                     tile_x -= tile_x % 32;
 
                     sprite_rect_x(tile_x);
-                    //m_time_left_dead = m_time_to_be_dead;
+                    //m_time_left_dead = m_config.time_to_be_dead();
                     break;
                 }
             }
@@ -79,7 +79,7 @@ export namespace entity {
                     aabb::is_active(i, false);
                 }
             } else {
-                for (auto& i : m_aabbs) {                    
+                for (auto& i : m_aabbs) {        
                     aabb::is_active(i, true);                    
                 }
             }

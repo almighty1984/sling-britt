@@ -44,7 +44,7 @@ namespace entity {
         }
 
 
-        moved_velocity({});
+        move_velocity({});
 
         //max_velocity({ 4.0F, 4.0F });
 
@@ -123,11 +123,9 @@ namespace entity {
         //console::log(class_name(), "::swim is_on_ground: ", m_is_on_ground, "\n");
         
         for (auto& i : m_aabbs) {
-            aabb::is_active(i, false);
-            if (aabb::name(i) == aabb::Name::body_swim) {
-                aabb::is_active(i, true);
-            }
-        }
+            aabb::is_active(i, aabb::name(i) == aabb::Name::body_swim);
+        }        
+        
         cF32 hypotenuse = std::sqrtf(velocity().x * velocity().x + velocity().y * velocity().y);
         anim::speed(m_current_anim, hypotenuse / 5.0F);
         if (anim::speed(m_current_anim) < 0.1F) {

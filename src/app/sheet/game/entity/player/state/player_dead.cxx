@@ -22,12 +22,19 @@ namespace entity {
 
             m_state = m_next_state = state::Type::dead;
             //reset_anim(anim("dead"));
-            particle::spawn_fan(this, 0.0F, 360.0F, 8, particle::Type::drop_blood, position() + Vec2F{ 0.0F, -8.0F }, velocity(), 3.0F);
+            particle::spawn_fan(this, 0.0F, 360.0F, 8,
+                                particle::Type::drop_blood,
+                                position() + Vec2F{ 0.0F, -8.0F },
+                                velocity(), 2.0F);
+            particle::spawn_fan(this, 0.0F, 360.0F, 7,
+                                particle::Type::drop_blood,
+                                position() + Vec2F{ 0.0F, -8.0F },
+                                velocity(), 1.0F);
             particle::spawn(this, particle::Type::health, position() + Vec2F{ 4.0F, 4.0F }, {});
             m_time_left_alive = 0;
-            m_time_left_dead = 200;
+            m_time_left_dead = 100;
 
-            //console::log("\n\nentity::Player::state_dead()\n\n");
+            console::log(class_name(), "::state_dead() velocity: ", velocity().x, " ", velocity().y, "\n");
 
             if (sound_is_playing("hover")) {
                 sound_stop("hover");
@@ -36,7 +43,7 @@ namespace entity {
         }
 
         velocity({});
-        moved_velocity({});
+        move_velocity({});
 
         --m_time_left_dead;
         if (m_time_left_dead == 0) {

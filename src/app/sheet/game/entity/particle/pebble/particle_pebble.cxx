@@ -39,8 +39,8 @@ namespace entity {
                 //console::log(class_name(), "::collide_x ", to_string(other_type), "\n");
                 if (is_hurting() or (std::abs(other_velocity.x) < 0.5F and std::abs(our_velocity.x) < 0.5F)) return;
 
-                m_time_left_hurt = m_time_to_hurt;
-                m_time_left_dead = m_time_to_be_dead;
+                m_time_left_hurt = m_config.time_to_hurt();
+                m_time_left_dead = m_config.time_to_be_dead();
 
                 velocity_y(other_velocity.y - 2.0F);
                 velocity_x(other_velocity.x * 1.2F);
@@ -87,7 +87,7 @@ namespace entity {
                 if (is_hurting() or other.owner->is_hurting() or other.owner->state() == state::Type::swim or (velocity().x >= -1.0F and velocity().x <= 1.0F)) return;
 
                 if (other.owner->state() == state::Type::idle) {
-                    m_time_left_hurt = m_time_to_hurt;
+                    m_time_left_hurt = m_config.time_to_hurt();
                     velocity_y(other_velocity.y - 1.0F);
                     velocity_x(other_velocity.x * 0.5F);
                     return;
@@ -138,8 +138,8 @@ namespace entity {
             case Type::player: {
                 if (is_hurting() or std::abs(other_velocity.x) < 1.0F) return;
 
-                m_time_left_hurt = m_time_to_hurt;
-                m_time_left_dead = m_time_to_be_dead;
+                m_time_left_hurt = m_config.time_to_hurt();
+                m_time_left_dead = m_config.time_to_be_dead();
 
                 //position_add_x( -overlap_x );
                 //position().y -= 2.0F;
@@ -213,7 +213,7 @@ namespace entity {
                 if (velocity().y >= -acceleration().y and velocity().y <= acceleration().y) {
                     velocity_y(0.0F);
                 }
-                moved_velocity({});
+                move_velocity({});
 
                 velocity_x(velocity().x * 0.5F);
 
@@ -233,7 +233,7 @@ namespace entity {
                 if (velocity().y >= -acceleration().y and velocity().y <= acceleration().y) {
                     velocity_y(0.0F);
                 }
-                moved_velocity({});
+                move_velocity({});
 
                 velocity_x(velocity().x * 0.5F);
 
@@ -254,7 +254,7 @@ namespace entity {
                     velocity_y(0.0F);
                 }
 
-                moved_velocity({});
+                move_velocity({});
 
                 velocity_x(velocity().x * 0.5F);
 
@@ -271,7 +271,7 @@ namespace entity {
 
                 position_add_y(-overlap_y);
                 velocity_y(velocity().y * -0.5F);
-                moved_velocity({});
+                move_velocity({});
 
                 velocity_x(velocity().x * 0.5F);
 
@@ -369,7 +369,7 @@ namespace entity {
             }
             case Type::player: {
                 if (is_hurting() or std::abs(other_velocity.x) < 1.0F) return;
-                m_time_left_hurt = m_time_to_hurt;
+                m_time_left_hurt = m_config.time_to_hurt();
                 position_add({ 0.0F, -2.0F });
                 velocity_x(other_velocity.x * 1.2F);
                 velocity_y(other_velocity.y - 1.0F);

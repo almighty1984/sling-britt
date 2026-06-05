@@ -16,8 +16,8 @@ export namespace entity {
         void update(cF32 dt) override {
             if (m_is_first_update) {
                 m_is_first_update = false;
-                //m_time_left_alive = m_time_to_be_alive;
-                //m_time_left_dead = m_time_to_be_dead;
+                //m_time_left_alive = m_config.time_to_be_alive();
+                //m_time_left_dead = m_config.time_to_be_dead();
                 //m_start_offset = position_on_level();
             }
             /*if (m_time_left_alive == 0 and m_time_left_dead == 0) {
@@ -30,27 +30,11 @@ export namespace entity {
             if (m_time_left_hurt > 0) {
                 --m_time_left_hurt;
             }
-            if (m_next_state != m_state) {
-                m_prev_state = m_state;
-                m_state = m_next_state;
-                m_is_first_state_update = true;
-            }
-
+            
             velocity_add_y(acceleration().y);
 
-            switch (m_state) {
-                case state::Type::idle:
-                    state_idle(dt);
-                    break;
-                case state::Type::dead:
-                    state_dead(dt);
-                    break;
-                case state::Type::slide_wall:
-                    state_slide_wall(dt);
-                    break;
-                default:
-                    break;
-            }
+            state_update(dt);
+
             if (m_time_left_alive == 0 and m_time_left_dead == 0) {
                 m_is_to_erase = true;
             }
@@ -58,16 +42,12 @@ export namespace entity {
                 if (m_time_left_alive != U16_MAX) {
                     --m_time_left_alive;
                     if (m_time_left_alive == 0) {
-                        m_time_left_dead = m_time_to_be_dead;
-                        if (m_time_to_be_dead == 0) {
+                        m_time_left_dead = m_config.time_to_be_dead();
+                        if (m_config.time_to_be_dead() == 0) {
                             m_is_to_erase = true;
                         }
                     }
                 }                
-                if (m_current_anim != anim("idle")) {
-                    m_current_anim = anim("idle");
-                    anim::source_x(anim("idle"), anim::first_frame(anim("idle")));                    
-                }
             }
             else if (m_time_left_dead > 0) {
                 //velocity({});

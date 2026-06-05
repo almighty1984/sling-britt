@@ -4,19 +4,21 @@ namespace entity {
     void Frog::state_melee(cF32 dt) {
         if (!m_is_on_ground) return;
 
-        if (m_sensed_position == Vec2F{}) {
+        if (m_sensed_offset == Vec2F{}) {
             console::log(class_name(), "::state_melee() empty sensed position, back to idle\n");
             m_next_state = state::Type::idle;
             return;
         }
 
+        console::log(class_name(), "::state_melee() sensed position: ", m_sensed_offset.x, " ", m_sensed_offset.y, "\n");
+
         set_anim("melee");
 
-        sprite_is_leftward(m_sensed_position.x < position().x);
+        sprite_is_leftward(m_sensed_offset.x < 0.0F);
 
 
-        m_tounge_start = position() + Vec2F{ 8.0F, 6.0F };
-        m_tounge_end = m_sensed_position + Vec2F{ 0.0F, 0.0F };
+        m_tounge_start = position() + Vec2F{ 6.0F + (sprite_is_leftward() ? 0.0F : 8.0F), 10.0F};
+        m_tounge_end = m_tounge_start + m_sensed_offset;
         //console::log("tounge start: ", m_tounge_start.x, " ", m_tounge_start.y, "\n");
         //console::log("tounge end: ", m_tounge_end.x, " ", m_tounge_end.y, "\n");
 
@@ -47,20 +49,20 @@ namespace entity {
             sound_play("melee");
             
             //cVec2F tounge_vector = (m_tounge_end - m_tounge_start;
-            cVec2F tounge_vector = line::end(m_tounge_line) - line::start(m_tounge_line);
+            cVec2F tounge_vector = (line::end(m_tounge_line) - Vec2F{ 4.0F, 4.0F }) - line::start(m_tounge_line);
             cF32 tounge_length = line::length(tounge_vector);
 
             //console::log(class_name(), "::state_melee() tounge vector: ", tounge_vector.x, " ", tounge_vector.y, "\n");
             console::log(class_name(), "::state_melee() tounge length: ", tounge_length, "\n");
 
-            Vec2F melee_velocity = (tounge_vector / tounge_length) * 8.0F;
+            Vec2F melee_velocity = (tounge_vector / tounge_length) * 6.0F;
 
-            //console::log(class_name(), "::melee() sensed position: ", m_sensed_position.x, " ", m_sensed_position.y, "\n");
+            //console::log(class_name(), "::melee() sensed position: ", m_sensed_offset.x, " ", m_sensed_offset.y, "\n");
             //console::log(class_name(), "::melee melee velocity: ", melee_velocity.x, " ", melee_velocity.y, "\n");
 
             particle::spawn({ .parent = this,
                               .type = particle::Type::melee,
-                              .position = { position().x + 4.0F, position().y + 4.0F },
+                              .position = m_tounge_start,
                               .velocity = melee_velocity });
         }
 

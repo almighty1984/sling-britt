@@ -1,16 +1,16 @@
 module;
 #include <filesystem>
+#include <map>
 #include <string>
-#include <unordered_map>
 
 export module sound.trait;
 import sound;
 import types;
 
-export namespace sound {
+export namespace sound {    
     class Trait {
     protected:
-        std::unordered_map<std::string, I32> m_sounds;
+        std::map<std::string, I32> m_sounds;
     public:
         I32 sound(const std::string& s) const {
             auto it = m_sounds.find(s);
@@ -32,7 +32,7 @@ export namespace sound {
         bool sound_is_paused(const std::string& s)          const { return sound::is_paused(sound(s));   }
         bool sound_is_playing(const std::string& s)         const { return sound::is_playing(sound(s));  }
         bool sound_is_stopped(const std::string& s)         const { return sound::is_stopped(sound(s));  }
-    };
-    bool parse_config(const std::string& text, Trait* owner);
+    };    
+    std::map<std::string, I32> parse_config(const std::string& text);
 }
 

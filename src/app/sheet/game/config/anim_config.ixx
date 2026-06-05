@@ -1,30 +1,33 @@
 export module anim.config;
 import anim;
 import entity;
+import sprite;
 import types;
 import std;
 
 export namespace anim {
-    bool parse_config(const std::string& text, entity::Object* owner) {
+    std::map<std::string, I32> parse_config(const std::string& text, cI32 sprite) {
         if (text.find("Animations", 0) == std::string::npos) {
-            return false;
+            return {};
         }
         const size_t animations_label = text.find("Animations", 0);
 
         if (text.find("{", animations_label) == std::string::npos) {
-            return false;
+            return {};
         }
         const size_t animations_open = text.find("{", animations_label) + 1;
         const size_t animations_close = text.find("\n}", animations_open);
         if (animations_close == std::string::npos) {
-            return false;
+            return {};
         }
         size_t current_equals = animations_open;
+
+        std::map<std::string, I32> found_anims{};
 
         while (1) {
             current_equals = text.find("=", current_equals + 1);
             if (current_equals > animations_close) {
-                return false;
+                return found_anims;
             }
             const size_t end_line = text.find("\n", current_equals);
             const size_t current_open = text.find("{", current_equals);
@@ -63,9 +66,11 @@ export namespace anim {
                 //m_current_anim = m_anims[current_label_str] = anim::make();
                 
                 cI32 id = anim::make();
-                owner->anim(current_label_str, id);
+                //owner->anim(current_label_str, id);
 
-                cI32 sprite = owner->sprite();
+                found_anims[current_label_str] = id;
+
+                //cI32 sprite = owner->sprite();
 
                 anim::texture_extent(id, sprite::texture_extent(sprite));
                 anim::source(id, { 0, source_y, sprite::rect(sprite).w, sprite::rect(sprite).h });
@@ -85,9 +90,9 @@ export namespace anim {
                 }
                 anim::speed(id, speed);
 
-                owner->current_anim(id);
+                //owner->current_anim(id);
             }
         }
-        return true;
+        return found_anims;
     }
 }

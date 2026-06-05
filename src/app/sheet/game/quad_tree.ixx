@@ -19,13 +19,17 @@ cF32 size_at_depth(cU8 d) {
 }
 
 export class QuadTreeNode {
-    static inline U16 s_max_depth   = 4, s_max_objects = 4,
-                      s_window_w    = 0, s_window_h    = 0;
-    static inline U8  s_layer       = NUM_VISIBLE_LAYERS - 1;
-    
+    friend class QuadTreeNode;
+
+    I32 m_id = 0;
+    U16 m_depth = 0;
+
+    static inline U16 s_max_depth = 3, s_max_objects = 4;
+    static inline U8  s_layer = NUM_VISIBLE_LAYERS - 1;
+
     bool m_is_parent = false;
-    
-    QuadTreeNode* m_child[4] = {nullptr};
+
+    QuadTreeNode* m_child[4] = { nullptr };
 
     RectF m_rect{ 0, 0, 0, 0 };
     std::vector<I32> m_aabbs;
@@ -36,60 +40,37 @@ export class QuadTreeNode {
         m_right_line = -1;
 
     void split() {
-        m_is_parent = true;
         cF32 half_w = m_rect.w / 2.0F, half_h = m_rect.h / 2.0F;
 
-        m_child[0] = new QuadTreeNode(s_window_w, s_window_h, s_layer,  { m_rect.x,          m_rect.y,          half_w, half_h });
-        m_child[0]->id = id;        
+        m_child[0] = new QuadTreeNode({ m_rect.x,          m_rect.y,          half_w, half_h });
+        m_child[0]->m_id = m_id;
 
-        m_child[1] = new QuadTreeNode(s_window_w, s_window_h, s_layer,  { m_rect.x + half_w, m_rect.y,          half_w, half_h });
-        m_child[1]->id = id + 1;        
+        m_child[1] = new QuadTreeNode({ m_rect.x + half_w, m_rect.y,          half_w, half_h });
+        m_child[1]->m_id = m_id + 1;
 
-        m_child[2] = new QuadTreeNode(s_window_w, s_window_h, s_layer,  { m_rect.x,          m_rect.y + half_h, half_w, half_h});
-        m_child[2]->id = id + 2;        
-                
-        m_child[3] = new QuadTreeNode(s_window_w, s_window_h, s_layer,  { m_rect.x + half_w, m_rect.y + half_h, half_w, half_h });
-        m_child[3]->id = id + 3;
-        
-        m_child[0]->depth = m_child[1]->depth = m_child[2]->depth = m_child[3]->depth = depth + 1;
-        //m_child[0]->transform = m_child[1]->transform = m_child[2]->transform = m_child[3]->transform = transform;
+        m_child[2] = new QuadTreeNode({ m_rect.x,          m_rect.y + half_h, half_w, half_h });
+        m_child[2]->m_id = m_id + 2;
 
-        for (auto& aabb : m_aabbs) {
-            for (size_t i = 0; i < 4; ++i) {
-                m_child[i]->insert_point(aabb, aabb::UL(aabb));
-                m_child[i]->insert_point(aabb, aabb::UR(aabb));
-                m_child[i]->insert_point(aabb, aabb::DL(aabb));
-                m_child[i]->insert_point(aabb, aabb::DR(aabb));
-                m_child[i]->insert_point(aabb, aabb::center(aabb));
-            }
-        }
-        m_aabbs.clear();
+        m_child[3] = new QuadTreeNode({ m_rect.x + half_w, m_rect.y + half_h, half_w, half_h });
+        m_child[3]->m_id = m_id + 3;
+
+        m_child[0]->m_depth = m_child[1]->m_depth = m_child[2]->m_depth = m_child[3]->m_depth = m_depth + 1;
     }
 public:
-    I32 id = 0;
-    U16 depth = 0;
-    //I32 transform = -1;
-
-    //QuadTreeNode() = delete;
-    //QuadTreeNode(cI32 t_id) { }
-    //QuadTreeNode() { }
-    QuadTreeNode(cU16 window_w, cU16 window_h, cU8 layer, cRectF rect) {
-        //console::log("size at depth ", (int)s_max_depth, ": ", size_at_depth(s_max_depth), "\n");        
-        init(window_w, window_h, layer, rect);
+    QuadTreeNode(cRectF rect) {
+        init(rect);
     }
     ~QuadTreeNode() {
         clear();
     }
     void draw(std::unique_ptr<Window>& window) {
-        
-
         Color c = { 40, 40, 40 };
-        for (int i = 0; i < depth; ++i) {
+        for (int i = 0; i < m_depth; ++i) {
             c.r += 40;
             c.g += 40;
             c.b += 40;
         }
-        
+
         line::color(m_up_line,    c);
         line::color(m_down_line,  c);
         line::color(m_left_line,  c);
@@ -99,13 +80,11 @@ public:
         line::update(m_down_line);
         line::update(m_left_line);
         line::update(m_right_line);
-                
 
         line::draw(window, m_up_line);
         line::draw(window, m_down_line);
         line::draw(window, m_left_line);
         line::draw(window, m_right_line);
-        
 
         if (m_is_parent) {
             for (size_t i = 0; i < 4; ++i) {
@@ -129,7 +108,7 @@ public:
                 }
             }
         }
-        return depth;
+        return m_depth;
     }
     size_t id_at(cVec2F position) {
         if (m_is_parent) {
@@ -141,14 +120,16 @@ public:
                 }
             }
         }
-        return id;
+        return m_id;
     }
-    std::vector<I32>& aabb_ids_at(cVec2F position) {
-        for (size_t i = 0; i < 4; ++i) {
-            if (m_child[i] and
-                position.x >= m_child[i]->x() and position.x <= m_child[i]->x() + m_child[i]->w() and
-                position.y >= m_child[i]->y() and position.y <= m_child[i]->y() + m_child[i]->h()) {
-                return m_child[i]->aabb_ids_at(position);
+    std::vector<I32>& aabbs_at(cVec2F position) {
+        if (m_is_parent) {
+            for (size_t i = 0; i < 4; ++i) {
+                if (m_child[i] and
+                    position.x >= m_child[i]->x() and position.x <= m_child[i]->x() + m_child[i]->w() and
+                    position.y >= m_child[i]->y() and position.y <= m_child[i]->y() + m_child[i]->h()) {
+                    return m_child[i]->aabbs_at(position);
+                }
             }
         }
         return m_aabbs;
@@ -160,68 +141,66 @@ public:
         line::erase(m_right_line);
 
         m_aabbs.clear();
-        id = 0;
-        depth = 0;
+        m_id = 0;
+        m_depth = 0;
         m_is_parent = false;
         for (int i = 0; i < 4; ++i) {
             if (m_child[i]) {
                 delete m_child[i];
                 m_child[i] = nullptr;
             }
-        }        
-        //m_up_line = m_down_line = m_left_line = m_right_line = -1;
-    }    
-    void init(cU16 window_w, cU16 window_h, cU8 layer, cRectF rect) {        
-        //if (m_up_line != -1) return;
-        s_window_w = window_w, s_window_h = window_h;
-        s_layer = layer;
-
+        }
+    }
+    void init(cRectF rect) {        
         m_is_parent = false;
         m_rect = rect;
 
-        m_up_line    = line::make( {m_rect.x, m_rect.y           }, {m_rect.x + m_rect.w, m_rect.y           } );
-        m_down_line  = line::make( {m_rect.x, m_rect.y + m_rect.h}, {m_rect.x + m_rect.w, m_rect.y + m_rect.h} );
-        m_left_line  = line::make( {m_rect.x, m_rect.y           }, {m_rect.x,            m_rect.y + m_rect.h} );
-        m_right_line = line::make( {m_rect.x + m_rect.w, m_rect.y}, {m_rect.x + m_rect.w, m_rect.y + m_rect.h} );
+        m_up_line    = line::make({ m_rect.x, m_rect.y }, { m_rect.x + m_rect.w, m_rect.y });
+        m_down_line  = line::make({ m_rect.x, m_rect.y + m_rect.h }, { m_rect.x + m_rect.w, m_rect.y + m_rect.h });
+        m_left_line  = line::make({ m_rect.x, m_rect.y }, { m_rect.x,            m_rect.y + m_rect.h });
+        m_right_line = line::make({ m_rect.x + m_rect.w, m_rect.y }, { m_rect.x + m_rect.w, m_rect.y + m_rect.h });
 
-        //console::log("x: ", m_rect.x, "\n");
-
-        line::layer(m_up_line, s_layer);
-        line::layer(m_down_line, s_layer);
-        line::layer(m_left_line, s_layer);
+        line::layer(m_up_line,    s_layer);
+        line::layer(m_down_line,  s_layer);
+        line::layer(m_left_line,  s_layer);
         line::layer(m_right_line, s_layer);
-        
-        //console::log("layer: ", (int)layer, "\n");
-    }    
+    }
+    static bool is_within(cRectF boundary, cVec2F point) {
+        return point.x >= boundary.x and point.x <= boundary.x + boundary.w and
+               point.y >= boundary.y and point.y <= boundary.y + boundary.h;
+    }
+    bool insert_point(cI32 aabb, cVec2F point) {
+        if (!aabb::is_active(aabb)) return false;
 
-    bool insert_point(cI32 id, cVec2F point) {
-        if (!aabb::is_active(id)) return false;
-
-        if (point.x < m_rect.x or point.x > m_rect.x + m_rect.w or
-            point.y < m_rect.y or point.y > m_rect.y + m_rect.h) {
+        if (!is_within(m_rect, point)) {
             return false;
         }
-                        
-
-        if (m_is_parent) {
+        bool is_inserted = false;
+        if (m_is_parent) {     
             for (size_t i = 0; i < 4; ++i) {
-                m_child[i]->insert_point(id, point);
+                if (m_child[i]->insert_point(aabb, point)) is_inserted = true;                
             }
-            return false;
-        } else {
-            if (m_aabbs.size() >= s_max_objects and depth < s_max_depth) {
+            return is_inserted;
+        }
+        else {
+            if (m_aabbs.size() >= s_max_objects and m_depth < s_max_depth) {
                 m_is_parent = true;
                 split();
-                m_aabbs.clear();
-            }
-            else {
-                //if (point.x >= m_rect.x and point.x <= m_rect.x + m_rect.w and
-                //    point.y >= m_rect.y and point.y <= m_rect.y + m_rect.h) {
-                    if (std::find(m_aabbs.begin(), m_aabbs.end(), id) == m_aabbs.end()) {
-                        m_aabbs.emplace_back(id);
-                        return true;
+                bool is_inserted = false;
+                for (auto& aabb : m_aabbs) {
+                    for (size_t i = 0; i < 4; ++i) {
+                        if (m_child[i]->insert_point(aabb, aabb::UL(aabb))) is_inserted = true;
+                        if (m_child[i]->insert_point(aabb, aabb::UR(aabb))) is_inserted = true;
+                        if (m_child[i]->insert_point(aabb, aabb::DL(aabb))) is_inserted = true;
+                        if (m_child[i]->insert_point(aabb, aabb::DR(aabb))) is_inserted = true;
                     }
-                //}
+                }
+                return is_inserted;
+            } else {
+                if (std::find(m_aabbs.begin(), m_aabbs.end(), aabb) == m_aabbs.end()) {
+                    m_aabbs.emplace_back(aabb);
+                    return true;
+                }
             }
         }
         return false;
@@ -230,31 +209,20 @@ public:
     void check_collision() {
         if (m_is_parent) {
             for (size_t i = 0; i < 4; ++i) {
-                m_child[i]->check_collision();                
+                m_child[i]->check_collision();
             }
             return;
         }
         for (auto& a : m_aabbs) {
             if (!aabb::owner(a) or !aabb::is_active(a)) continue;
-            //if (aabb::time_left_colliding(a) > 0) {
-            //    //console::log("time left colliding: ", a->time_left_colliding, "\n");
-
-            //    aabb::time_left_colliding(aabb::time_left_colliding(a) - 1);
-            //    
-            //    continue;
-            //}
-                
             for (auto& b : m_aabbs) {
                 if (a == b or !aabb::owner(b) or aabb::owner(a) == aabb::owner(b) or !aabb::is_active(b)) continue;
-                //a->owner->update();                
-
-                //console::log(a->point_0(c).x, " ", b->point_0().x, "\n");
 
                 cVec2F relative_vel = aabb::owner(a)->velocity() - aabb::owner(b)->velocity();
 
                 bool is_x_larger = std::abs(relative_vel.x) > std::abs(relative_vel.y);
 
-                auto check_overlap_x = [&]() {
+                auto lambda_check_overlap_x = [&]() {
                     if (is_aabb_overlap_x(a, b)) {
                         aabb::cInfo a_info = { a, aabb::owner(a) };
                         aabb::cInfo b_info = { b, aabb::owner(b) };
@@ -263,47 +231,48 @@ public:
                         aabb::owner(b)->collide_x(b_info, a_info);
                     }
                 };
-                auto check_overlap_y = [&]() {
+                auto lambda_check_overlap_y = [&]() {
                     if (is_aabb_overlap_y(a, b)) {
                         aabb::cInfo a_info = { a, aabb::owner(a) };
                         aabb::cInfo b_info = { b, aabb::owner(b) };
-
+                                                  
                         aabb::owner(a)->collide_y(a_info, b_info);
                         aabb::owner(b)->collide_y(b_info, a_info);
                     }
                 };
 
                 if (is_x_larger) {
-                    check_overlap_x();
-                    check_overlap_y();
+                    lambda_check_overlap_x();
+                    lambda_check_overlap_y();
                 } else {
-                    check_overlap_y();
-                    check_overlap_x();
+                    lambda_check_overlap_y();
+                    lambda_check_overlap_x();
                 }
             }
         }
     }
     bool is_aabb_overlap_x(cI32 a, cI32 b) {
+        //F32 y_dec = 0.0F;
         F32 y_dec = (aabb::DL(a).y - aabb::UL(a).y) / 16.0F;
         if      (y_dec < 1.0F) y_dec = 1.0F;
         else if (y_dec > 4.0F) y_dec = 4.0F;
-        //cF32 h_dec = 3.0F;
 
-        cVec2F a_vel = (aabb::owner(a)->velocity() + aabb::owner(a)->moved_velocity()) * 1.0F;
-        cVec2F b_vel = (aabb::owner(b)->velocity() + aabb::owner(b)->moved_velocity()) * 1.0F;
-        
+        cVec2F a_vel = (aabb::owner(a)->velocity() + aabb::owner(a)->move_velocity()) * 1.0F;
+        cVec2F b_vel = (aabb::owner(b)->velocity() + aabb::owner(b)->move_velocity()) * 1.0F;
+
         return aabb::UR(a).x + a_vel.x > aabb::UL(b).x + b_vel.x and
                aabb::UL(a).x + a_vel.x < aabb::UR(b).x + b_vel.x and
                aabb::DL(a).y + a_vel.y - y_dec > aabb::UL(b).y + b_vel.y and
                aabb::UL(a).y + a_vel.y + y_dec < aabb::DL(b).y + b_vel.y;
     }
     bool is_aabb_overlap_y(cI32 a, cI32 b) {
+        //F32 x_dec = 0.0F;
         F32 x_dec = (aabb::UR(a).x - aabb::UL(a).x) / 16.0F;
         if      (x_dec < 1.0F) x_dec = 1.0F;
         else if (x_dec > 4.0F) x_dec = 4.0F;
 
-        cVec2F a_vel = (aabb::owner(a)->velocity() + aabb::owner(a)->moved_velocity()) * 1.0F;
-        cVec2F b_vel = (aabb::owner(b)->velocity() + aabb::owner(b)->moved_velocity()) * 1.0F;
+        cVec2F a_vel = (aabb::owner(a)->velocity() + aabb::owner(a)->move_velocity()) * 1.0F;
+        cVec2F b_vel = (aabb::owner(b)->velocity() + aabb::owner(b)->move_velocity()) * 1.0F;
 
         return aabb::DL(a).y + a_vel.y > aabb::UL(b).y + b_vel.y and
                aabb::UL(a).y + a_vel.y < aabb::DL(b).y + b_vel.y and

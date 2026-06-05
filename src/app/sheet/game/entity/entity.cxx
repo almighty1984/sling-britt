@@ -11,7 +11,17 @@ import aabb.config;
 import anim.config;
 import transform;
 
-namespace entity {
+static inline std::map<std::filesystem::path, entity::Config> s_parsed_configs;
+
+namespace entity {    
+    I32 Object::aabb(aabb::cName name) {
+        for (auto& i : m_aabbs) {
+            if (aabb::name(i) == name) {
+                return i;
+            }
+        }
+        return 0;
+    }
     void Object::draw(std::unique_ptr<Window>& window) {
         sprite::draw(window, m_sprite);
     }
@@ -43,31 +53,53 @@ namespace entity {
         if (!transform::is_level(m_transform)) {
             transform::erase(m_transform);
         }
-        //}    
+        //}
     }
     bool Object::load_config(const std::filesystem::path& path) {
         std::ifstream in_file(path);
         if (!in_file) {
-            console::error("config::load ", path, " not found\n");
+            console::error(class_name(), "::load_config(", path, ") not found\n");
             return false;
         }
         std::ostringstream oss{};
         oss << in_file.rdbuf();
 
         const std::string text = oss.str();
+        
+        if (s_parsed_configs.count(path)) {
+            m_config = s_parsed_configs.at(path);
+            //console::log(class_name(), "::load_config() ", to_string(m_type), " already loaded\n");
+        } else {
+            m_config = parse_config(text);
+            s_parsed_configs[path] = m_config;
+        }
+        //m_config = parse_config(text);
+        m_time_left_alive = m_config.time_to_be_alive();
 
-        entity::parse_config(text, this);
-        sound::parse_config(text, this);
+        m_sounds = sound::parse_config(text);
 
         if (transform::parse_config(text, this)) {
             camera::add_transform(m_transform);
-            health::parse_config(text, this);
+            auto health_config = health::parse_config(text, m_transform);
+            m_health_id = health_config.id;
+            health_max(health_config.amount);
+            health_amount(health_config.amount);
+            health_regen(health_config.regen);
+            health_offset(health_config.offset);
         }
-        if (sprite::parse_config(text, this, m_transform, m_start_layer, m_start_offset)) {
-            anim::parse_config(text, this);
+        m_sprite = sprite::parse_config(text, m_transform, m_start_layer, m_start_offset);
+
+        if (m_sprite >= 0) {
+            m_anims = anim::parse_config(text, m_sprite);
+            if (!m_anims.empty()) {
+                m_current_anim = m_anims["idle"];
+            }
         }
 
-        aabb::parse_config(text, this);
+        m_aabbs = aabb::parse_config(text, m_transform, start_offset());
+        for (auto& aabb : m_aabbs) {
+            aabb::owner(aabb, this);
+        }
 
         return true;
     }

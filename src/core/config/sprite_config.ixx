@@ -7,9 +7,9 @@ import sprite;
 import sprite.trait;
 import types;
 
-export bool sprite::parse_config(const std::string& text, Trait* owner, cI32 transform, cU8 layer, cVec2F start_offset) {
+export I32 sprite::parse_config(const std::string& text, cI32 transform, cU8 layer, cVec2F start_offset) {
     if (text.find("Sprite", 0) == std::string::npos) {
-        return false;
+        return -1;
     }
     if (text.find("{", text.find("Sprite", 0)) != std::string::npos) {
         const size_t sprite_label = text.find("Sprite", 0);
@@ -172,30 +172,32 @@ export bool sprite::parse_config(const std::string& text, Trait* owner, cI32 tra
             /*if (m_sprite != -1) {
                 sprite::erase(m_sprite);
             }*/
-            cI32 id = sprite::make(sprite_texture_path);
-            owner->sprite(id);
+            cI32 sprite = sprite::make(sprite_texture_path);
+            //owner->sprite(id);
 
-            sprite::layer(id, layer);
-            sprite::is_debug(id, sprite_is_debug);
-            sprite::is_hidden(id, sprite_is_hidden);
-            sprite::is_leftward(id, sprite_is_leftward);
-            sprite::is_upended(id, sprite_is_upended);
-            sprite::rect(id, sprite_rect);
+            sprite::layer(sprite, layer);
+            sprite::is_debug(sprite, sprite_is_debug);
+            sprite::is_hidden(sprite, sprite_is_hidden);
+            sprite::is_leftward(sprite, sprite_is_leftward);
+            sprite::is_upended(sprite, sprite_is_upended);
+            sprite::rect(sprite, sprite_rect);
 
             if (sprite_origin == Vec2F{ 0.0f, 0.0f }) {
-                sprite::origin(id, { sprite_rect.w / 2.0F, sprite_rect.h / 2.0F });
+                sprite::origin(sprite, { sprite_rect.w / 2.0F, sprite_rect.h / 2.0F });
             } else {
-                sprite::origin(id, sprite_origin);
+                sprite::origin(sprite, sprite_origin);
             }
 
-            sprite::offset(id, start_offset + sprite_offset); // Add to already set level offset
+            sprite::offset(sprite, start_offset + sprite_offset); // Add to already set level offset
 
-            sprite::start_offset(id, sprite::offset(id));
+            sprite::start_offset(sprite, sprite::offset(sprite));
             //m_start_sprite_offset = sprite::offset(m_sprite);
 
-            sprite::transform(id, transform);
+            sprite::transform(sprite, transform);
             //console::log(path, " is_hidden: ", sprite_is_hidden, "\n");
+
+            return sprite;
         }
     }
-    return true;
+    return -1;
 }

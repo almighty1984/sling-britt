@@ -9,11 +9,14 @@ namespace entity {
         if (m_time_left_hurt > 0) {
             return false;
         }
-        m_time_left_hurt = m_time_to_hurt;
+        m_time_left_hurt = m_config.time_to_hurt();
 
         Vec2F add_to_position = { 0.0F, 0.0F };
 
+        F32 vel_factor = 1.0F;
+
         switch (culprit->type()) {
+            case Type::bee:
             case Type::brick: {
                 health_amount_add(-health_max());
                 m_next_state = state::Type::enter;
@@ -58,6 +61,11 @@ namespace entity {
                 }
                 break;
             }
+            case Type::particle_rock: {
+                health_amount_add(-64.0f);
+                m_next_state = state::Type::dead;
+                break;
+            }
             default: {
                 health_amount_add(-8.0f);
                 m_next_state = state::Type::enter;
@@ -65,13 +73,20 @@ namespace entity {
             }
         }
         
+        cVec2F vel_normal = Vec2F::normalize(culprit->velocity());
+
+        if (health_amount() <= 0.0F) {
+            vel_factor = 4.0F;
+            max_velocity({ 10.0F, 10.0F });
+            m_time_left_in_state = 0;
+            m_next_state = state::Type::dead;
+        }
+        velocity(vel_normal * vel_factor);
+
+        console::log(class_name(), "::hurt() velocity: ", velocity().x, " ", velocity().y, "\n");
+
         sprite_is_leftward(!sprite_is_leftward());
-
-        sound_position("hit", { position().x - app::config::extent().x / 2.0F,
-                                position().y - app::config::extent().y / 2.0F });
-        sound_play("hit");
-
-
+        
         position_add(add_to_position);
 
         return true;
@@ -79,21 +94,26 @@ namespace entity {
     void Mole::state_dead(cF32 dt) {
         if (m_is_first_state_update) {
             m_is_first_state_update = false;
-            m_time_left_dead = m_time_to_be_dead;
+            m_time_left_dead = m_config.time_to_be_dead();
             reset_anim("dead");
-
             sprite_is_hidden(true);
-
             health_is_hidden(true);
 
             for (auto& i : m_aabbs) {
                 aabb::is_active(i, false);
             }
-            particle::spawn_fan(this, 0.0F, 360.0F, 8, particle::Type::drop_blood, position() - Vec2F{ 16.0F, 8.0F }, velocity(), 3.0F);
+            cVec2F blood_vel = velocity() + move_velocity();
 
-            particle::spawn(this, particle::Type::health, position() + Vec2F{ 0.0F, -4.0F }, {});
+            console::log(class_name(), "::state_dead() blood vel: ", blood_vel.x, " ", blood_vel.y, "\n");
 
-            sound_position("dead", { position().x - app::config::extent().x / 2.0F, position().y - app::config::extent().y / 2.0F });
+            particle::spawn_fan(this, 0.0F, 360.0F, 8,
+                                particle::Type::drop_blood, position() - Vec2F{ 16.0F, 8.0F },
+                                blood_vel, 3.0F);
+
+            particle::spawn(this, particle::Type::health, position() + Vec2F{ 4.0F, 0.0F }, {});
+
+            sound_position("dead", { position().x - app::config::extent().x / 2.0F,
+                                     position().y - app::config::extent().y / 2.0F });
             sound_play("dead");
 
             if (m_parent) {
@@ -101,14 +121,14 @@ namespace entity {
                 m_parent = nullptr;
             }
         }
-        if (m_time_left_dead > 0 and m_time_to_be_dead != U16_MAX) {
+        if (m_time_left_dead > 0 and m_config.time_to_be_dead() != U16_MAX) {
             --m_time_left_dead;
             if (m_time_left_dead == 0) {
                 console::log(class_name(), "::state_dead() done being dead\n");
             }
         }
         velocity({});
-        moved_velocity({});
+        move_velocity({});
     }
     void Mole::state_enter(cF32 dt) {
         if (m_is_first_state_update) {
@@ -137,7 +157,7 @@ namespace entity {
         //console::log(class_name(), "::exit()\n");
         velocity_x(0.0F);
         if (anim::is_last_frame(anim("exit"))) {
-            if (m_sensed_position.x == 0.0F and m_sensed_position.y == 0.0F) {
+            if (m_sensed_offset.x == 0.0F and m_sensed_offset.y == 0.0F) {
                 m_next_state = state::Type::enter;
             }
             else {
@@ -153,8 +173,8 @@ namespace entity {
             m_time_left_alive = U16_MAX;
             
             m_sensed_objects.clear();
-            //m_time_left_to_spawn_sense = m_time_to_spawn_sense;
-            m_time_left_to_spawn_sense = m_time_to_spawn_sense * 1;
+            //m_time_left_to_spawn_sense = m_config.time_to_spawn_sense;
+            m_time_left_to_spawn_sense = m_config.time_to_spawn_sense() * 1;
             m_time_left_to_react = 0;
             reset_anim("idle");
             sprite_is_hidden(false);
@@ -170,6 +190,8 @@ namespace entity {
 
             health_is_hidden(true);
         }
+
+        //console::log(class_name(), "::idle()\n");
 
         ++m_time_in_state;
         if (m_time_in_state > m_time_to_turn) {
@@ -195,9 +217,9 @@ namespace entity {
         if (health_amount() > 0.0F and m_time_left_to_spawn_sense > 0) {
             --m_time_left_to_spawn_sense;
             if (m_time_left_to_spawn_sense == 0) {
-                m_time_left_to_spawn_sense = m_time_to_spawn_sense;
+                m_time_left_to_spawn_sense = m_config.time_to_spawn_sense();
 
-                particle::spawn_fan(this, 170.0F, 370.0F, 16, particle::Type::sense, position() + Vec2F{ 4.0F, 0.0F }, velocity(), 6.0F);
+                particle::spawn_fan(this, 150.0F, 390.0F, 16, particle::Type::sense, position() + Vec2F{ 4.0F, 0.0F }, velocity(), 6.0F);
 
                 if (std::abs(velocity().x) > 1.0F) {
 
@@ -210,14 +232,18 @@ namespace entity {
             }
         }
 
+        if (m_sensed_objects.empty()) return;
+
         for (auto& i : m_sensed_objects) {            
             if (!(i->velocity().x > -0.2F and i->velocity().x < 0.2F and i->velocity().y > -1.0F and i->velocity().y < 1.0F) and
                 (i->type() == Type::player or i->type() == Type::brick and i->is_tossed()) //or
                 //i->type() == Type::particle_brick
                 ) {
                 
-                //m_sensed_position = i->position() + Vec2F{ sprite::rect(i->sprite()).w, sprite::rect(i->sprite()).h };
-                m_sensed_position = i->position();
+                //m_sensed_offset = i->position() + Vec2F{ sprite::rect(i->sprite()).w, sprite::rect(i->sprite()).h };
+                m_sensed_offset = i->position() + Vec2F{ aabb::rect(i->aabb(aabb::Name::body)).w / 2.0F,
+                                                         aabb::rect(i->aabb(aabb::Name::body)).h / 2.0F };
+                
                 if (m_time_left_to_react == 0) {
                     if (i->type() == Type::brick) {
                         m_time_left_to_react = 1;
@@ -241,7 +267,7 @@ namespace entity {
                             sprite_is_leftward(i->position().x < position().x);
                             if (diff.x < 4.0F and diff.y < 16.0F) {
                                 m_time_left_to_react = 1;
-                                m_sensed_position = {};
+                                m_sensed_offset = {};
                             }
                         }
                     }                    
@@ -287,6 +313,7 @@ namespace entity {
 
             health_is_hidden(false);
         }
+        console::log(class_name(), "::state_jump()\n");
 
         velocity_add_y(acceleration().y);
 
@@ -307,7 +334,7 @@ namespace entity {
             m_next_state = state::Type::enter;
             m_sensed_objects.clear();
 
-            sprite_is_leftward(m_sensed_position.x < position().x + 4.0F);
+            sprite_is_leftward(m_sensed_offset.x < position().x + 4.0F);
 
             reset_anim("shoot");
 
@@ -315,14 +342,14 @@ namespace entity {
                                       (position().y + sprite_rect().w / 2.0F) / (app::config::extent().y / 2.0F) });
             sound_play("shoot");
 
-            cVec2F start_position = position() + Vec2F{ 4.0F, -2.0F };
-            cVec2F end_position = m_sensed_position + Vec2F{ 8.0F, 8.0F };
+            cVec2F start_position = position() + Vec2F{ 4.0F, 0.0F };
+            cVec2F end_position = m_sensed_offset;
             cVec2F v = (end_position - start_position);
 
             Vec2F shot_velocity = v / line::length(v) * 8.0F;
-            if (shot_velocity.y > -3.0F) {
-                shot_velocity.y = -3.0F;
-            }
+            //if (shot_velocity.y > -2.0F) {
+                //shot_velocity.y = -2.0F;
+            //}
             if (shot_velocity.x < 0.0F and shot_velocity.x > -2.0F) {
                 shot_velocity.x = -2.0F;
             } else if (shot_velocity.x > 0.0F and shot_velocity.x < 2.0F) {
@@ -336,10 +363,12 @@ namespace entity {
 
 
             sprite_offset_y(-4.0F);
-
             health_is_hidden(false);
         }
         velocity_x(0.0F);
+
+
+        //console::log(class_name(), "::state_shoot()\n");
 
         //console::log(class_name(), "::shoot() time left in state: ", m_time_left_in_state, "\n");
 
@@ -379,5 +408,8 @@ namespace entity {
 
         sprite_is_leftward(false);
         sprite_is_upended(false);
+
+
+        //console::log(class_name(), "::state_swim()\n");
     }
 }

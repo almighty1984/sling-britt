@@ -18,8 +18,8 @@ namespace entity {
 
         if (time_left_colliding_with(other_type) > 0) return;
 
-        cVec2F our_velocity = velocity() + moved_velocity();
-        cVec2F other_velocity = other.owner->velocity() + other.owner->moved_velocity();
+        cVec2F our_velocity = velocity() + move_velocity();
+        cVec2F other_velocity = other.owner->velocity() + other.owner->move_velocity();
 
         cF32 overlap_y = our_UL.y < other_UL.y ? our_DR.y - other_UL.y : -(other_DR.y - our_UL.y);
 
@@ -56,7 +56,7 @@ namespace entity {
             if (velocity().y < 0.0F) return;
             position_add_y(-overlap_y);
             velocity_y(0.0F);
-            moved_velocity_y(0.0F);
+            move_velocity_y(0.0F);
             m_is_on_ground = true;
             m_is_on_slope = other_type == Type::slope_U;
 
@@ -87,30 +87,30 @@ namespace entity {
         else if (other_type == Type::slope_L_1x1) {
             position_add_y(-overlap_y);
             velocity_y(-velocity().x);
-            moved_velocity_x(0.0F);
-            moved_velocity_y(0.0F);
+            move_velocity_x(0.0F);
+            move_velocity_y(0.0F);
             m_is_on_ground = m_is_on_slope = true;
             sprite_angle(45.0F - 90.0F);
         }
         else if (other_type == Type::slope_R_1x1) {
             position_add_y(-overlap_y);
             velocity_y(velocity().x);
-            moved_velocity_x(0.0F);
-            moved_velocity_y(0.0F);
+            move_velocity_x(0.0F);
+            move_velocity_y(0.0F);
             m_is_on_ground = m_is_on_slope = true;
             sprite_angle(135.0F - 90.0F);
         }
         else if (other_type == Type::slope_L_2x1_0 or other_type == Type::slope_L_2x1_1) {
             position_add_y(-overlap_y);
             velocity_y(0.0F);
-            moved_velocity_y(0.0F);
+            move_velocity_y(0.0F);
             m_is_on_ground = m_is_on_slope = true;
             sprite_angle(67.5F - 90.0F);
         }
         else if (other_type == Type::slope_R_2x1_0 or other_type == Type::slope_R_2x1_1) {
             position_add_y(-overlap_y);
             velocity_y(0.0F);
-            moved_velocity_y(0.0F);
+            move_velocity_y(0.0F);
             m_is_on_ground = m_is_on_slope = true;
             sprite_angle(112.5F - 90.0F);
         }

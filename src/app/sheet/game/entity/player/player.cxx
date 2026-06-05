@@ -66,7 +66,7 @@ namespace entity {
             console::log(class_name(), "::hurt() still hurting: ", m_time_left_hurt, "\n");
             return false;
         }
-        m_time_left_hurt = m_time_to_hurt;
+        m_time_left_hurt = m_config.time_to_hurt();
 
         Vec2F add_to_position = { 0.0F, 0.0F };
 
@@ -98,6 +98,14 @@ namespace entity {
                 //console::log("\n\nentity::Player::hurt() culprit: ", to_string(culprit->type()), " health: ", health::amount(m_health_id), "\n");
                 break;
             }
+            case Type::train_saw: {
+                health::amount_add(m_health_id, -16.0f);
+                break;
+            }
+        }
+
+        if (m_state == state::Type::ledge) {
+            m_next_state = state::Type::run;
         }
         sound_position("hit", { position().x - app::config::extent().x / 2.0F,
                                 position().y - app::config::extent().y / 2.0F });
@@ -109,82 +117,98 @@ namespace entity {
     void Player::interact(Object* object) {
         if (!object or m_time_left_interacting > 0) return;
 
-        m_time_left_interacting = m_time_to_interact;
+        console::log(class_name(), "::interact ", to_string(object->type()), "\n");
 
-        if (object->type() == Type::trigger and is_pressed(key_sprint) and !m_is_carrying) {
-            m_time_left_lever = m_time_to_lever;
-            reset_anim("lever");
-            sprite::is_leftward(m_sprite, object->is_dead());
+        switch (object->type()) {
+            case Type::brick:
+            case Type::bug: {
+                //if (is_pressed(key_sprint)) return;
 
-            if (object->is_dead()) {
-                object->time_left_alive(U16_MAX);
-                object->time_left_dead(0);
-            } else {
-                object->time_left_dead(U16_MAX);
-                object->time_left_alive(0);
+                if (object->state() == state::Type::swim) return;
+
+                if (!m_is_carrying) {
+                    object->time_left_interacting(10);
+                    console::log(class_name(), "::interact pick up\n");
+                    m_is_carrying = true;
+                    object->parent(this);
+                    object->next_state(state::Type::carried);
+                    sprite::layer(object->sprite(), sprite::layer(m_sprite) + 1);
+                    sound_position("pick_up", { position().x - app::config::extent().x / 2.0F,
+                                                position().y - app::config::extent().y / 2.0F });
+                    sound_play("pick_up");
+                } else if (object->parent() and m_is_carrying) {
+                    console::log("Player::interact toss\n");
+                    if (sprite_is_leftward() and object->is_near_wall_L()) {
+                        console::log(class_name(), "::interact nah, near wall L\n");
+                        return;
+                    }
+                    if (!sprite_is_leftward() and object->is_near_wall_R()) {
+                        console::log(class_name(), "::interact nah, near wall R\n");
+                        return;
+                    }
+                    m_is_carrying = false;
+                    sprite::layer(object->sprite(), object->start_layer());
+                    object->parent(nullptr);
+                    object->velocity(velocity() + move_velocity());
+                    //object->position_add_x(object->velocity().x);
+                    if (sprite_is_leftward()) {
+                        object->velocity_add_x(-2.0F);
+                        object->position_add_x(-8.0F);
+                    } else {
+                        object->velocity_add_x(2.0F);
+                        object->position_add_x(8.0F);
+                    }
+                    //console::log("object->velocity().x: ", object->velocity().x, "\n");
+
+                    object->velocity_add_y(-1.5F);
+                    object->position_add_y(-1.0F);
+                    object->next_state(state::Type::tossed);
+                    //object->time_left_interacting(10);
+
+                    sound_position("toss", { position().x - app::config::extent().x / 2.0F,
+                                             position().y - app::config::extent().y / 2.0F });
+                    sound_play("toss");
+                }
+                break;
             }
-
-            sound_position("lever", { position().x - app::config::extent().x / 2.0F,
-                                      position().y - app::config::extent().y / 2.0F });
-            sound_play("lever");
-        }
-        else if (object->type() == Type::brick or object->type() == Type::bug) {
-            //if (is_pressed(key_sprint)) return;
-
-            if (object->state() == state::Type::swim) return;
-
-            if (!m_is_carrying and !object->parent()) {
-                console::log(class_name(), "::interact pick up\n");
-                m_is_carrying = true;
-                object->parent(this);
-                object->next_state(state::Type::carried);
-                sprite::layer(object->sprite(), sprite::layer(m_sprite) + 1);
-                sound_position("pick_up", { position().x - app::config::extent().x / 2.0F,
-                                            position().y - app::config::extent().y / 2.0F });
-                sound_play("pick_up");
-            }
-            else if (object->parent() and m_is_carrying) {
-                console::log("Player::interact toss\n");
-                if (sprite_is_leftward() and object->is_near_wall_L()) {
-                    console::log(class_name(), "::interact nah, near wall L\n");
+            case Type::clip_ledge: {
+                if (m_is_carrying or object->start_offset().y >= position_on_level().y + aabb::h(aabb(aabb::Name::body))) {
                     return;
                 }
-                if (!sprite_is_leftward() and object->is_near_wall_R()) {
-                    console::log(class_name(), "::interact nah, near wall R\n");
-                    return;
-                }
-                m_is_carrying = false;
-                sprite::layer(object->sprite(), object->start_layer());
-                object->parent(nullptr);
-                object->velocity(velocity() + moved_velocity());
-                //object->position_add_x(object->velocity().x);
-                if (sprite_is_leftward()) {
-                    object->velocity_add_x(-2.0F);
-                    object->position_add_x(-8.0F);
-                }
-                else {
-                    object->velocity_add_x(2.0F);
-                    object->position_add_x(8.0F);
-                }
-                //console::log("object->velocity().x: ", object->velocity().x, "\n");
 
-                object->velocity_add_y(-1.5F);
-                object->position_add_y(-1.0F);
-                object->next_state(state::Type::tossed);
-                //object->time_left_interacting(10);
+                //console::log("aabb h: ", aabb::h(aabb("body")), "\n");
+                
+                console::log(class_name(), "::interact() ", to_string(object->type()), " ", object->start_offset().y, " ", position_on_level().y + aabb::h(aabb(aabb::Name::body)), "\n");
+                
+                m_next_state = state::Type::climb;
+                input::press(m_input, key_up);
+                m_is_wall_to_left = sprite_is_leftward();
+                //position().y = object->other_UL.y - 8;
+                velocity_y(0.0F);
+                break;
+            }
+            case Type::trigger: {
+                //console::log("aabb h: ", aabb::h(aabb("body")), "\n");
+                if (!is_pressed(key_sprint) or m_is_carrying) return;
+                m_time_left_lever = m_time_to_lever;
+                reset_anim("lever");
+                sprite::is_leftward(m_sprite, object->is_dead());
 
-                sound_position("toss", { position().x - app::config::extent().x / 2.0F,
-                                         position().y - app::config::extent().y / 2.0F });
-                sound_play("toss");
+                if (object->is_dead()) {
+                    object->time_left_alive(U16_MAX);
+                    object->time_left_dead(0);
+                } else {
+                    object->time_left_dead(U16_MAX);
+                    object->time_left_alive(0);
+                }
+
+                sound_position("lever", { position().x - app::config::extent().x / 2.0F,
+                                        position().y - app::config::extent().y / 2.0F });
+                sound_play("lever");
+                break;
             }
         }
-        else if (object->type() == Type::clip_ledge) {            
-            m_next_state = state::Type::climb;
-            input::press(m_input, key_up);
-            m_is_wall_to_left = sprite::is_leftward(m_sprite);
-            //position().y = object->other_UL.y - 8;
-            velocity_y(0.0F);
-        }
+        m_time_left_interacting = m_config.time_to_interact();
     }
 
     void Player::spawn_down_thrust(cVec2F position) {
@@ -213,6 +237,8 @@ namespace entity {
                 --i.second;
             }
         }
+
+        //console::log(position_on_level().y + aabb::rect(aabb("body")).h, "\n");
         //console::log(class_name(), "::update() water line y: ", m_water_line_y, "\n");
         if (m_time_left_hurt > 0)        --m_time_left_hurt;        
         if (m_time_left_interacting > 0) --m_time_left_interacting;
@@ -271,6 +297,34 @@ namespace entity {
             release(key_melee);
             release(key_jump);
             release(key_sprint);
+        }
+
+        if (is_pressed(input::Key::b)) {
+            release(input::Key::b);
+            particle::spawn_fan(this, 170.0F, 10.0F, 10,
+                                particle::Type::drop_blood,
+                                position() + Vec2F{ 6.0F, -4.0F },
+                                velocity() + move_velocity(), 3.0F,
+                                state::Type::idle);
+            particle::spawn_fan(this, 170.0F, 10.0F, 7,
+                                particle::Type::drop_blood,
+                                position() + Vec2F{ 6.0F, -4.0F },
+                                velocity() + move_velocity(), 2.5F,
+                                state::Type::idle);
+        }
+
+        if (is_pressed(input::Key::n)) {
+            release(input::Key::n);
+            particle::spawn_fan(this, 170.0F, 10.0F, 10,
+                                particle::Type::drop_water,
+                                position() + Vec2F{ 6.0F, -4.0F },
+                                velocity() + move_velocity(), 3.0F,
+                                state::Type::idle);
+            particle::spawn_fan(this, 170.0F, 10.0F, 7,
+                                particle::Type::drop_water,
+                                position() + Vec2F{ 6.0F, -4.0F },
+                                velocity() + move_velocity(), 2.5F,
+                                state::Type::idle);
         }
 
         if (!is_mouse_steer) return;

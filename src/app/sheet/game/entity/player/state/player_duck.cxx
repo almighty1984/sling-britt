@@ -11,7 +11,7 @@ namespace entity {
         if (m_is_first_state_update) {
             m_is_first_state_update = false;
 
-            m_time_left_rising = m_time_to_rise;
+            m_time_left_rising = m_config.time_to_rise();
 
             sprite::is_hidden(m_sling_shot_sprite, true);
             sprite::is_hidden(m_sling_shot_bg_sprite, true);
@@ -26,7 +26,9 @@ namespace entity {
                 sprite_is_leftward(velocity().x < 0.0F);
                 sprite_is_upended(false);
                 sprite_angle(0.0F);
-            }            
+            }
+
+            acceleration(start_acceleration());
         }
         
         //console::log(class_name(), "::state_duck() ", m_time_left_rising, "\n");
@@ -36,11 +38,11 @@ namespace entity {
         //anim::source_x(anim("slide_ground"), 0);
 
         if (is_pressed(key_down)) {
-            m_time_left_rising = m_time_to_rise;
+            m_time_left_rising = m_config.time_to_rise();
         }
 
         if (m_time_left_rising > 0) {
-            if (m_time_left_rising < m_time_to_rise) {
+            if (m_time_left_rising < m_config.time_to_rise()) {
                 set_anim("rise");
             }
             else {
@@ -104,14 +106,16 @@ namespace entity {
         }
 
 
-        if (is_pressed(key_left) and !is_locked(key_left)) {
+        if (is_pressed(key_left) and !is_locked(key_left)) {            
             if (!m_is_sliding_ground and (velocity().x > -max_velocity().x * 0.5F)) {
+                //console::log(class_name(), "::state_duck() left ", -acceleration().x, "\n");
                 velocity_add_x(-acceleration().x);
             }            
             sprite::is_leftward(m_sprite, true);
         }
         if (is_pressed(key_right) and !is_locked(key_right)) {
             if (!m_is_sliding_ground and (velocity().x < max_velocity().x * 0.5F)) {
+                //console::log(class_name(), "::state_duck() right ", acceleration().x, "\n");
                 velocity_add_x(acceleration().x);
             }
             sprite::is_leftward(m_sprite, false);

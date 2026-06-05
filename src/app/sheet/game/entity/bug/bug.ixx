@@ -19,7 +19,7 @@ export namespace entity {
     public:
         Bug() {
             m_state = m_next_state = m_start_state = state::Type::walk;
-            m_time_to_interact = 15;
+            m_config.time_to_interact(15);
         }
         const char* class_name() override { return "entity::Bug"; }
         bool hurt(entity::Object* culprit) override;

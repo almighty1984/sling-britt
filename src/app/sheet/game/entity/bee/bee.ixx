@@ -25,16 +25,25 @@ export namespace entity {
         const char* class_name() override { return "entity::Bee"; }
 
         bool hurt(Object* culprit) override {
-            if (m_time_left_hurt > 0) return false;
-            //m_time_left_hurt = m_time_to_hurt;
-
-            if (!culprit) return false;
+            if (!culprit or culprit->is_hurting() or culprit->is_dead() or is_hurting() or is_dead()) return false;
+            //m_time_left_hurt = m_config.time_to_hurt;
 
             switch (culprit->type()) {
                 case Type::brick:
                 case Type::particle_rock:
-                case Type::particle_melee: {
-                    velocity(culprit->velocity() * 0.9F);
+                case Type::particle_melee:
+                case Type::player: {
+                    max_velocity({ 10.0F, 10.0F });
+
+                    if (culprit->type() == Type::player) {
+                        velocity_x(-culprit->rotation_speed() * 0.5F);
+                        velocity_y(culprit->rotation_speed() * 0.5F);
+                    } else {
+                        cVec2F vel_normal = Vec2F::normalize(culprit->velocity());
+                        //console::log(class_name(), "::hurt() normal: ", vel_normal.x, " ", vel_normal.y, "\n");
+                        velocity(vel_normal * 5.0F);
+                    }
+
                     health_amount_add(-64.0F);
                     m_next_state = state::Type::dead;
 
@@ -43,7 +52,7 @@ export namespace entity {
                     sound_play("hit");*/
 
                     break;
-                }
+                }                
             }
 
 
@@ -71,8 +80,8 @@ export namespace entity {
                 sprite_is_upended(false);
                 console::log(class_name(), "::state_idle()\n");
                 m_time_in_state = 0;
-                m_sensed_position = {};
-                m_time_left_to_spawn_sense = m_time_to_spawn_sense;
+                m_sensed_offset = {};
+                m_time_left_to_spawn_sense = m_config.time_to_spawn_sense();
                 set_anim("idle");
                 m_sensed_objects.clear();
                 acceleration(acc);                
@@ -154,7 +163,7 @@ export namespace entity {
                 if (m_time_left_to_spawn_sense == 0) {
                     //console::log("Frog::idle() spawn sense\n");
 
-                    m_time_left_to_spawn_sense = m_time_to_spawn_sense;
+                    m_time_left_to_spawn_sense = m_config.time_to_spawn_sense();
 
                     particle::spawn_fan(this, 0.0F, 360.0F, 32,
                                         particle::Type::sense,
@@ -168,7 +177,7 @@ export namespace entity {
                 if (i->type() == Type::player) {
                     console::log(class_name(), "::state_idle() sensed player\n");
                     //m_sensed_state = state::Type::attack;
-                    m_sensed_position = i->position() + Vec2F{8.0F, 8.0F};
+                    m_sensed_offset = i->position() + Vec2F{8.0F, 8.0F};
                     m_time_left_to_react = 1;
                     m_sensed_objects.clear();
                     return;
@@ -185,7 +194,7 @@ export namespace entity {
                 sprite_angle(0.0F);
                 sprite_is_upended(false);
                 
-                sprite_is_leftward(m_sensed_position.x < position().x);                
+                sprite_is_leftward(m_sensed_offset.x < position().x);                
             }
             ++m_time_in_state;
 
@@ -197,7 +206,7 @@ export namespace entity {
             }
         }
         void state_attack(cF32 dt) override {
-            Vec2F vel = m_sensed_position - position();
+            Vec2F vel = m_sensed_offset - position();
             sound_position("attack", { position().x - app::config::extent().x / 2.0F,
                                        position().y - app::config::extent().y / 2.0F });
             if (m_is_first_state_update) {
@@ -236,12 +245,12 @@ export namespace entity {
             if (m_is_first_state_update) {
                 m_is_first_state_update = false;
                 sound_stop("idle");
-                //m_time_left_dead = m_time_to_be_dead;
+                m_time_left_dead = m_config.time_to_be_dead();
                 sprite_is_hidden(true);
                 for (auto& i : m_aabbs) {
                     aabb::is_active(i, false);
                 }
-                Vec2F blood_vel = velocity() + moved_velocity();
+                Vec2F blood_vel = velocity() + move_velocity();
                 particle::spawn_fan(this, 0.0F, 360.0F, 8,
                                     particle::Type::drop_blood,
                                     position() + Vec2F{ 6.0F, -4.0F },
@@ -261,7 +270,7 @@ export namespace entity {
             }
 
             velocity(velocity() * 0.9F);
-            moved_velocity({});
+            move_velocity({});
 
             if (m_time_left_dead > 0) {
                 --m_time_left_dead;

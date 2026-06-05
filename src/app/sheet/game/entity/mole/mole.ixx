@@ -17,7 +17,7 @@ export namespace entity {
     class Mole : public Object {
         U16   m_time_to_turn = 40;
 
-        Vec2F m_sensed_position;
+        Vec2F m_sensed_offset;
     public:
         Mole() {
             m_state = m_next_state = m_start_state = state::Type::idle;
@@ -42,11 +42,10 @@ export namespace entity {
             if (m_is_first_update) {
                 m_is_first_update = false;
             }
-
-            if (velocity().x + moved_velocity().x < -acceleration().x) {
+            if (velocity().x + move_velocity().x < -acceleration().x) {
                 m_is_near_wall_R = false;
             }
-            if (velocity().x + moved_velocity().x > acceleration().x) {
+            if (velocity().x + move_velocity().x > acceleration().x) {
                 m_is_near_wall_L = false;
             }
 
@@ -60,7 +59,6 @@ export namespace entity {
                     --i.second;
                 }
             }
-
             state_update(dt);
 
             sprite_rect(anim::source(m_current_anim));
@@ -68,11 +66,11 @@ export namespace entity {
             if (!m_is_on_slope and (velocity().y < 0.0F or velocity().y > acceleration().y)) {
                 m_is_on_ground = false;
             }
-            if (health::amount(m_health_id) <= 0.0f) {                
+            if (health_amount() <= 0.0f) {                
                 m_time_left_in_state = 0;
                 m_next_state = state::Type::dead;                
             }
-            health::layer(m_health_id, m_start_layer);
+            health_layer(m_start_layer);
         }
     };
 }

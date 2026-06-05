@@ -7,30 +7,35 @@ namespace entity {
         if (!culprit or m_state == state::Type::dead or m_next_state == state::Type::dead) return false;
         m_next_state = state::Type::dead;
 
-        particle::spawn(this,
+        /*particle::spawn(this,
                         particle::Type::hit,
                         position() - Vec2F{ 6.0F, 6.0F } + velocity(),
-                        {});
+                        {});*/
 
         cVec2F sound_pos = { position().x - app::config::extent().x / 2.0F,
                              position().y - app::config::extent().y / 2.0F };
 
-        console::log(class_name(), "::hurt() sound position: ", sound_pos.x, " ", sound_pos.y, "\n");
+        //console::log(class_name(), "::hurt() sound position: ", sound_pos.x, " ", sound_pos.y, "\n");
 
-        sound_position("dead", sound_pos);
-        sound_play("dead");
+        if (!sound_is_playing("dead")) {
+            sound_position("dead", sound_pos);
+            sound_play("dead");
+        }
 
         switch (culprit->type()) {
             case Type::bee:
             case Type::bug:
-            //case Type::brick:
+            case Type::brick:
             case Type::frog:
+            case Type::mole:
             case Type::player: {
                 sound_position("hit", sound_pos);
                 sound_play("hit");
                 break;
             }
         }
+
+        particle::spawn(this, particle::Type::hit, position() - Vec2F{ 4.0F, 4.0F }, {});
         return true;
     }
     void ParticleRock::state_idle(cF32 dt) {
@@ -83,11 +88,11 @@ namespace entity {
         if (m_is_first_state_update) {
             m_is_first_state_update = false;
             m_time_left_alive = 0;
-            m_time_left_dead = m_time_to_be_dead;
+            m_time_left_dead = m_config.time_to_be_dead();
 
-            for (auto& i : m_aabbs) {
+            /*for (auto& i : m_aabbs) {
                 aabb::is_active(i, false);
-            }
+            }*/
             sprite_is_hidden(true);
 
             //m_radians += (2 * PI);
@@ -111,16 +116,11 @@ namespace entity {
             //int num_to_spawn = 8;
             //F32 radian_offset = -(PI / num_to_spawn);
 
-
-
-
             /*for (int i = 0; i < num_to_spawn; i++) {
                 particle::spawn(this, particle::Type::pebble, position(), Vec2F{ std::cosf(m_radians + radian_offset) * speed, std::sinf(m_radians + radian_offset) * speed });
                 radian_offset += (PI / num_to_spawn);
             }*/
-
             //state::Type::idle
-
         }
         velocity({});
         if (m_parent and is_water_line(m_parent->type())) {
@@ -128,7 +128,7 @@ namespace entity {
         }
     }
     void ParticleRock::collide_x(aabb::cInfo our, aabb::cInfo other) {
-        if (m_parent == other.owner or m_state == state::Type::dead) return;
+        if (m_parent == other.owner or m_state == state::Type::dead or m_next_state == state::Type::dead or other.owner->is_dead()) return;
 
         cVec2F our_UL = aabb::UL(our.id);
         cVec2F our_DR = aabb::DR(our.id);
@@ -138,50 +138,63 @@ namespace entity {
         cType other_type = other.owner->type();
         aabb::cName   other_name = aabb::name(other.id);
 
-        cF32 overlap_x = our_UL.x < other_UL.x ? our_DR.x - other_UL.x : -(other_DR.x - our_UL.x);
+        cF32 overlap_x = our_UL.x < other_UL.x ? (our_DR.x - other_UL.x) : -(other_DR.x - our_UL.x);
 
         cVec2F other_extent = { other_DR.x - other_UL.x, other_DR.y - other_UL.y };
 
         cVec2F other_velocity = other.owner->velocity();
         cVec2F our_velocity = velocity();
 
+        //console::log(class_name(), "::collide_x() ", to_string(other_type), "\n");
+
         switch (other_type) {
             case Type::arch_L_1x1:
             case Type::arch_R_1x1: {
-                velocity_x(velocity().x * 0.5F);
+                velocity_x(our_velocity.x * 0.5F);
                 hurt(other.owner);
+                velocity_x(0.0F);
                 break;
             }
             case Type::arch_L_2x1_0:
             case Type::arch_L_2x1_1:
             case Type::arch_R_2x1_0:
             case Type::arch_R_2x1_1: {
-                velocity_x(velocity().x * -0.75F);
+                velocity_x(our_velocity.x * 0.75F);
                 hurt(other.owner);
+                velocity_x(0.0F);
                 break;
             }
             case Type::bee:{
+                
+                position_add_x(-overlap_x);
                 other.owner->velocity_x(our_velocity.x * 0.3F);
                 other.owner->hurt(this);
+                velocity_x(our_velocity.x * 0.5F);
                 hurt(other.owner);
+                velocity_x(0.0F);
                 break;
             }
             case Type::brick: {
+                
                 position_add_x(-overlap_x);
-                velocity_x(our_velocity.x * -1.0F);
                 other.owner->velocity_x(our_velocity.x * 0.3F);
                 other.owner->hurt(this);
+                velocity_x(our_velocity.x * 0.5F);
                 hurt(other.owner);
+                velocity_x(0.0F);
                 //console::log(class_name(), "::collide_x() brick ", other.owner->velocity().x, "\n");
                 break;
             }
             case Type::bug: {
                 //console::log(class_name(), "::collide_x() bug\n");
+                
                 position_add_x(-overlap_x);
-                velocity_x(our_velocity.x * -1.0F);
+
                 other.owner->velocity_x(our_velocity.x * 0.1F);
                 other.owner->hurt(this);
+                velocity_x(our_velocity.x * 0.5F);
                 hurt(other.owner);
+                velocity_x(0.0F);
                 break;
             }
             case Type::clip:
@@ -191,38 +204,42 @@ namespace entity {
             case Type::clip_RD:
             case Type::clip_ledge:
             case Type::clip_LR: {
+                if ((other_type == Type::clip_L and our_velocity.x < 0.0F) or
+                    (other_type == Type::clip_R and our_velocity.x > 0.0F)) {
+                    return;
+                }
                 if (other_UL.x < our_UL.x and velocity().x > 0.0F or
                     other_DR.x > our_DR.x and velocity().x < 0.0F) return;
 
+                
+
+                console::log(class_name(), "::collide_x() ", to_string(other_type), " overlap_x: ", -overlap_x, "\n");
                 position_add_x(-overlap_x);
                 velocity_x(velocity().x * -0.75F);
                 hurt(other.owner);
+                velocity_x(0.0F);
                 break;
             }
             case Type::frog: {
+                //if (other.owner->is_hurting()) return;
+                
                 position_add_x(-overlap_x);
-                velocity_x(velocity().x * -1.0F);
                 other.owner->hurt(this);
+                velocity_x(our_velocity.x * -1.0F);
                 hurt(other.owner);
+                velocity_x(0.0F);
                 break;
             }
             case Type::mole: {
-                if (std::abs(velocity().x) < 2.0F) {
-                    return;
-                }
                 if (other.owner->state() == state::Type::idle) {
-                    hurt(other.owner);
-                    other.owner->hurt(this);
-                    velocity_y(other_velocity.y - 1.0F);
-                    velocity_x(other_velocity.x * 0.5F);
                     return;
-                }
-
+                }                
+                
                 position_add_x(-overlap_x);
-                velocity_x(velocity().x * -1.0F);
-
-                cVec2F hit_pos = position() + Vec2F{ -8.0F, -8.0F };
-                particle::spawn(this, particle::Type::hit, hit_pos, {});
+                other.owner->hurt(this);
+                velocity_x(our_velocity.x * -1.0F);
+                hurt(other.owner);
+                velocity_x(0.0F);
                 break;
             }
             case Type::slope_L_1x1:
@@ -250,6 +267,7 @@ namespace entity {
                 } else {
                     velocity_x(other.owner->velocity().x;
                 }*/
+                break;
             }
             case Type::player: {
                 if (std::abs(velocity().x) < 2.0F or m_state == state::Type::dead) {
@@ -265,19 +283,11 @@ namespace entity {
 
                 //other.owner->velocity().x *= 0.95F;
                 other.owner->hurt(this);
-                hurt(other.owner);
+                hurt(other.owner);                
+                velocity_x(0.0F);
                 break;
             }
-            case Type::train: {
-                return;
-                if (other_name != aabb::Name::body) return;
-                if (other_UL.x < our_UL.x and velocity().x > 0.0F or
-                    other_DR.x > our_DR.x and velocity().x < 0.0F) return;
-
-                position_add_x(-overlap_x);
-                velocity_x(velocity().x * -0.75F);
-
-                hurt(other.owner);
+            case Type::train_platform: {
                 break;
             }
             case Type::water_line_L:
@@ -289,7 +299,7 @@ namespace entity {
         }
     }
     void ParticleRock::collide_y(aabb::cInfo our, aabb::cInfo other) {
-        if (m_parent == other.owner or m_state == state::Type::dead or m_next_state == state::Type::dead) return;
+        if (m_parent == other.owner or m_state == state::Type::dead or m_next_state == state::Type::dead or other.owner->is_dead()) return;
 
         cVec2F our_UL = aabb::UL(our.id);
         cVec2F our_DR = aabb::DR(our.id);
@@ -309,8 +319,10 @@ namespace entity {
         switch (other_type) {
             case Type::arch_L_1x1:
             case Type::arch_R_1x1: {
-                velocity_x(velocity().x * 0.5F);
+                position_add_y(-overlap_y);
+                velocity_y(our_velocity.y * -0.5F);
                 hurt(other.owner);
+                velocity_y(0.0F);
                 break;
             }
             case Type::arch_L_2x1_0:
@@ -318,32 +330,44 @@ namespace entity {
             case Type::arch_R_2x1_0:
             case Type::arch_R_2x1_1: {
                 position_add_y(-overlap_y);
-                velocity_y(velocity().y * -1.0F);
+                velocity_y(our_velocity.y * -0.75F);
                 hurt(other.owner);
+                velocity_y(0.0F);
                 break;
             }
             case Type::bee: {
+                particle::spawn(this, particle::Type::hit, position() - Vec2F{ 4.0F, 4.0F }, {});
+                position_add_y(-overlap_y);
+
                 other.owner->velocity_y(our_velocity.y * 0.3F);
-                other.owner->hurt(this);
+                other.owner->hurt(this);                
+                
+                velocity_y(our_velocity.y * -0.5F);
                 hurt(other.owner);
+                velocity_y(0.0F);
                 break;
             }
             case Type::brick: {
                 console::log(class_name(), "::collide_y() brick\n");
+                particle::spawn(this, particle::Type::hit, position() - Vec2F{ 4.0F, 4.0F }, {});
                 position_add_y(-overlap_y);
-                velocity_y(our_velocity.y * -0.5F);
-                other.owner->velocity_y(our_velocity.y * 0.1F);
-                hurt(other.owner);
+                other.owner->velocity_y(our_velocity.y * 0.1F);                
                 other.owner->hurt(this);
+                velocity_y(our_velocity.y * -0.5F);
+                hurt(other.owner);
+                velocity_y(0.0F);
                 break;
             }
             case Type::bug: {
                 console::log(class_name(), "::collide_y() bug\n");
+                particle::spawn(this, particle::Type::hit, position() - Vec2F{ 4.0F, 4.0F }, {});
                 position_add_y(-overlap_y);
-                velocity_y(our_velocity.y * -0.5F);
                 other.owner->velocity_y(our_velocity.y * 0.1F);
                 hurt(other.owner);
                 other.owner->hurt(this);
+                velocity_y(our_velocity.y * -0.5F);
+                hurt(other.owner);
+                velocity_y(0.0F);
                 break;
             }
             case Type::clip:
@@ -352,16 +376,17 @@ namespace entity {
                 if (our_velocity.y < 0.0F and our_DR.y < other_DR.y) return;
                 if (our_velocity.y > 0.0F and our_UL.y > other_UL.y) return;
 
+                
                 position_add_y(-overlap_y);
-                velocity_y(velocity().y * -0.5F);
-                if (velocity().y >= -acceleration().y and velocity().y <= acceleration().y) {
-                    velocity_y(0.0F);
-                }
-                moved_velocity({});
+                
+                move_velocity({});
 
-                velocity_x(velocity().x * 0.5F);
+                velocity_x(our_velocity.x * 0.5F);
 
                 hurt(other.owner);
+                velocity_y(our_velocity.y * -0.5F);
+                hurt(other.owner);
+                velocity_y(0.0F);
                 break;
             }
             case Type::clip_U:
@@ -369,7 +394,9 @@ namespace entity {
                 if (our_velocity.y < 0.0F) return;
                 //if (velocity().y > 0.0F and our_UL.y > other_DR.y) return;
 
+                
                 position_add_y(-overlap_y);
+
                 if (position().y > other_UL.y) {
                     position_add_y(other_UL.y - position().y - our_extent.y);
                 }
@@ -380,7 +407,7 @@ namespace entity {
                     velocity_y(0.0F);
                 }
 
-                moved_velocity({});
+                move_velocity({});
 
                 velocity_x(velocity().x * 0.5F);
 
@@ -393,134 +420,130 @@ namespace entity {
                 if (velocity().y > 0.0F) return;
                 //if (velocity().y < 0.0F and our_DR.y < other_DR.y) return;
 
+                
                 position_add_y(-overlap_y);
-                velocity_y(velocity().y * -0.5F);
-                moved_velocity({});
+                
+                move_velocity({});
 
-                velocity_x(velocity().x * 0.5F);
-
+                velocity_x(our_velocity.x * 0.5F);
+                velocity_y(our_velocity.y * -0.5F);
                 hurt(other.owner);
+                velocity_y(0.0F);
                 break;
             }
             case Type::frog: {
-                console::log(class_name(), "::collide_y() frog\n");
-                position_add_y(-overlap_y);
-                velocity_y(velocity().y * -0.5F);
+                //if (other.owner->is_hurting()) return;
 
-                hurt(other.owner);
+                console::log(class_name(), "::collide_y() frog\n");
+                
+                position_add_y(-overlap_y);
                 other.owner->hurt(this);
+                velocity_y(velocity().y * -0.5F);
+                hurt(other.owner);
+                velocity_y(0.0F);
                 break;
             }
             case Type::mole: {
-                if (other.owner->state() == state::Type::idle or (velocity().y >= -2.0F and velocity().y <= 2.0F)) return;
-                if (our_UL.y < other_UL.y) {
-                    hurt(other.owner);
-                    other.owner->hurt(this);
-                    cVec2F hit_pos = position() + Vec2F{ -8.0F, -8.0F };
-                    particle::spawn(this, particle::Type::hit, hit_pos, {});
-                    position_add_y(-overlap_y);
-                    velocity_y(velocity().y * -1.0F);
-                }
+                if (other.owner->state() == state::Type::idle or std::abs(our_velocity.y) < 2.0F) return;
+                
+                
+                position_add_y(-overlap_y);
+                other.owner->hurt(this);
+                velocity_y(our_velocity.y * -1.0F);
                 hurt(other.owner);
+                velocity_y(0.0F);
                 break;
             }
             case Type::slope_L_1x1: {
+                
                 position_add_y(-overlap_y);
+
                 if (position().y > other_UL.y) {
                     position_add_y(other_UL.y - position().y - our_extent.y);
                 }
-                velocity_y(std::abs(velocity().y) * -1.0F);
+                velocity_y(std::abs(our_velocity.y) * -1.0F);
                 if (velocity().y > -4.0F) {
                     velocity_y(-4.0F);
                 }
-                sprite::angle(m_sprite, 45.0f);
+                sprite_angle(45.0F);
 
-                velocity_x(velocity().x * 0.5F);
-
+                velocity_x(our_velocity.x * 0.5F);                
                 hurt(other.owner);
+                //velocity_y(0.0F);
                 break;
             }
             case Type::slope_R_1x1: {
+                
                 position_add_y(-overlap_y);
+
                 if (position().y > other_UL.y) {
                     position_add_y(other_UL.y - position().y - our_extent.y);
                 }
-                velocity_y(std::abs(velocity().y) * -1.0F);
+                velocity_y(std::abs(our_velocity.y) * -1.0F);
                 if (velocity().y > -4.0F) {
                     velocity_y(-4.0F);
                 }
-                sprite::angle(m_sprite, 135.0f);
+                sprite_angle(135.0F);
 
-                velocity_x(velocity().x * 0.5F);
-
+                velocity_x(our_velocity.x * 0.5F);                
                 hurt(other.owner);
+                //velocity_y(0.0F);
                 break;
             }
             case Type::slope_L_2x1_0:
             case Type::slope_L_2x1_1: {
+                
                 position_add_y(-overlap_y);
 
                 if (position().y > other_UL.y) {
                     position_add_y(other_UL.y - position().y - our_extent.y);
                 }
 
-                velocity_y(std::abs(velocity().y) * -1.0F);
+                velocity_y(std::abs(our_velocity.y) * -1.0F);
                 if (velocity().y > -4.0F) {
                     velocity_y(-4.0F);
                 }
 
-                sprite::angle(m_sprite, 67.5f);
+                sprite_angle(67.5F);
 
-                velocity_x(velocity().x * 0.5F);
-
+                velocity_x(our_velocity.x * 0.75F);
+                
                 hurt(other.owner);
+                //velocity_y(0.0F);
                 break;
             }
             case Type::slope_R_2x1_0:
             case Type::slope_R_2x1_1: {
+                
                 position_add_y(-overlap_y);
                 if (position().y > other_UL.y) {
                     position_add_y(other_UL.y - position().y - our_extent.y);
                 }
 
-                velocity_y(std::abs(velocity().y) * -1.0F);
+                velocity_y(std::abs(our_velocity.y) * -1.0F);
                 if (velocity().y > -4.0F) {
                     velocity_y(-4.0F);
                 }
 
-                sprite::angle(m_sprite, 112.5f);
+                sprite_angle(112.5F);
 
-                velocity_x(velocity().x * 0.5F);
-
+                velocity_x(our_velocity.x * 0.75F);
+                
                 hurt(other.owner);
+                //velocity_y(0.0F);
                 break;
             }
             case Type::player: {
                 if (m_state == state::Type::dead or std::abs(other_velocity.x) < 2.0F) return;
-                hurt(other.owner);
                 other.owner->hurt(this);
+                hurt(other.owner);
 
                 position_add({ 0.0F, -2.0F });
                 velocity_x(other_velocity.x * 1.2F);
                 velocity_y(other_velocity.y - 1.0F);
                 break;
             }
-            case Type::train: {
-                return;
-                if (other_name != aabb::Name::body) return;
-                if (velocity().y < 0.0F and our_DR.y < other_DR.y) return;
-                if (velocity().y > 0.0F and our_UL.y > other_UL.y) return;
-
-                position_add_y(-overlap_y);
-                velocity_y(velocity().y * -0.5F);
-                if (velocity().y >= -acceleration().y and velocity().y <= acceleration().y) {
-                    velocity_y(0.0F);
-                }
-                moved_velocity({});
-
-                velocity_x(velocity().x * 0.5F);
-
-                hurt(other.owner);
+            case Type::train_platform: {                
                 break;
             }
             case Type::water_line_L:

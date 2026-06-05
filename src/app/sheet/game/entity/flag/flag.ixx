@@ -13,7 +13,7 @@ export namespace entity {
             entity::cType other_type = other.owner->type();
             switch (other_type) {
                 case Type::player: {
-                    m_time_left_dead = m_time_to_be_dead;
+                    m_time_left_dead = m_config.time_to_be_dead();
                     break;
                 }
             }

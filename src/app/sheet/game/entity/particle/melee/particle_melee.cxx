@@ -8,27 +8,45 @@ namespace entity {
         if (!culprit or is_dead()) return false;
 
         console::log(class_name(), "::hurt() culprit: ", to_string(culprit->type()), "\n");
-        console::log(class_name(), "::hurt() time to be dead: ", m_time_to_be_dead, "\n");
+        console::log(class_name(), "::hurt() time to be dead: ", m_config.time_to_be_dead(), "\n");
 
-        m_time_left_alive = 0;
-        m_time_left_dead = m_time_to_be_dead;
-
+        bool is_to_play_hit_sound = false;
         switch (culprit->type()) {
             case Type::bee:
             case Type::bug:
-            case Type::frog: {
-                sound_position("hit", { position().x - app::config::extent().x / 2.0F,
-                                        position().y - app::config::extent().y / 2.0F });
-                sound_play("hit");
+            case Type::brick: {
+                if (culprit->type() != Type::brick) {
+                    m_time_left_alive = 0;
+                    m_time_left_dead = m_config.time_to_be_dead();
+                }
+                is_to_play_hit_sound = true;
+                break;
+            }
+            case Type::frog:
+            case Type::mole: {
+                m_time_left_alive = 0;
+                m_time_left_dead = m_config.time_to_be_dead();
+                is_to_play_hit_sound = true;
                 break;
             }
             case Type::sling: {
+                //m_time_left_alive = 0;
+                //m_time_left_dead = m_config.time_to_be_dead();
                 sound_position("sling", { position().x - app::config::extent().x / 2.0F,
                                           position().y - app::config::extent().y / 2.0F });
-                sound_play("sling");
+                if (!sound_is_playing("sling")) {
+                    sound_play("sling");
+                }
                 break;
             }
-        }        
+        }
+        if (is_to_play_hit_sound) {
+            sound_position("hit", { position().x - app::config::extent().x / 2.0F,
+                                        position().y - app::config::extent().y / 2.0F });
+            if (!sound_is_playing("hit")) {
+                sound_play("hit");
+            }
+        }
         return true;
     }
     void ParticleMelee::state_idle(cF32 dt) {
@@ -44,14 +62,16 @@ namespace entity {
         if (m_is_first_state_update) {
             m_is_first_state_update = false;
             m_time_left_alive = 0;
-            m_time_left_dead = m_time_to_be_dead;            
+            m_time_left_dead = m_config.time_to_be_dead();
         }
         //console::log(class_name(), "::state_dead() time left dead: ", m_time_left_dead, "\n");
         velocity({});
     }
 
     void ParticleMelee::collide_x(aabb::cInfo our, aabb::cInfo other) {
-        if (is_dead() or m_is_to_erase or !m_parent or m_parent == other.owner or m_parent->is_blocked()) return;
+        if (is_dead() or is_hurting() or m_is_to_erase or
+            !other.owner or other.owner->is_dead() or
+            !m_parent or m_parent == other.owner or m_parent->is_blocked()) return;
 
         cType other_type = other.owner->type();
 
@@ -109,11 +129,16 @@ namespace entity {
                 break;
             }
             case Type::brick: {
+                if (!aabb::is_active(our.id)) return;
+                /*for (auto& i : m_aabbs) {
+                    aabb::is_active(i, false);
+                }*/
+                if (!sound_is_playing("hit")) {
+                    is_to_spawn_hit = true;
+                }
                 aabb::is_active(our.id, false);
-                other.owner->velocity_x(our_velocity.x * 1.0F);
+                
                 hurt(other.owner);
-                other.owner->hurt(this);
-                is_to_spawn_hit = true;
                 break;
             }
             case Type::bee:
@@ -121,10 +146,12 @@ namespace entity {
             case Type::frog:
             case Type::mole:
             case Type::player: {
-                other.owner->velocity_x(other_velocity.x * 0.5F + our_velocity.x * 0.5F);
-                //aabb::is_active(our.id, false);
-                hurt(other.owner);
+                if (other_type == Type::mole and other_state == state::Type::idle) return;
+                //other.owner->velocity_x(other_velocity.x * 0.5F + our_velocity.x * 0.5F);
+                //other.owner->velocity_x(our_velocity.x * 0.0F);
+                aabb::is_active(our.id, false);
                 other.owner->hurt(this);
+                hurt(other.owner);
                 is_to_spawn_hit = true;
                 hit_pos = other.owner->position();
 
@@ -142,12 +169,14 @@ namespace entity {
             }
             case Type::particle_melee: {
                 if (other.owner->parent()->type() == Type::frog) {
-                    other.owner->parent()->next_state(state::Type::blocked);                    
+                    other.owner->parent()->next_state(state::Type::blocked);  
                     //other.owner->time_left_alive(0);
                     //other.owner->time_left_dead(0);
                 } else {
-                    other.owner->time_left_alive(0);
-                    other.owner->time_left_dead(1);
+                    if (!other.owner->sound_is_playing("idle") and !other.owner->sound_is_playing("hit")) {
+                        other.owner->time_left_alive(0);
+                        other.owner->time_left_dead(1);
+                    }
                 }
                 //m_is_to_erase = true;
                 break;
@@ -179,7 +208,9 @@ namespace entity {
         }
     }
     void ParticleMelee::collide_y(aabb::cInfo our, aabb::cInfo other) {
-        if (is_dead() or m_is_to_erase or !m_parent or m_parent == other.owner or m_parent->is_blocked()) return;
+        if (is_dead() or is_hurting() or m_is_to_erase or
+            !other.owner or other.owner->is_dead() or
+            !m_parent or m_parent == other.owner or m_parent->is_blocked()) return;
 
         cType other_type = other.owner->type();
 

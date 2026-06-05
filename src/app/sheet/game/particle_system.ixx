@@ -47,10 +47,9 @@ export namespace particle {
         }
     }
     void clear() {
-        s_to_spawn.clear();        
+        s_to_spawn.clear();
         for (auto it = s_particle_entities.begin(); it != s_particle_entities.end(); ++it) {
-            if (!(*it)) continue;
-            delete (*it);
+            if (*it) delete (*it);
         }
         s_particle_entities.clear();
     }
@@ -197,85 +196,21 @@ export namespace particle {
                     break;
                 }
                 default: {
-                    if (to_spawn.type == Type::brick) {
-                        //state = state::Type::idle;
-                        s_particle_entities.emplace_back(new entity::ParticleBrick);
-                    } else if (to_spawn.type == Type::down_thrust) {
-                        s_particle_entities.emplace_back(new entity::ParticleDownThrust);
-                    } else if (to_spawn.type == Type::drop_blood or to_spawn.type == Type::drop_water) {
-                        s_particle_entities.emplace_back(new entity::ParticleDrop);
-                    } else if (to_spawn.type == Type::pebble) {
-                        s_particle_entities.emplace_back(new entity::ParticlePebble);
-                    } else {
-                        s_particle_entities.emplace_back(new entity::Particle);
+                    switch (to_spawn.type) {
+                        case Type::brick:       s_particle_entities.emplace_back(new entity::ParticleBrick);      break;
+                        case Type::down_thrust: s_particle_entities.emplace_back(new entity::ParticleDownThrust); break;
+                        case Type::drop_blood:
+                        case Type::drop_water:  s_particle_entities.emplace_back(new entity::ParticleDrop);       break;
+                        case Type::pebble:      s_particle_entities.emplace_back(new entity::ParticlePebble);     break;
+                        default:                s_particle_entities.emplace_back(new entity::Particle);           break;                        
                     }
-                    s_particle_entities.back()->load_config("res/entity/particle/" + particle::to_string(to_spawn.type) + ".cfg");
+                    if (s_particle_entities.back()) {
+                        s_particle_entities.back()->load_config("res/entity/particle/" + particle::to_string(to_spawn.type) + ".cfg");
+                    }
                     break;
                 }
             }
-
-            //if (to_spawn.type == Type::bubble) {
-            //    console::log("spawn bubble\n");
-            //    s_particle_entities.emplace_back(new entity::ParticleBubble);
-            //    s_particle_entities.back()->load_config("res/entity/particle/bubble.cfg");
-            //    //m_entity_objects.back()->direction({ (F32)random::number(0, 1), 0.0F });
-            //}
-            //else if (to_spawn.type == Type::health) {
-            //    s_particle_entities.emplace_back(new entity::ParticleHealth);
-            //    s_particle_entities.back()->load_config("res/entity/particle/health.cfg");
-            //}
-            //else if (to_spawn.type == Type::hit) {
-            //    s_particle_entities.emplace_back(new entity::Particle);
-            //    s_particle_entities.back()->load_config("res/entity/particle/hit.cfg");
-            //    velocity = {};
-            //    s_particle_entities.back()->start_layer(NUM_VISIBLE_LAYERS - 1);
-            //}
-            //else if (to_spawn.type == Type::interact) {                
-            //    s_particle_entities.emplace_back(new entity::ParticleInteract);
-            //    s_particle_entities.back()->load_config("res/entity/particle/interact_" + entity::to_string(to_spawn.parent->type()) + ".cfg");
-            //}
-            //else if (to_spawn.type == Type::melee) {
-            //    s_particle_entities.emplace_back(new entity::ParticleMelee);
-            //    s_particle_entities.back()->load_config("res/entity/particle/melee_" + entity::to_string(to_spawn.parent->type()) + ".cfg");
-            //    //console::log("time left dead: ", s_particle_entities.back()->time_left_dead(), "\n");
-            //    console::log("particle::check_to_spawn Melee velocity: ", velocity.x, " ", velocity.y, "\n");
-            //}
-            //else if (to_spawn.type == Type::sense) {
-            //    //console::log("spawn sense ", "res/entity/particle/sense_" + entity::to_string(to_spawn.parent->type()) + ".cfg", "\n");
-            //    s_particle_entities.emplace_back(new entity::ParticleSense);
-            //    s_particle_entities.back()->load_config("res/entity/particle/sense_" + entity::to_string(to_spawn.parent->type()) + ".cfg");
-            //    s_particle_entities.back()->start_layer(NUM_VISIBLE_LAYERS - 1);
-            //}            
-            //else if (to_spawn.type == Type::rock) {
-            //    s_particle_entities.emplace_back(new entity::ParticleRock);
-            //    s_particle_entities.back()->load_config("res/entity/particle/rock_" + entity::to_string(to_spawn.parent->type()) + ".cfg");
-            //}
-            //else /*if (to_spawn.type == Type::brick       or
-            //         to_spawn.type == Type::down_thrust or
-            //         to_spawn.type == Type::drop_blood  or
-            //         to_spawn.type == Type::drop_water  or
-            //         to_spawn.type == Type::dust        or
-            //         to_spawn.type == Type::dust_L      or
-            //         to_spawn.type == Type::dust_R      or
-            //         to_spawn.type == Type::trail_smoke)*/ {
-            //    if (to_spawn.type == Type::brick) {
-            //        //state = state::Type::idle;
-            //        s_particle_entities.emplace_back(new entity::ParticleBrick);
-            //    }
-            //    else if (to_spawn.type == Type::down_thrust) {
-            //        s_particle_entities.emplace_back(new entity::ParticleDownThrust);
-            //    }
-            //    else if (to_spawn.type == Type::drop_blood or to_spawn.type == Type::drop_water) {
-            //        s_particle_entities.emplace_back(new entity::ParticleDrop);
-            //    }
-            //    else if (to_spawn.type == Type::pebble) {
-            //        s_particle_entities.emplace_back(new entity::ParticlePebble);
-            //    }
-            //    else {
-            //        s_particle_entities.emplace_back(new entity::Particle);
-            //    }
-            //    s_particle_entities.back()->load_config("res/entity/particle/" + particle::to_string(to_spawn.type) + ".cfg");
-            //}
+            if (!s_particle_entities.back()) break;
 
             if (s_particle_entities.back()->transform() != -1) {
                 transform::position(s_particle_entities.back()->transform(), position);

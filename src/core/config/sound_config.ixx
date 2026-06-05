@@ -1,5 +1,6 @@
 module;
 #include <filesystem>
+#include <map>
 #include <string>
 
 export module sound.config;
@@ -9,11 +10,13 @@ import sound.trait;
 import types;
 
 export namespace sound {
-    bool parse_config(const std::string& text, Trait* owner) {
+    std::map<std::string, I32> parse_config(const std::string& text) {
         const size_t sounds_label = text.find("Sounds", 0);
         if (sounds_label == std::string::npos or text.find("{", sounds_label) == std::string::npos) {
-            return false;
+            return {};
         }
+        std::map<std::string, I32> found_sounds;
+
         const size_t sounds_open = text.find("{", sounds_label) + 1;
         const size_t sounds_close = text.find("\n}", sounds_open);
         if (sounds_close != std::string::npos) {
@@ -49,11 +52,13 @@ export namespace sound {
                 //m_sounds[sound_label] = sound::make(sound_path);
 
                 cI32 id = sound::make(sound_path);
-                owner->sound(sound_label, id);
+                //owner->sound(sound_label, id);
+
+                found_sounds[sound_label] = id;
 
                 label_start = end_line;
             }
         }
-        return true;
+        return found_sounds;
     }
 }

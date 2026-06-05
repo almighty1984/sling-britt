@@ -37,6 +37,8 @@ export namespace sheet {
              m_is_to_change_view    = false,
              m_is_to_player_save    = false;
     public:
+        virtual const char* class_name() { return "sheet::Object"; }
+
         bool is_drawing_debug()     const { return m_is_drawing_debug;     } void is_drawing_debug(bool q)     { m_is_drawing_debug     = q; }
         bool is_drawing_quad_tree() const { return m_is_drawing_quad_tree; } void is_drawing_quad_tree(bool q) { m_is_drawing_quad_tree = q; }
         bool is_to_change_view()    const { return m_is_to_change_view;    } void is_to_change_view(bool q)    { m_is_to_change_view    = q; }

@@ -14,15 +14,17 @@ namespace entity {
 
         cF32 overlap_x = our_UL.x < other_UL.x ? our_DR.x - other_UL.x : -(other_DR.x - our_UL.x);
 
+
         switch (other_type) {
             case Type::clip_ledge: {
-                if (m_parent->state() != state::Type::ledge) return;
+                //if (m_parent->state() != state::Type::ledge) return;
                 //if (!m_parent->is_on_ground() or our_DR.y < other_DR.y or our_UL.y > other_UL.y) return;
                 m_parent->interact(other.owner);
                 break;
             }
             case Type::trigger: {
-                if (!m_parent->is_on_ground()) return;
+                if (!m_parent->is_on_ground() and !m_parent->is_on_slope()) return;
+                //console::log(class_name(), "::collide_x() ", to_string(other.owner->type()), "\n");
                 //m_is_to_erase = true;
                 //console::log("ParticleInteract::collide_x: ", to_string(other_type), "\n");
                 m_parent->interact(other.owner);

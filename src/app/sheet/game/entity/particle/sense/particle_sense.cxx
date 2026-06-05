@@ -49,10 +49,9 @@ namespace entity {
             case Type::particle_rock:
             case Type::player: {
                 if (m_parent->is_reacting()) return;
-
                 m_parent->add_sensed(other.owner);
                 //m_parent->sensed_position(position());
-                m_is_to_erase = true;
+                m_is_to_erase = other_type != Type::particle_health and m_parent->type() != Type::mole;
                 break;
             }
             case Type::particle_brick: {

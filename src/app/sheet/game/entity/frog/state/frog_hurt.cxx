@@ -39,7 +39,7 @@ namespace entity {
                     m_time_left_to_react = 10;
                     console::log(class_name(), "::hurt() sensed: ", to_string(i->type()), "\n");
                     m_sensed_state = state::Type::melee;
-                    m_sensed_position = i->position();
+                    m_sensed_offset = (i->position() + Vec2F{ 8.0F, 8.0F }) - (position() + Vec2F{ 6.0F, 6.0F });
                     m_sensed_objects.clear();
                     break;
                 }

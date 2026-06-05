@@ -22,8 +22,10 @@ namespace entity {
 
         cF32 overlap_x = our_UL.x < other_UL.x ? our_DR.x - other_UL.x : -(other_DR.x - our_UL.x);
 
-        cVec2F our_velocity = velocity() + moved_velocity();
-        cVec2F other_velocity = other.owner->velocity() + other.owner->moved_velocity();
+        cVec2F our_velocity = velocity() + move_velocity();
+        cVec2F other_velocity = other.owner->velocity() + other.owner->move_velocity();
+
+        state::cType other_state = other.owner->state();
 
         switch (other_type) {
             case Type::arch_L_1x1:
@@ -39,11 +41,27 @@ namespace entity {
             case Type::clip_L:
             case Type::clip_LD:
             case Type::clip_R:
-            case Type::clip_RD:
-            case Type::frog:
-            case Type::mole:
+            case Type::clip_RD: {
                 break;
-            case Type::player: {                
+            }
+            case Type::frog:
+            case Type::mole: {
+                if (other_type == Type::mole and other_state == state::Type::idle) return;
+                if (m_state == state::Type::attack) {
+                    position_add_x(-overlap_x);
+                    velocity_x(-our_velocity.x * 0.75F);
+                    other.owner->velocity_x(our_velocity.x);
+                    other.owner->hurt(this);
+                    m_next_state = state::Type::idle;
+                    return;
+                }
+                break;
+            }
+            case Type::player: {
+                if (other.owner->state() == state::Type::sling) {
+                    hurt(other.owner);        
+                    return;
+                }
                 if (m_state == state::Type::attack) {
                     position_add_x(-overlap_x);
                     velocity_x(-our_velocity.x * 0.75F);

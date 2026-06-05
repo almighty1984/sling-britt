@@ -7,14 +7,11 @@ namespace entity {
 
             m_sensed_objects.clear();
 
-            cF32 diff_x = m_sensed_position.x - position().x;
-            cF32 diff_y = m_sensed_position.y - position().y;
-
             //console::log("diff_y: ", diff_y, "\n");
             max_velocity(start_max_velocity());
 
-            velocity_x(diff_x / 64.0F);
-            velocity_y(diff_y / 10.0F);
+            velocity_x(m_sensed_offset.x / 64.0F);
+            velocity_y(m_sensed_offset.y / 10.0F);
 
             position_add_y(-2.0F);
 

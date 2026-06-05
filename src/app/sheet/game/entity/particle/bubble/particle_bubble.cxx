@@ -113,7 +113,7 @@ namespace entity {
             case Type::water_line_R:
             case Type::water_line: {                
                 m_time_left_alive = 0;
-                m_time_left_dead = m_time_to_be_dead;
+                m_time_left_dead = m_config.time_to_be_dead();
                 other.owner->velocity_add_y(our.owner->velocity().y / 4.0F);                
                 break;
             }

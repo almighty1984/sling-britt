@@ -19,8 +19,8 @@ namespace entity {
 
         cF32 overlap_y = other_DR.y - our_UL.y;
 
-        cVec2F our_velocity = velocity() + moved_velocity();
-        cVec2F other_velocity = other.owner->velocity() + other.owner->moved_velocity();
+        cVec2F our_velocity = velocity() + move_velocity();
+        cVec2F other_velocity = other.owner->velocity() + other.owner->move_velocity();
 
         switch (other_type) {
             case Type::player:
@@ -71,8 +71,8 @@ namespace entity {
 
                     other.owner->velocity_y(0.0F);
                     //other.owner->velocity_y(0.0F);
-                    other.owner->moved_velocity_x(0.0F);
-                    other.owner->moved_velocity_y(0.0F);
+                    other.owner->move_velocity_x(0.0F);
+                    other.owner->move_velocity_y(0.0F);
                     other.owner->is_on_ground(true);
 
 

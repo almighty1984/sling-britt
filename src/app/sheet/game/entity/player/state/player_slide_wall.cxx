@@ -103,7 +103,7 @@ namespace entity {
                 //console::log("sliding wall\n");
                 sound_play("slide_wall");
             }
-            m_is_on_ground = false;            
+            m_is_on_ground = false; 
         }
 
         

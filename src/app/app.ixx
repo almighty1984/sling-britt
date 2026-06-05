@@ -1,4 +1,5 @@
 export module app;
+import aabb;
 import anim;
 import console;
 import bitmap_text;
@@ -249,6 +250,7 @@ export namespace app {
                     threads.emplace_back([] {      anim::update(); });
                     threads.emplace_back([] {    sprite::update(); });
                     threads.emplace_back([] {      line::update(); });
+                    threads.emplace_back([] {      aabb::update(); });
                     for (auto& thread : threads) {
                         if (thread.joinable()) {
                             thread.join();
@@ -258,6 +260,8 @@ export namespace app {
                     if (m_time_left_player_save > 0) {
                         --m_time_left_player_save;
                     }
+
+                    input::mouse_moved = false;
                 }
 
                 m_window->clear();
@@ -271,6 +275,7 @@ export namespace app {
                 
                 for (auto& sheet : m_sheet_objects) {
                     for (auto& layer : sheet->get_visible_layers()) {
+                        //console::log("layer: ", (int)layer, "\n");
                         if (sheet) sheet->draw(m_window, layer);
                     }
                 }

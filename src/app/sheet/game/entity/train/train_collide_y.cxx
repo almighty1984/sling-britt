@@ -2,6 +2,8 @@ module entity.train;
 
 namespace entity {
     void Train::collide_y(aabb::cInfo our, aabb::cInfo other) {
+        if (m_time_left_colliding > 0) return;
+
         aabb::cName our_name = aabb::name(our.id);
 
         if (our_name != aabb::Name::bone) {
@@ -16,6 +18,8 @@ namespace entity {
         cType other_type = other.owner->type();
 
         aabb::cName other_name = aabb::name(other.id);
+
+        cVec2F other_direction = other.owner->direction();
 
         if (!is_track(other_type) and
             //other_type != Type::player and
@@ -39,9 +43,16 @@ namespace entity {
         if (is_track(other_type) or other_type == Type::trigger) {
             m_is_powered = other.owner->is_powered();
             m_time_left_alive = other.owner->time_left_alive();
+
+            
+            //console::log(to_string(other_type), " direction: ", other_direction.x, " ", other_direction.y, "\n");
+            
+            
             //m_speed = m_start_speed;
             //console::log("time_left_alive: ", other.owner->time_left_alive(), "\n");
             //console::log("is_powered: ", m_is_powered, "\n");
+
+            //console::log(to_string(other_type), "\n");
         }
 
         switch (other_type) {
@@ -60,7 +71,7 @@ namespace entity {
             }
             //case Type::track_LR:
             case Type::track_trigger_UL:
-            case Type::track_trigger_UR: {
+            case Type::track_trigger_UR: {                
                 if (other_name == aabb::Name::track) {
                     position_add_y(other_UL.y - our_UL.y);
                     velocity_y(0.0F);
@@ -70,6 +81,11 @@ namespace entity {
                     } else if (direction().x > 0.0F) {
                         velocity_x(std::abs(m_speed));
                     }
+                    /*if (other_type == Type::track_trigger_UL) {
+                        direction({ -1.0F, 0.0F });
+                    } else if (other_type == Type::track_trigger_UR) {
+                        direction({  1.0F, 0.0F });
+                    }*/
                 }
                 break;
             }
@@ -97,7 +113,15 @@ namespace entity {
             }
             case Type::track_corner_UL: {
                 if (other_name == aabb::Name::up) {
-                    if (direction().y < 0.0F) {
+                    //console::log(to_string(other_type), " direction: ", other_direction.x, " ", other_direction.y, "\n");
+                    if (direction().y < 0.0F and direction().x < 0.0F) {
+                        if (our_UL.y < other_UL.y) {
+                            velocity_y(0.0F);
+                            velocity_x(-std::abs(m_speed));
+                            position_add_y(other_UL.y - our_UL.y);
+                        }
+                    }
+                    else if (direction().y < 0.0F and direction().x >= 0.0F) {
                         if (our_UL.y < other_UL.y) {
                             velocity_y(0.0F);
                             velocity_x(std::abs(m_speed));
@@ -121,11 +145,30 @@ namespace entity {
             }
             case Type::track_corner_UR: {
                 if (other_name == aabb::Name::up) {
-                    if (direction().y < 0.0F) {
+                    if (direction().y <= 0.0F and direction().x > 0.0F) {
+                        if (our_UL.y < other_UL.y) {
+                            velocity_y(0.0F);
+                            velocity_x(std::abs(m_speed));
+                            position_add_y(other_UL.y - our_UL.y);
+                            direction_x(1.0F);
+                            direction_y(0.0F);
+                        }
+                    }
+                    else if (direction().y < 0.0F) {
                         if (our_UL.y < other_UL.y) {
                             velocity_y(0.0F);
                             velocity_x(-std::abs(m_speed));
                             position_add_y(other_UL.y - our_UL.y);
+                            direction_x(-1.0F);
+                            direction_y(0.0F);
+                        }
+                    } else if (direction().x > 0.0F and direction().y > 0.0F) {
+                        if (our_UL.y > other_UL.y) {
+                            velocity_y(0.0F);
+                            velocity_x(std::abs(m_speed));
+                            position_add_y(other_UL.y - our_UL.y);
+                            direction_x(1.0F);
+                            direction_y(0.0F);
                         }
                     }
                 } else if (other_name == aabb::Name::down) {
@@ -167,6 +210,7 @@ namespace entity {
             }
             case Type::track_corner_DR: {
                 if (other_name == aabb::Name::up) {
+                    //console::log("yo\n");
                     if (direction().y < 0.0F) {
                         velocity_y(-std::abs(m_speed));
                     } else if (direction().y > 0.0F) {
@@ -174,18 +218,25 @@ namespace entity {
                     }
                     position_add_x(other_UL.x - our_UL.x);
                     velocity_x(0.0F);
-                } else if (other_name == aabb::Name::down) {
-                    if (direction().y > 0.0F) {
+                    direction_x(0.0F);
+                } else if (other_name == aabb::Name::down) {  
+                    if (velocity().y > 0.0F) {
                         if (our_UL.y > other_UL.y) {
+                            console::log("down\n");
                             position_add_y(other_UL.y - our_UL.y);
                             velocity_y(0.0F);
                             velocity_x(-std::abs(m_speed));
+                            direction_x(-1.0F);
+                            direction_y(0.0F);
                         }
                     } else if (direction().x > 0.0F) {
+                        /*console::log("down\n");
                         if (our_UL.y < other_UL.y) {
                             position_add_y(other_UL.y - our_UL.y);
                             velocity_x(std::abs(m_speed));
-                        }
+                            direction_x(1.0F);
+                            direction_y(0.0F);
+                        }*/
                     }
                 }
                 break;
@@ -195,17 +246,19 @@ namespace entity {
                 if (other_name == aabb::Name::track) {
                     if (direction().y > 0.0F and direction().x == 0.0F) {
                         if (our_UL.y > other_UL.y) {
-                            velocity({ std::abs(m_speed) * 0.71F, std::abs(m_speed) * 0.71F });
+                            velocity_x(std::abs(m_speed) * 0.71F);
+                            velocity_y(std::abs(m_speed) * 0.71F);
                         }
                     } else if (direction().x > 0.0F) {
                         if (our_UL.y < other_UL.y) {
-                            velocity({ std::abs(m_speed) * 0.71F, std::abs(m_speed) * 0.71F });
-
+                            velocity_x(std::abs(m_speed) * 0.71F);
+                            velocity_y(std::abs(m_speed) * 0.71F);
                             //position_add_y(other_UL.y - our_UL.y);
                         }
-                    } else if (direction().y < 0.0F) {
+                    } else if (direction().y < 0.0F and direction().x < 0.0F) {
                         if (our_UL.y < other_UL.y) {
-                            velocity({ -std::abs(m_speed) * 0.71F, -std::abs(m_speed) * 0.71F });
+                            velocity_x(-std::abs(m_speed) * 0.71F);
+                            velocity_y(-std::abs(m_speed) * 0.71F);
                         }
                     }
                 }
@@ -252,13 +305,13 @@ namespace entity {
                 break;
             }
             case Type::track_R_1x2_0:
-            case Type::track_R_1x2_1: {
-                if (direction().y < 0.0F/* and m_direction.x >= 0.0F*/) {
+            case Type::track_R_1x2_1: {                
+                if (direction().y < 0.0F/* and direction().x >= 0.0F*/) {
                     if (our_UL.y < other_UL.y) {
                         velocity_y(-std::abs(m_speed) * 0.9F);
                         velocity_x(std::abs(m_speed) * 0.5F);
                     }
-                } else if (direction().y > 0.0F/* and m_direction.x <= 0.0F*/) {
+                } else if (direction().y > 0.0F/* and direction().x <= 0.0F*/) {
                     if (our_UL.y > other_UL.y) {
                         velocity_y(std::abs(m_speed) * 0.9F);
                         velocity_x(-std::abs(m_speed) * 0.5F);

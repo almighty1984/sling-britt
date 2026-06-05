@@ -4,6 +4,8 @@ import particle_system;
 
 namespace entity {
     void ParticleBrick::collide_x(aabb::cInfo our, aabb::cInfo other) {
+        if (!other.owner or other.owner->is_dead()) return;
+
         cVec2F our_UL = aabb::UL(our.id);
         cVec2F our_DR = aabb::DR(our.id);
         cVec2F other_UL = aabb::UL(other.id);
@@ -34,13 +36,17 @@ namespace entity {
                 velocity_x(our_velocity.x * -0.75F);
                 break;
             }
-            case Type::brick:
+            case Type::brick: {
+                position_add_x(-overlap_x);
+                velocity_x(our_velocity.x * -0.5F);
+                break;
+            }
             case Type::bug: {
                 //console::log(class_name(), "::collide_x ", to_string(other_type), "\n");
                 if (is_hurting() or (std::abs(other_velocity.x) < 0.5F and std::abs(our_velocity.x) < 0.5F)) return;
 
-                m_time_left_hurt = m_time_to_hurt;
-                m_time_left_dead = m_time_to_be_dead;
+                m_time_left_hurt = m_config.time_to_hurt();
+                m_time_left_dead = m_config.time_to_be_dead();
 
                 velocity_y(other_velocity.y - 2.0F);
                 velocity_x(other_velocity.x * 1.2F);
@@ -49,6 +55,7 @@ namespace entity {
             case Type::clip:
             case Type::clip_L:
             case Type::clip_R:
+            case Type::clip_LR:
             case Type::clip_ledge: {
                 if (other_type == Type::clip_L and our_velocity.x < 0.0F or
                     other_type == Type::clip_R and our_velocity.x > 0.0F) {
@@ -64,15 +71,16 @@ namespace entity {
                 }
                 break;
             }
-            case Type::frog: {
-                if (std::abs(velocity().x) >= 2.0F) {
+            case Type::frog: {                
+                if (std::abs(velocity().x) >= 3.0F and !other.owner->is_hurting()) {
                     other.owner->hurt(this);
                     cVec2F hit_pos = position() + Vec2F{ -8.0F, -8.0F };
 
-                    sound_position("melee", { position().x - app::config::extent().x / 2.0F,
-                                              position().y - app::config::extent().y / 2.0F });
-                    sound_play("melee");
-
+                    if (!sound_is_playing("melee")) {
+                        sound_position("melee", { position().x - app::config::extent().x / 2.0F,
+                                                  position().y - app::config::extent().y / 2.0F });
+                        sound_play("melee");
+                    }
                     particle::spawn(this, particle::Type::hit, hit_pos, {});
                 }
                 position_add_x(-overlap_x);
@@ -84,23 +92,18 @@ namespace entity {
                 break;
             }
             case Type::mole: {
-                if (is_hurting() or other.owner->is_hurting() or other.owner->state() == state::Type::swim or (velocity().x >= -1.0F and velocity().x <= 1.0F)) return;
+                if (is_hurting() or other.owner->is_hurting() or other.owner->state() == state::Type::swim) return;
 
                 if (other.owner->state() == state::Type::idle) {
-                    m_time_left_hurt = m_time_to_hurt;
-                    velocity_y(other_velocity.y - 1.0F);
-                    velocity_x(other_velocity.x * 0.5F);
+                    m_time_left_hurt = m_config.time_to_hurt();
+                    m_time_left_dead = m_config.time_to_be_dead();
+                    //m_time_in_state = 5;
+                    velocity_y(other_velocity.y - 2.0F);
+                    velocity_x(other_velocity.x * 1.0F);
                     return;
                 }
-
                 position_add_x(-overlap_x);
-                velocity_x(velocity().x * -1.0F);
-
-                cVec2F hit_pos = position() + Vec2F{ -8.0F, -8.0F };
-                sound_position("melee", { hit_pos.x - app::config::extent().x / 2.0F,
-                                          hit_pos.y - app::config::extent().y / 2.0F });
-                sound_play("melee");
-                particle::spawn(this, particle::Type::hit, hit_pos, {});
+                velocity_x(our_velocity.x * -1.0F);
                 break;
             }
             case Type::slope_L_1x1: {
@@ -147,8 +150,8 @@ namespace entity {
             case Type::player: {
                 if (is_hurting() or std::abs(other_velocity.x) < 1.0F) return;
 
-                m_time_left_hurt = m_time_to_hurt;
-                m_time_left_dead = m_time_to_be_dead;
+                m_time_left_hurt = m_config.time_to_hurt();
+                m_time_left_dead = m_config.time_to_be_dead();
 
                 m_time_in_state = 5;
 
@@ -185,6 +188,8 @@ namespace entity {
         }
     }
     void ParticleBrick::collide_y(aabb::cInfo our, aabb::cInfo other) {
+        if (!other.owner or other.owner->is_dead()) return;
+
         cVec2F our_UL = aabb::UL(our.id);
         cVec2F our_DR = aabb::DR(our.id);
         cVec2F other_UL = aabb::UL(other.id);
@@ -225,7 +230,7 @@ namespace entity {
                 if (velocity().y >= -acceleration().y and velocity().y <= acceleration().y) {
                     velocity_y(0.0F);
                 }
-                moved_velocity({});
+                move_velocity({});
 
                 velocity_x(velocity().x * 0.5F);
 
@@ -242,7 +247,7 @@ namespace entity {
                 if (velocity().y >= -acceleration().y and velocity().y <= acceleration().y) {
                     velocity_y(0.0F);
                 }
-                moved_velocity({});
+                move_velocity({});
 
                 velocity_x(velocity().x * 0.5F);
 
@@ -261,7 +266,7 @@ namespace entity {
                 if (velocity().y >= -acceleration().y and velocity().y <= acceleration().y) {
                     velocity_y(0.0F);
                 }
-                moved_velocity({});
+                move_velocity({});
 
                 velocity_x(our_velocity.x * 0.5F);
 
@@ -283,7 +288,7 @@ namespace entity {
                     velocity_y(0.0F);
                 }
 
-                moved_velocity({});
+                move_velocity({});
 
                 velocity_x(our_velocity.x * 0.5F);
 
@@ -300,7 +305,7 @@ namespace entity {
 
                 position_add_y(-overlap_y);
                 velocity_y(our_velocity.y * -0.5F);
-                moved_velocity({});
+                move_velocity({});
 
                 velocity_x(our_velocity.x * 0.5F);
                 if (our_velocity.y <= -m_play_bounce_vel) {
@@ -309,13 +314,15 @@ namespace entity {
                 break;
             }
             case Type::frog: {
-                if (std::abs(velocity().y) >= 2.0F) {
+                if (std::abs(velocity().y) >= 2.0F and !other.owner->is_hurting()) {
                     other.owner->hurt(this);
                     cVec2F hit_pos = position() + Vec2F{ -8.0F, -8.0F };
 
-                    sound_position("melee", { hit_pos.x - app::config::extent().x / 2.0F,
-                                              hit_pos.y - app::config::extent().y / 2.0F });
-                    sound_play("melee");
+                    if (!sound_is_playing("melee")) {
+                        sound_position("melee", { hit_pos.x - app::config::extent().x / 2.0F,
+                                                  hit_pos.y - app::config::extent().y / 2.0F });
+                        sound_play("melee");
+                    }
 
                     particle::spawn(this, particle::Type::hit, hit_pos, {});
                 }
@@ -326,7 +333,12 @@ namespace entity {
                 break;
             }
             case Type::mole: {
-                if (other.owner->state() == state::Type::idle or (velocity().y >= -2.0F and velocity().y <= 2.0F)) return;
+                if (other.owner->state() == state::Type::idle) {
+                    collide_x(our, other);
+                    return;
+                }
+                if ((velocity().y >= -2.0F and velocity().y <= 2.0F)) return;
+
                 if (our_UL.y < other_UL.y) {
                     cVec2F hit_pos = position() + Vec2F{ -8.0F, -8.0F };
                     sound_position("melee", { hit_pos.x - app::config::extent().x / 2.0F,
@@ -403,7 +415,7 @@ namespace entity {
             }
             case Type::player: {
                 if (is_hurting() or std::abs(other_velocity.x) < 1.0F) return;
-                m_time_left_hurt = m_time_to_hurt;
+                m_time_left_hurt = m_config.time_to_hurt();
 
                 position_add({ 0.0F, -2.0F });
                 velocity_x(other_velocity.x * 1.2F);

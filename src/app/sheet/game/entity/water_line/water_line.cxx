@@ -72,7 +72,7 @@ namespace entity {
 
             //if (std::abs(start_diff_y) < 8.0F/* and std::abs(other.owner->velocity().y) > 0.5F*/) {
                 //velocity_y(other.owner->velocity().y * 0.9F;
-                //moved_velocity_y(other.owner->velocity().y * 1.0F;
+                //move_velocity_y(other.owner->velocity().y * 1.0F;
             //}
                 //velocity_y(other.owner->velocity().y / std::abs(start_diff_y);
                 //velocity_y(other.owner->velocity().y * 1.0F;

@@ -42,7 +42,7 @@ namespace entity {
             }
         }
         if (!m_is_on_ground and !m_is_carrying and !m_is_down_thrusting) {
-            if (is_pressed(key_up)) {
+            if (is_pressed(key_up) and !is_pressed(key_jump)) {
                 release(key_up);
                 m_next_state = state::Type::dive;                
                 return;
@@ -80,20 +80,7 @@ namespace entity {
             health::amount_add(m_health_id, 8.0f);
             //console::log("heath: ", health::get(m_health_id)->amount, "\n");
         }
-        if (is_pressed(input::Key::b)) {
-            release(input::Key::b);
-            particle::spawn_fan(this, 170.0F, 10.0F, 10,
-                                particle::Type::drop_blood,
-                                position() + Vec2F{ 6.0F, -4.0F },
-                                velocity() + moved_velocity(), 3.0F,
-                                state::Type::idle);
-            particle::spawn_fan(this, 170.0F, 10.0F, 7,
-                                particle::Type::drop_blood,
-                                position() + Vec2F{ 6.0F, -4.0F },
-                                velocity() + moved_velocity(), 2.5F,
-                                state::Type::idle);
-        }
-
+        
         //console::log("is carrying: ", m_is_carrying, "\n");
 
         if (is_pressed(key_melee) and !m_is_carrying and !is_locked(key_jump)) {
@@ -137,7 +124,8 @@ namespace entity {
 
         if (m_time_left_until_down_thrust > 0) {
             --m_time_left_until_down_thrust;
-            velocity({ 0.0F, 0.0F });
+            velocity({});
+            move_velocity({});
             if (m_time_left_until_down_thrust > 0) {
                 return;
             }
@@ -269,14 +257,14 @@ namespace entity {
         }
 
         velocity_add({ 0.0F, acceleration().y });
-        //moved_velocity().y += acceleration().y;
+        //move_velocity().y += acceleration().y;
 
-        if (moved_velocity().y < 0.0F) {
-            moved_velocity_add_y(acceleration().y);
+        if (move_velocity().y < 0.0F) {
+            move_velocity_add_y(acceleration().y);
         }
 
 
-        //console::log("moved y: ", moved_velocity().y, "\n");
+        //console::log("moved y: ", move_velocity().y, "\n");
 
 
         if (m_is_on_ground) {
@@ -314,9 +302,9 @@ namespace entity {
             if (velocity().y > acceleration().y) {
                 if (is_pressed(key_jump) and !is_locked(key_jump)) {
                     lock(key_jump);
-                    if (moved_velocity().y != 0.0F) {
-                        velocity_add({ 0.0F, moved_velocity().y });
-                        moved_velocity_y(0.0F);
+                    if (move_velocity().y != 0.0F) {
+                        velocity_add({ 0.0F, move_velocity().y });
+                        move_velocity_y(0.0F);
                     }
                     m_is_hovering = true;
                     m_time_left_rising = 0;
@@ -335,7 +323,7 @@ namespace entity {
                 lock(key_down);
             }
             else if (m_is_on_ground) {
-                m_time_left_rising = m_time_to_rise;
+                m_time_left_rising = m_config.time_to_rise();
                 m_next_state = state::Type::duck;
             }
             else {                
@@ -343,6 +331,7 @@ namespace entity {
                 release(key_down);
                 release(key_jump);
                 m_time_left_until_down_thrust = m_time_until_down_thrust;
+                
                 reset_anim("down_thrust");
                 if (sound_is_playing("hover")) {
                     sound_stop("hover");
@@ -355,11 +344,15 @@ namespace entity {
                 
         if (is_pressed(key_up) and !is_locked(key_up)) {
             release(key_up);
+            cVec2F body_extent = { aabb::rect(aabb(aabb::Name::body)).w, aabb::rect(aabb(aabb::Name::body)).h };
+            cVec2F interact_extent = { 20.0F, 16.0F };
+            cVec2F center_pos = position() + body_extent / 2.0F;
+            cVec2F particle_offset = Vec2F{ sprite_is_leftward() ? -interact_extent.x + 4.0F : -4.0F, is_pressed(key_sprint) ? 2.0F : -7.0F };
             particle::spawn( { .parent   = this,
-                                .type     = particle::Type::interact,
-                                .position = position() + Vec2F{ -8.0f, 4.0f },
-                                .velocity = velocity() + moved_velocity(),
-                                .state    = is_pressed(key_sprint) ? state::Type::run : state::Type::none });
+                               .type     = particle::Type::interact,
+                               .position = center_pos + particle_offset,
+                               .velocity = velocity() + move_velocity(),
+                               .state    = is_pressed(key_sprint) ? state::Type::run : state::Type::none });
         }        
 
         if (m_time_left_lever > 0) {

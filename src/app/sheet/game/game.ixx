@@ -3,6 +3,7 @@ import sheet;
 import bitmap_text;
 import console;
 import camera;
+import collision_grid;
 import aabb;
 import entity;
 import entity.particle;
@@ -35,6 +36,8 @@ export namespace sheet {
 
         std::vector<I32> m_level_sprites;
 
+        Vec2F m_num_level_tiles{};
+
         std::vector<entity::Object*> m_entity_objects,
                                      m_bridge_entity_objects,
                                      m_trigger_entity_objects,
@@ -49,7 +52,11 @@ export namespace sheet {
 
         U8 m_time_left_moving_camera = 0;
 
+        I32 test_aabb = -1;
+        I32 m_mouse_transform = -1;
+
     public:
+        const char* class_name() override { return "sheet::Game"; }
         Game() = delete;
         Game(cU16 window_w, cU16 window_h, const std::filesystem::path level_path, start::Info start_info);
         ~Game() {
@@ -57,6 +64,9 @@ export namespace sheet {
         }        
         void clear() {
             console::log("sheet::Game::clear()\n");
+
+            //entity::clear_parsed_configs();
+
             camera::remove_transform(m_level_transform);
             camera::remove_transform(m_player.transform());
             camera::difference = 0.0F;
@@ -95,6 +105,8 @@ export namespace sheet {
 
             transform::erase(m_level_transform);
             input::erase(m_input);
+
+            collision_grid::reset();
         }
         void check_to_add_input_from(entity::Object* trigger_entity);
 
@@ -115,6 +127,6 @@ export namespace sheet {
 
         void load_level(const std::filesystem::path& path);
 
-        void quad_trees_check_collision();
+        void check_collision();
     };
 }

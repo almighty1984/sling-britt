@@ -8,10 +8,19 @@ import sprite;
 export namespace entity {
     class Track : public Object {
     public:
+        const char* class_name() override { return "entity::Track"; }
         Track() {
             m_input_limit = 1;
         }
         void update(cF32 dt) override {
+            if (m_is_first_update) {
+                m_is_first_update = false;
+                //direction(m_input_objects.back()->direction());
+
+                //if (m_type == Type::track_LR) {
+                    //console::log(class_name(), "::update() direction: ", direction().x, " ", direction().y, "\n");
+                //}
+            }
             m_time_left_alive = 0;
 
             //sprite()->is_hidden = false;
@@ -38,7 +47,7 @@ export namespace entity {
             if (!m_is_powered) {
                 m_time_left_alive = 0;
             }
-            sprite::is_hidden(m_sprite, !m_is_powered);
+            sprite_is_hidden(!m_is_powered);
 
             //console::log("is_powered: ", m_is_powered, "\n");
 

@@ -98,7 +98,8 @@ export namespace health {
 
     size_t  size() { return s_bars.size(); }
 
-    bool  is_max(cI32 i) { return is_valid(i) ? s_bars.at(i)->amount >= s_bars.at(i)->max : false; }
+    bool  is_zero(cI32 i) { return is_valid(i) ? s_bars.at(i)->amount <= 0.0F : true; }
+    bool  is_max(cI32 i)  { return is_valid(i) ? s_bars.at(i)->amount >= s_bars.at(i)->max : false; }
 
     U8    layer(cI32 i)     { return is_valid(i) ? s_bars.at(i)->layer     :       0; }
     F32   amount(cI32 i)    { return is_valid(i) ? s_bars.at(i)->amount    :    0.0F; }

@@ -10,6 +10,7 @@ export namespace entity {
         ParticleInteract() {
             m_type = Type::particle_interact;
         }
+        const char* class_name() override { return "entity::ParticleInteract"; }
         void collide_x(aabb::cInfo our, aabb::cInfo other) override;
         void collide_y(aabb::cInfo our, aabb::cInfo other) override;
     };

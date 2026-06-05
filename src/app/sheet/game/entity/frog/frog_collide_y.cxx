@@ -6,7 +6,7 @@ import particle_system;
 
 namespace entity {
     void Frog::collide_y(aabb::cInfo our, aabb::cInfo other) {
-        if (!our.owner or !other.owner) return;
+        if (!our.owner or !other.owner or is_dead()) return;
 
         aabb::cName our_name = aabb::name(our.id);
 
@@ -24,8 +24,8 @@ namespace entity {
 
         cF32 overlap_y = our_UL.y < other_UL.y ? our_DR.y - other_UL.y : -(other_DR.y - our_UL.y);
 
-        cVec2F other_velocity = other.owner->velocity() + other.owner->moved_velocity();
-        cVec2F our_velocity = velocity() + moved_velocity();
+        cVec2F other_velocity = other.owner->velocity() + other.owner->move_velocity();
+        cVec2F our_velocity = velocity() + move_velocity();
 
        
         if (m_state == state::Type::swim) {
@@ -43,11 +43,11 @@ namespace entity {
             case Type::clip_ledge:{
                 position_add_y(-overlap_y);
                 velocity_y(0.0F);
-                moved_velocity_y(0.0F);
+                move_velocity_y(0.0F);
                 if (our_UL.y < other_UL.y) {
                     m_is_on_ground = true;
                     m_is_on_slope = false;
-                    moved_velocity_x(0.0F);
+                    move_velocity_x(0.0F);
                 }
                 break;
             }
@@ -57,8 +57,8 @@ namespace entity {
                 position_add_y(-overlap_y);
 
                 velocity_y(0.0F);
-                moved_velocity_y(0.0F);
-                moved_velocity_x(0.0F);
+                move_velocity_y(0.0F);
+                move_velocity_x(0.0F);
                 m_is_on_ground = true;
                 m_is_on_slope = other_type == Type::slope_U;
                 break;
@@ -106,7 +106,7 @@ namespace entity {
                     //m_time_left_bouncing = m_time_to_bounce;
                     return;
                 }
-                moved_velocity(other_velocity);
+                move_velocity(other_velocity);
                 //velocity_x(velocity().x * 0.5F);
                 velocity_y(0.0F);
                 m_is_on_ground = true;
@@ -117,8 +117,8 @@ namespace entity {
                     position_add_y(-overlap_y);
                     velocity_y(-4.0F);
 
-                    velocity_x(other.owner->velocity().x + other.owner->moved_velocity().x);
-                    velocity_add({ 0.0F, other.owner->velocity().y + other.owner->moved_velocity().y });
+                    velocity_x(other.owner->velocity().x + other.owner->move_velocity().x);
+                    velocity_add({ 0.0F, other.owner->velocity().y + other.owner->move_velocity().y });
 
                     Vec2F our_center = Vec2F{ our_UL.x + (our_DR.x - our_UL.x) / 2.0F,     our_UL.y + (our_DR.y - our_UL.y) / 2.0F };
                     Vec2F other_center = Vec2F{ other_UL.x + (other_DR.x - other_UL.x) / 2.0F, other_UL.y + (other_DR.y - other_UL.y) / 2.0F };
@@ -139,7 +139,7 @@ namespace entity {
                 position_add_y(-overlap_y);
 
                 velocity_y(0.0F);
-                moved_velocity_y(0.0F);
+                move_velocity_y(0.0F);
                 //if (velocity().x < 0.0F) {
                 velocity_y(velocity().x / -2.0F);
                 //}        
@@ -148,7 +148,7 @@ namespace entity {
                 if (velocity().x > max_velocity().x * 0.9F) {
                     velocity_x(max_velocity().x * 0.9F);
                 }
-                moved_velocity_x(0.0F);
+                move_velocity_x(0.0F);
                 break;
             }
             case Type::slope_R_1x1: {
@@ -156,7 +156,7 @@ namespace entity {
                 position_add_y(-overlap_y);
 
                 velocity_y(0.0F);
-                moved_velocity_y(0.0F);
+                move_velocity_y(0.0F);
                 //if (velocity().x > 0.0F) {
                 velocity_y(velocity().x);
                 //}
@@ -165,7 +165,7 @@ namespace entity {
                 if (velocity().x < -max_velocity().x * 0.7F) {
                     velocity_x(-max_velocity().x * 0.7F);
                 }
-                moved_velocity_x(0.0F);
+                move_velocity_x(0.0F);
                 break;
             }
             case Type::slope_R_2x1_0:
@@ -174,7 +174,7 @@ namespace entity {
                 position_add_y(-overlap_y);
 
                 velocity_y(0.0F);
-                moved_velocity_y(0.0F);
+                move_velocity_y(0.0F);
                 if (velocity().x > 0.0F) {
                     velocity_y(velocity().x / 2.0F);
                 }
@@ -183,7 +183,7 @@ namespace entity {
                 if (velocity().x < -max_velocity().x * 0.9F) {
                     velocity_x(-max_velocity().x * 0.9F);
                 }
-                moved_velocity_x(0.0F);
+                move_velocity_x(0.0F);
                 break;
             }
             case Type::player: {
@@ -203,8 +203,8 @@ namespace entity {
                     velocity_y(other_velocity.y * 0.5F - 3.0F + (F32)rand_num);
 
                     /*if (other.owner->transform()) {
-                        velocity_x(other.owner->velocity().x + other.owner->moved_velocity().x;
-                        velocity().y += (other.owner->velocity().y + other.owner->moved_velocity().y);
+                        velocity_x(other.owner->velocity().x + other.owner->move_velocity().x;
+                        velocity().y += (other.owner->velocity().y + other.owner->move_velocity().y);
                     }*/
 
                     if (other_velocity.y < 0.0F) {

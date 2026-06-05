@@ -107,7 +107,7 @@ namespace entity {
                 }
                 position_add_x(-overlap_x);
                 velocity_x(velocity().x * -1.0F);
-                moved_velocity_x(0.0F);
+                move_velocity_x(0.0F);
                 sprite_is_leftward(!sprite_is_leftward());
                 break;
             }
@@ -121,7 +121,7 @@ namespace entity {
                 
                 
                     velocity_x(our_velocity.x * -0.9F);
-                    moved_velocity_x(0.0F);
+                    move_velocity_x(0.0F);
                     sprite_is_leftward(!sprite_is_leftward());
                     //time_left_colliding_with(other_type, 4);
                 }
@@ -148,7 +148,7 @@ namespace entity {
                 position_add_x(-overlap_x);
                 //}
 
-                moved_velocity_x(0.0F);
+                move_velocity_x(0.0F);
                 //if (m_time_left_turning > 0 or !m_is_on_ground) return;
 
                 if (m_state == state::Type::swim) {
@@ -200,9 +200,9 @@ namespace entity {
             }
             case Type::clip_L:
             case Type::clip_LD: {
-                if (velocity().x + moved_velocity().x < 0.0F) return;
+                if (velocity().x + move_velocity().x < 0.0F) return;
                 position_add_x(-overlap_x);
-                moved_velocity_x(0.0F);
+                move_velocity_x(0.0F);
 
                 if (m_state == state::Type::swim) {
                     console::log(class_name(), "::collide_x swim ", to_string(other_type), "\n");
@@ -236,10 +236,10 @@ namespace entity {
             }
             case Type::clip_R:
             case Type::clip_RD: {
-                if (velocity().x + moved_velocity().x > 0.0F) return;
+                if (velocity().x + move_velocity().x > 0.0F) return;
 
                 position_add_x(-overlap_x);
-                moved_velocity_x(0.0F);
+                move_velocity_x(0.0F);
 
                 if (m_state == state::Type::swim) {
                     console::log(class_name(), "::collide_x swim ", to_string(other_type), "\n");
@@ -410,7 +410,7 @@ namespace entity {
             }
             case Type::slope_L_2x1_0:
             case Type::slope_L_2x1_1: {
-                moved_velocity({});
+                move_velocity({});
                 if (velocity().x > 0.0F) {
                     velocity_y(-velocity().x / 2.0F);
                 }
@@ -420,7 +420,7 @@ namespace entity {
             }
             case Type::slope_R_2x1_0:
             case Type::slope_R_2x1_1: {
-                moved_velocity({});
+                move_velocity({});
                 if (velocity().x < 0.0F) {
                     velocity_y(velocity().x / 2.0F);
                 }

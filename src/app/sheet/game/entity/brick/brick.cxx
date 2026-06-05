@@ -18,7 +18,7 @@ namespace entity {
         //console::log(class_name(), "::carried ", velocity().x, " ", velocity().y, "\n");
 
         velocity(m_parent->velocity());
-        moved_velocity({});
+        move_velocity({});
         cF32 carry_offset_x = 10.0F;
         if (sprite::is_leftward(m_parent->sprite())) {
             if (position().x < m_parent->position().x - carry_offset_x) {
@@ -43,7 +43,7 @@ namespace entity {
             }
         }
 
-        sprite::is_leftward(m_sprite, position().x + 16.0F < m_parent->position().x + 8.0F);
+        sprite_is_leftward(position().x + 16.0F < m_parent->position().x + 8.0F);
 
         position_y(m_parent->position().y + 2.0F);
         /*if (m_parent->is_ducking()) {
@@ -68,7 +68,7 @@ namespace entity {
     void Brick::state_dead(cF32 dt) {
         if (m_is_first_state_update) {
             m_is_first_state_update = false;
-            m_time_left_dead = m_time_to_be_dead;
+            m_time_left_dead = m_config.time_to_be_dead();
             m_time_left_alive = 0;
             console::log(class_name(), "::state_dead()\n");
             if (m_parent) {
@@ -84,21 +84,16 @@ namespace entity {
             //particle::spawn(this, particle::Type::hit, position(), {});
 
             console::log(class_name(), "::dead velocity.x ", velocity().x, "\n");
-
-            particle::spawn_fan(this, 0.0F, 360.0F, 8,
-                                particle::Type::brick,
-                                position() + Vec2F{ 6.0F, -4.0F },
-                                velocity() * 1.0F, 1.0F,
-                                state::Type::idle);
         }
-        //velocity({});
-        //moved_velocity({});
+        velocity({});
+        move_velocity({});        
+        deceleration(start_deceleration());
 
         set_anim("dead");
 
         //console::log(class_name(), "::state_dead() start position: ", start_position().x, " ", start_position().y, "\n");
 
-        if (m_time_left_dead > 0 and m_time_to_be_dead != U16_MAX) {
+        if (m_time_left_dead > 0 and m_config.time_to_be_dead() != U16_MAX) {
             --m_time_left_dead;
             if (m_time_left_dead == 0) {
                 console::log(class_name(), "::dead done being dead\n");                
@@ -113,18 +108,90 @@ namespace entity {
 
             m_parent = nullptr;
 
-            sprite::is_hidden(m_sprite, false);
+            sprite_is_hidden(false);
             for (auto& i : m_aabbs) {
                 aabb::is_active(i, true);
             }
             velocity({});
-            moved_velocity({});
+            move_velocity({});
             acceleration(start_acceleration());
             max_velocity(start_max_velocity());
         }
-        if (m_is_on_ground) {
-            deceleration({ 0.2F, 0.0F });
+
+        /*if (move_velocity().x < 0.0F) {
+            move_velocity_x(move_velocity().x + deceleration().x);
         }
+        else if (move_velocity().x > 0.0F) {
+            move_velocity_x(move_velocity().x - deceleration().x);
+        }*/
+
+
+        
+
+        if (m_parent and m_parent->state() == state::Type::idle) {
+            //console::log("inputs: ", m_input_objects.size(), "\n");
+
+            //if (position().y + 16.0F < m_parent->position().y + 2.0F) {
+                //move_velocity({});
+                velocity_x(m_parent->velocity().x);
+                velocity_y(m_parent->velocity().y);
+                //deceleration({ 0.0F, 0.0F });
+            //}
+            if (position().y + 16.0F > m_parent->position().y + 2.0F) {
+                console::log(class_name(), "::state_idle() parent: null\n");
+                m_parent = nullptr;
+                m_is_on_ground = false;                
+                //deceleration(start_deceleration());
+                //m_input_objects.clear();
+            }
+            //if (velocity().y > acceleration().y) {
+                //m_is_on_ground = false;
+            //}
+        }
+
+        
+
+        // Inputs are objects stacked on top
+        for (auto it = m_input_objects.begin(); it != m_input_objects.end(); ++it) {
+            if (!*it) continue;
+
+            if (//(*it)->position().y + 16.0F < position().y or
+                (*it)->position().y + 16.0F > position().y + 2.0F or
+                (*it)->position().x >= position().x + 16.0F or
+                (*it)->position().x + 16.0F <= position().x
+                ) {
+                //console::log(class_name(), "::state_idle() brick erase input\n");
+                it = m_input_objects.erase(it);
+                if (it == m_input_objects.end()) {
+                    break;
+                }
+            }
+        }
+        /*if (m_is_on_ground) {
+            deceleration_x(0.2F);
+        }*/
+
+        //++m_time_in_state;
+        deceleration_x(0.02F);
+        if (m_is_on_ground) {
+            //if (m_time_in_state > 2) {
+                //m_time_in_state = 0;
+            force_y((m_input_objects.size() + 1.0F) / 4.0F);
+
+            deceleration_x(force().y);
+
+            //console::log("force y: ", force().y, "\n");
+            //if (velocity().y > acceleration().y) {
+            //m_input_objects.clear();
+            //}
+
+            //velocity_x(velocity().x * (1.0F - force().y));
+        //}
+        //if (num_inputs() == 0) {            
+            //deceleration(start_deceleration());
+        //}
+        }
+
     }
     void Brick::state_swim(cF32 dt) {
         if (m_is_first_state_update) {
@@ -139,6 +206,7 @@ namespace entity {
             m_is_on_ground = false;
 
             deceleration({ 0.0F, 0.0F });
+            m_parent = nullptr;
         }
         if (m_is_on_ground) {
             deceleration({ 0.1F, 0.0F });

@@ -25,7 +25,7 @@ namespace entity {
 
         set_anim("hurt");
         m_tounge_start = transform::position(m_transform) + Vec2F{ 8.0F, 6.0F };
-        m_tounge_end = m_sensed_position + Vec2F{ 8.0F, 8.0F };
+        m_tounge_end = m_sensed_offset + Vec2F{ 8.0F, 8.0F };
 
         line::max_length(m_tounge_line, 32.0F - m_time_in_state * 4.0f);
         if (line::max_length(m_tounge_line) < 1.0f) {

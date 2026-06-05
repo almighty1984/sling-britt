@@ -21,6 +21,8 @@ export namespace sheet {
         BitmapText m_edit_text,
                    m_game_text,
                    m_options_text;
+
+        bool m_is_mouse_on_selection = false;
     public:
         MenuStart() = delete;
         MenuStart(cU16 window_w, cU16 window_h);

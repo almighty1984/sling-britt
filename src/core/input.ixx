@@ -31,6 +31,9 @@ export namespace input {
     Vec2F mouse{ 0.0F, 0.0F }, mouse_prev{ 0.0F, 0.0F };
     F32   scroll = 0.0F;
 
+    bool mouse_moved = false;
+    //bool mouse_moved() { return std::abs(mouse.x - mouse_prev.x) <= 0.1F and std::abs(mouse.y - mouse_prev.y) <= 0.1F; }
+
     constexpr bool is_valid(size_t i) { return (i < s_listeners.size() and s_listeners.at(i)) ? true : false; }
 
     void press(cI32 i, input::Key k)      { if (is_valid(i)) s_listeners.at(i)->press(k);                  }
@@ -50,6 +53,7 @@ export namespace input {
     void handle_events(std::unique_ptr<Window>& window) {
         while (const std::optional sf_event = window->poll_event()) {
             scroll = 0.0F;
+            
             if (sf_event->is<sf::Event::Closed>()) {
                 window->close();
             }
@@ -82,13 +86,16 @@ export namespace input {
                     }
                 }
             }
-            else if (const auto* sf_mouse_moved = sf_event->getIf<sf::Event::MouseMoved>()) {
+            else if (const auto* sf_mouse_moved = sf_event->getIf<sf::Event::MouseMoved>()) {                
                 F32 screen_w = window->w() / window->view().w;
                 F32 screen_h = window->h() / window->view().h;
 
                 //console::log("window size: ", window->w(), " ", window->h(), "\n");
                 //console::log("screen: ", screen_w, " ", screen_h, "\n");
 
+                mouse_moved = true;
+
+                mouse_prev = mouse;
                 mouse = { (F32)(sf_mouse_moved->position.x / window->scale() / screen_w),
                           (F32)(sf_mouse_moved->position.y / window->scale() / screen_h)};
             }
@@ -101,7 +108,7 @@ export namespace input {
                     }
                 }
                 if (button == Button::left) {
-                    mouse_prev = { (F32)(sf_mouse_pressed->position.x / window->scale()), (F32)(sf_mouse_pressed->position.y / window->scale()) };
+                    //mouse_prev = { (F32)(sf_mouse_pressed->position.x / window->scale()), (F32)(sf_mouse_pressed->position.y / window->scale()) };
                 }
                 else if (button == Button::right) {
                     //m_mouse_x = mouse_pressed->position.x;

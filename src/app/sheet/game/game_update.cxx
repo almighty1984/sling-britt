@@ -13,6 +13,8 @@ import sound;
 import particle_system;
 import sheet.game.save;
 
+std::mutex quad_tree_insert_mutex;
+
 namespace sheet {
     void Game::update_unlocked(cF32 dt) {
         for (auto& i : m_unlocked_entity_objects) {
@@ -96,7 +98,7 @@ namespace sheet {
                 if (entity and !entity::is_water_line(entity->type()) and !entity::is_track(entity->type())) {
                     if (!entity->is_start_in_view() and
                         entity->state() == state::Type::dead and
-                        entity->time_left_dead() == 0 and entity->time_to_be_dead() != U16_MAX) {
+                        entity->time_left_dead() == 0) {
                         console::log("sheet::Game::update() ", entity::to_string(entity->type()), " lives again!\n");
                         entity->next_state(entity->start_state());
                         entity->position(entity->start_position());
@@ -227,12 +229,85 @@ namespace sheet {
         //app::config::view(view());
         particle::update(dt);
 
-        quad_trees_check_collision();
-
-
+        check_collision();
 
         particle::check_to_erase();
         particle::check_to_spawn();
         
+
+        //console::log("player aabb 0: ", m_player.aabb_id(0), "\n");
+
+
+        //collision_grid::clear();
+
+
+
+        //console::log("aabb size: ", aabb::size(), "\n");
+
+        //I32 count_per_thread = aabb::size() / 4;
+
+        //I32 thread_count = 8;
+
+        //std::vector<std::thread> threads;
+
+        //I32 prev_end = 0;
+
+        //for (int j = 0; j < thread_count; ++j) {
+        //    threads.emplace_back(
+        //        std::thread{ [&]() {
+        //                for (size_t i = prev_end; i < prev_end + aabb::size() / thread_count; ++i) {
+        //                    std::unique_lock<std::mutex> quad_tree_insert_lock(quad_tree_insert_mutex);
+        //                    collision_grid::insert(aabb::UL(i) + camera::position, i);
+        //                    collision_grid::insert(aabb::UR(i) + camera::position, i);
+        //                    collision_grid::insert(aabb::DL(i) + camera::position, i);
+        //                    collision_grid::insert(aabb::DR(i) + camera::position, i);
+        //                    quad_tree_insert_lock.unlock();
+
+        //                    collision_grid::check_collision(i);
+        //                }
+        //            } }
+        //    );
+        //    //console::log("prev end: ", prev_end, "\n");
+        //    prev_end += aabb::size() / thread_count;
+        //}
+        //
+        //for (auto& thread : threads) {
+        //    if (thread.joinable()) {
+        //        thread.join();
+        //    }
+        //}
+        /*for (size_t i = 0; i < aabb::size(); ++i) {
+            if (i == test_aabb) {
+                continue;
+            }
+            collision_grid::insert(aabb::UL(i) + camera::position, i);
+            collision_grid::insert(aabb::UR(i) + camera::position, i);
+            collision_grid::insert(aabb::DL(i) + camera::position, i);
+            collision_grid::insert(aabb::DR(i) + camera::position, i);
+
+            collision_grid::check_collision(i);
+        }*/
+
+
+        collision_grid::update();
+        //collision_grid::check_collision();
+
+        //for (size_t i = 0; i < aabb::size(); ++i) {
+            
+        //}
+        
+        transform::position(m_mouse_transform, input::mouse);
+        //console::log("position: ", transform::position(m_mouse_transform).x + camera::position.x, " ",
+          //                         transform::position(m_mouse_transform).y + camera::position.y, "\n");
+        //cRectF range = { input::mouse.x + camera::position.x, input::mouse.y + camera::position.y, 32, 32 };
+
+        //std::set<I32> found;
+        //found = collision_grid::query(test_aabb, found);
+
+        //console::log("found size: ", found.size(), "\n");
+
+        //collision_grid::check_collision(found);
+
+        //console::log(collision_grid::aabbs_at(input::mouse + camera::position).size(), "\n");
     }
 }

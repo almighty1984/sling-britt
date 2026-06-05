@@ -7,9 +7,11 @@ namespace entity {
         if (!culprit or m_time_left_hurt > 0) {
             return false;
         }
-        m_time_left_hurt = m_time_to_hurt;
+        m_time_left_hurt = m_config.time_to_hurt();
 
         Vec2F add_to_position = { 0.0F, 0.0F };
+
+        F32 vel_factor = 1.0F;
 
         if (culprit->type() == entity::Type::player) {
             console::log("entity::Bug::hurt player vel y: ", culprit->velocity().y, "\n");
@@ -67,6 +69,16 @@ namespace entity {
 
         position_add(add_to_position);
 
+        
+        if (health_amount() <= 0.0F) {
+            vel_factor = 4.0F;
+            max_velocity({ 10.0F, 10.0F });
+            cVec2F vel_normal = Vec2F::normalize(culprit->velocity());
+            velocity(vel_normal * vel_factor);
+            m_time_left_in_state = 0;
+            m_next_state = state::Type::dead;
+        }
+
         return true;
     }
 
@@ -99,7 +111,7 @@ namespace entity {
 
 
         velocity(m_parent->velocity());
-        moved_velocity({});
+        move_velocity({});
         if (sprite::is_leftward(m_parent->sprite())) {
             if (position().x < m_parent->position().x - 12.0F) {
                 position_x(m_parent->position().x - 12.0F);
@@ -164,7 +176,7 @@ namespace entity {
     void Bug::state_dead(cF32 dt) {
         if (m_is_first_state_update) {
             m_is_first_state_update = false;
-            m_time_left_dead = m_time_to_be_dead;
+            m_time_left_dead = m_config.time_to_be_dead();
             reset_anim("dead");
             //console::log("prev state: ", entity::to_string(m_prev_state), "\n");
             if (m_prev_state == state::Type::upended or m_prev_state == state::Type::bounce) {
@@ -190,14 +202,14 @@ namespace entity {
                 m_parent = nullptr;
             }
         }
-        if (m_time_left_dead > 0 and m_time_to_be_dead != U16_MAX) {
+        if (m_time_left_dead > 0 and m_config.time_to_be_dead() != U16_MAX) {
             --m_time_left_dead;
             if (m_time_left_dead == 0) {
                 console::log("entity::Bug::dead done being dead\n");
             }
         }
         velocity({});
-        moved_velocity({});
+        move_velocity({});
     }
     void Bug::state_hurt(cF32 dt) {
         if (m_is_first_state_update) {
@@ -292,7 +304,8 @@ namespace entity {
             acceleration(start_acceleration());
             deceleration(start_deceleration());
 
-            sprite::is_hidden(m_sprite, false);
+            sprite_is_hidden(false);
+            sprite_is_upended(false);
             for (auto& i : m_aabbs) {
                 aabb::is_active(i, true);
             }
@@ -305,7 +318,7 @@ namespace entity {
 
         if (m_is_on_ground) {
             //console::log("entity::Bug walk on ground\n");
-            moved_velocity({});
+            move_velocity({});
             velocity({ sprite::is_leftward(m_sprite) ? -0.5F : 0.5F, velocity().y });
         }
         else {

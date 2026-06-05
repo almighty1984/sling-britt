@@ -103,7 +103,6 @@ export namespace entity {
             Object::draw(window);
             sprite::draw(window, m_sling_shot_sprite);
             sprite::draw(window, m_target_sprite);
-
         }
 
 
