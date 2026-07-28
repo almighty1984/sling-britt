@@ -101,7 +101,7 @@ export namespace entity {
             if (!m_is_on_slope and (velocity().y < 0.0F or velocity().y > acceleration().y)) {
                 m_is_on_ground = false;
             }
-            m_weight = m_start_weight;
+            m_weight = m_config.weight();
             if (m_inputs.empty()) return;
             //if (m_weight == m_start_weight) {                
                 for (auto& i : m_inputs) {

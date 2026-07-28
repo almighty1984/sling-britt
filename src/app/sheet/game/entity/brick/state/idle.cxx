@@ -5,7 +5,7 @@ namespace entity {
         if (m_is_first_state_update) {
             m_is_first_state_update = false;
 
-            m_weight = m_start_weight;
+            m_weight = m_config.weight();
             m_time_in_state = 0;
             m_time_left_alive = U16_MAX;
 

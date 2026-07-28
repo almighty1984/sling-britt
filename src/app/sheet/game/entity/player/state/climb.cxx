@@ -24,7 +24,7 @@ namespace entity {
             sound_play("climb");
 
             velocity_x(0.0F);
-            velocity_y(-2.8);
+            velocity_y(-2.6F);
             reset_anim("climb");
             //++m_num_jumps;
             //if (m_num_jumps > 2) {

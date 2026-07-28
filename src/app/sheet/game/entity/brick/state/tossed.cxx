@@ -5,7 +5,7 @@ namespace entity {
         if (m_is_first_state_update) {
             m_is_first_state_update = false;
             m_is_on_ground = false;
-            m_weight = m_start_weight;
+            m_weight = m_config.weight();
 
             deceleration({ 0.0F, 0.0F });
             //m_parent = nullptr;

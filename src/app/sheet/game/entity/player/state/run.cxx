@@ -344,7 +344,7 @@ namespace entity {
                     ) {
                     console::log(class_name(), "::state_run() drop carried\n");
                     m_is_carrying = false;
-                    m_weight = m_start_weight;
+                    m_weight = m_config.weight();
                     lock(key_down);
                 }
             }

@@ -131,6 +131,7 @@ namespace entity {
             case Type::bridge: {
                 position_add_y(-overlap_y);
                 velocity_y(0.0F);
+                move_velocity_y(0.0F);
                 m_is_on_ground = true;
                 break;
             }

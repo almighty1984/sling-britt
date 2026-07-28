@@ -142,7 +142,7 @@ namespace sheet {
         sprite::is_hidden(m_text_current_tile_set_bg_sprite, true);
 
         m_text_current_tile_set.is_hidden(true);
-           
+
         for (auto& i : m_is_hidden_layer_sprites) {
             sprite::layer(i, MENU_TEXT_LAYER);
         }
@@ -161,12 +161,19 @@ namespace sheet {
         if (m_level_path.empty()) {
             m_text_bar.clear_text();
         } else {
+            console::log("sheet::Edit::exit_tile_set() ", m_level_path.string(), "\n");
             m_text_bar.set_text(m_level_path.string());
         }
 
         for (auto& i : m_selection_on_tile_set_sprites) {
             sprite::is_hidden(i, true);
         }
+
+        //console::log("visible: ");
+        //for (auto& i : m_visible_layers) {
+        //    console::log((int)i, " ");
+        //}
+        //console::log("\n");
     }
     void Edit::move_tile_set(cVec2F amount) {
         //console::log("sheet::Edit::move_tile_set ", amount.x, " ", amount.y, " ", " position: ", transform::get(m_tile_set_transform)->position.x, " ", transform::get(m_tile_set_transform)->position.y, "\n");        

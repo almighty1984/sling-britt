@@ -138,9 +138,11 @@ public:
     std::vector<I32>& get_sprites() { return m_sprites; }
 
     void set_text(const std::string& text) {
-        if (text == m_text or text.empty()) return;
+        if (text == m_text) return;
         clear_text();
         m_text = text;
+        if (text.empty()) return;
+        
         F32 x = 0.0F, y = 0.0F;
         //console::log("BitmapText::set_text ");
         for (size_t i = 0; i < m_text.size(); ++i) {

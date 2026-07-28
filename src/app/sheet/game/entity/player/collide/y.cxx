@@ -777,6 +777,7 @@ namespace entity {
                 break;
             }
             case Type::spring_U: {
+                //if (!m_is_down_thrusting and our_DR.y < other_UL.y + 4.0F) return;
                 //if (velocity().y < 0.0F) return;                
                 //position_add_y(-overlap_y);
                 position_y(other_UL.y - our_extent.y);

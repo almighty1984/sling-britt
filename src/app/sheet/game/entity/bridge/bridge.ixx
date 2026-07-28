@@ -8,7 +8,9 @@ import sprite;
 export namespace entity {
     class Bridge : public Object {
         F32 m_offset_from_L = 0.0F,
-            m_offset_from_R = 0.0F;
+            m_offset_from_R = 0.0F,
+            m_up_force      = 0.0F;
+
     public:
         Bridge() {
             m_state = m_next_state = m_start_state = state::Type::idle;

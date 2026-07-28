@@ -111,11 +111,11 @@ namespace sheet {
             sprite::transform(m_is_hidden_layer_sprites.back(), m_menu_right_transform);
         }
 
-
         m_text_bar_bg_sprite = sprite::make("res/texture/editor/text_bar_bg.png");
+        //sprite::is_hidden(m_text_bar_bg_sprite, true);
         sprite::offset(m_text_bar_bg_sprite, { 0.0F, 0.0F });
         sprite::rect(m_text_bar_bg_sprite, { 0, 0, 272, 16 });
-        sprite::layer(m_text_bar_bg_sprite, MENU_TEXT_LAYER);
+        sprite::layer(m_text_bar_bg_sprite, MENU_TEXT_BG_LAYER);
         sprite::transform(m_text_bar_bg_sprite, m_menu_down_transform);
 
         m_text_bar.transform(m_menu_down_transform);
@@ -129,7 +129,7 @@ namespace sheet {
         m_text_current_tile_set_bg_sprite = sprite::make("res/texture/editor/text_current_tile_set_bg.png");
         sprite::offset(m_text_current_tile_set_bg_sprite, { 0.0F, 0.0F });
         sprite::rect(m_text_current_tile_set_bg_sprite, { 0, 0, 32, 16 });
-        sprite::layer(m_text_current_tile_set_bg_sprite, MENU_BG_LAYER);
+        sprite::layer(m_text_current_tile_set_bg_sprite, MENU_TEXT_BG_LAYER);
         sprite::transform(m_text_current_tile_set_bg_sprite, m_menu_right_transform);
         sprite::is_hidden(m_text_current_tile_set_bg_sprite, true);
 
@@ -149,7 +149,6 @@ namespace sheet {
         m_grid_transform = transform::make();
         m_grid_map_transform = transform::make();
         add_grid_at_offset({ 0.0F, 0.0F });
-
 
         m_position_on_grid_map_sprite = sprite::make("res/texture/tile_yellow.png");
         sprite::rect(m_position_on_grid_map_sprite, { 0, 0, 1, 1 });
@@ -208,16 +207,12 @@ namespace sheet {
         for (auto& i : m_selection_on_tile_set_sprites) sprite::erase(i);
         for (auto& i : m_selection_on_level_sprites)    sprite::erase(i);
         for (auto& i : m_moving_sprites)                sprite::erase(i);
-
-        for (auto& i : m_level_sprites)                 sprite::erase(i);
-        
+        for (auto& i : m_level_sprites)                 sprite::erase(i);        
         for (auto& i : m_grid_sprites)                  sprite::erase(i);
         for (auto& i : m_grid_map_sprites)              sprite::erase(i);
-
         for (auto& i : m_menu_up_bar_bg_sprites)        sprite::erase(i.second);
                 
         m_menu_up_lists.clear();
-
         m_types.clear();
     }
     /*void Edit::clear_mouse_sprites() {

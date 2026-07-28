@@ -90,8 +90,9 @@ export namespace sheet {
                  TILE_SET_LAYER              = 11,
                  SELECTION_ON_TILE_SET_LAYER = 11,
                  MENU_BG_LAYER               = 12,
-                 MENU_TEXT_LAYER             = 13,
-                 MOUSE_LAYER                 = 13;
+                 MENU_TEXT_BG_LAYER          = 13,
+                 MENU_TEXT_LAYER             = 14,
+                 MOUSE_LAYER                 = 14;
 
     class Edit : public Object {
     public:
@@ -263,7 +264,5 @@ export namespace sheet {
         void import_prefab_sprites(const std::filesystem::path& path);
 
         void update(cF32 ts) override;
-
-        void draw(std::unique_ptr<Window>& window, cU8 layer) override;
     };
 }

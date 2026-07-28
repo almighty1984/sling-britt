@@ -23,15 +23,14 @@ namespace entity {
 
                 add_inputs_from(other.owner);
                 add_input(other.owner);
+
+
                 //return;
                 //m_force.y += other.owner->weight();
                 //return;
                 
                 //console::log("offset from root: ", m_offset_from_L, " ", m_offset_from_R, "\n");
 
-                //F32 up_force = (m_offset_from_L * m_offset_from_R) / 1000.0F;
-
-                //console::log("up force: ", up_force, "\n");
 
                 if (other.owner->time_left_colliding_with(m_type) > 0) return;
 

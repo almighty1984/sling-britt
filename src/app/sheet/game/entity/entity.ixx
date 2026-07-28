@@ -105,7 +105,7 @@ export namespace entity {
             m_rotation_speed = 0.0F,
             m_swim_speed     = 0.0F,
             m_water_line_y   = 0.0F,
-            m_weight         = 1.0F, m_start_weight = 1.0F;
+            m_weight         = 1.0F;
 
         bool m_is_first_update = true,
              m_is_carrying     = false,
@@ -283,10 +283,9 @@ export namespace entity {
         F32 radians() const { return m_radians; }  void radians(cF32 r) { m_radians = r; }
         F32 degrees() const { return m_radians * 180.0F / 3.1415926535F; }
 
-        F32 weight()       const { return m_weight;       } void weight(cF32 w) { m_weight = w; }
-        F32 start_weight() const { return m_start_weight; }
+        F32 weight()  const { return m_weight; } void weight(cF32 w) { m_weight = w; }
 
-        Vec2F force() const { return m_force; }    void force(cVec2F f) { m_force = f; }
+        Vec2F force() const   { return m_force; }    void force(cVec2F f) { m_force = f; }
         void  force_x(cF32 x) { m_force.x = x; }
         void  force_y(cF32 y) { m_force.y = y; }
 

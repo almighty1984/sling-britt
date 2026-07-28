@@ -25,6 +25,8 @@ namespace entity {
 
         load_config("res/entity/player/britt.cfg");
 
+        m_weight = m_config.weight();
+
 
         m_sling_shot_sprite = sprite::make("res/texture/sling_shot.png");
         sprite::layer(m_sling_shot_sprite, NUM_VISIBLE_LAYERS - 1);
@@ -134,7 +136,7 @@ namespace entity {
                     object->time_left_interacting(10);
                     console::log(class_name(), "::interact pick up\n");
                     m_is_carrying = true;
-                    m_weight = m_start_weight + object->weight();
+                    m_weight = m_config.weight() + object->weight();
 
                     add_child(object);
                     object->parent(this);
@@ -154,7 +156,7 @@ namespace entity {
                         return;
                     }
                     m_is_carrying = false;
-                    m_weight = m_start_weight;
+                    m_weight = m_config.weight();
                     sprite::layer(object->sprite(), object->start_layer());
                     object->parent(this);
                     object->velocity(velocity() + move_velocity());
@@ -262,7 +264,7 @@ namespace entity {
         //console::log(class_name(), "::update() water line y: ", m_water_line_y, "\n");
         
         //console::log(class_name(), "::update() saved state: ", to_string(m_saved_state), "\n");
-        
+
         if (is_pressed(input::Key::ctrl)) {
             lock(key_up);
             lock(key_down);
