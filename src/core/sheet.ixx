@@ -32,17 +32,17 @@ export namespace sheet {
 
         start::Type m_next_level = start::Type::center;
 
-        bool m_is_drawing_debug     = false,
-             m_is_drawing_quad_tree = false,
-             m_is_to_change_view    = false,
-             m_is_to_player_save    = false;
+        bool m_is_drawing_aabb           = false,
+             //m_is_drawing_collision_grid = false,
+             m_is_to_change_view         = false,
+             m_is_to_save_game           = false;
     public:
         virtual const char* class_name() { return "sheet::Object"; }
 
-        bool is_drawing_debug()     const { return m_is_drawing_debug;     } void is_drawing_debug(bool q)     { m_is_drawing_debug     = q; }
-        bool is_drawing_quad_tree() const { return m_is_drawing_quad_tree; } void is_drawing_quad_tree(bool q) { m_is_drawing_quad_tree = q; }
-        bool is_to_change_view()    const { return m_is_to_change_view;    } void is_to_change_view(bool q)    { m_is_to_change_view    = q; }
-        bool is_to_player_save()    const { return m_is_to_player_save;    } void is_to_player_save(bool q)    { m_is_to_player_save    = q; }
+        bool is_drawing_aabb()           const { return m_is_drawing_aabb;           } void is_drawing_aabb(bool q)           { m_is_drawing_aabb           = q; }
+        //bool is_drawing_collision_grid() const { return m_is_drawing_collision_grid; } void is_drawing_collision_grid(bool q) { m_is_drawing_collision_grid = q; }
+        bool is_to_change_view()         const { return m_is_to_change_view;         } void is_to_change_view(bool q)         { m_is_to_change_view         = q; }
+        bool is_to_save_game()           const { return m_is_to_save_game;           } void is_to_save_game(bool q)           { m_is_to_save_game           = q; }
 
         virtual std::filesystem::path level_path_to_save() { return {}; }
         virtual ~Object() {

@@ -23,15 +23,21 @@ export namespace entity {
         void collide_y(aabb::cInfo our, aabb::cInfo other) override;
         
         void update(cF32 dt) override {
+            reduce_time_left(1);
+
             if (m_is_first_update) {
                 m_is_first_update = false;
                 //m_start_speed = -1.0F;
                 //velocity_x(m_start_speed);
-                //velocity({});
+                velocity({});
                 m_prev_velocity.x = m_start_speed;
+
+                //m_time_left_alive = 0;
+                //m_time_left_dead = 0;
             }
 
-            if (m_time_left_colliding > 0) --m_time_left_colliding;
+            //console::log(class_name(), "::update() ", m_time_left_colliding, "\n");
+
             //console::log("train position: ", position().x, " ", position().y, "\n");
             //console::log("is_powered: ", m_is_powered, "\n");
             //console::log("time_left_alive: ", m_time_left_alive, "\n");
@@ -70,6 +76,7 @@ export namespace entity {
             }
 
             if (m_time_left_alive > 0) {
+                //console::log(class_name(), "::update() alive\n");
                 if (m_start_speed > 0.0F and m_speed < m_start_speed) {
                     m_speed += 0.2F;
                 } else if (m_start_speed < 0.0F and m_speed > m_start_speed) {
@@ -81,7 +88,7 @@ export namespace entity {
                 }
                 if (velocity().x >= -0.05F and velocity().x <= 0.05F and
                     velocity().y >= -0.05F and velocity().y <= 0.05F) {
-                    console::log("entity::Train at zero\n");
+                    console::log(class_name(), "::update() at zero\n");
                     velocity(m_prev_velocity);
                 }
 
@@ -93,7 +100,7 @@ export namespace entity {
                 sound_position("run", sound_pos);
                 sound_is_looped("run", true);
 
-                if (!sound_is_playing("run")) {                    
+                if (!sound_is_playing("run")) {
                     sound_play("run");
                 }
 

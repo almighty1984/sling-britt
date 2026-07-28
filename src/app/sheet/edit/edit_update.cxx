@@ -25,8 +25,8 @@ namespace sheet {
                     sprite::save_level(m_level_path, m_grid_sprites);
                 }
 
-                load_menu_up_list(m_menu_up_labels[0], std::filesystem::current_path() / "res" / "level");
-                load_menu_up_list(m_menu_up_labels[1], std::filesystem::current_path() / "res" / "prefab");
+                load_menu_up_list(menu::Label::open, std::filesystem::current_path() / "res" / "level");
+                load_menu_up_list(menu::Label::import, std::filesystem::current_path() / "res" / "prefab");
             }
         }
         
@@ -49,7 +49,7 @@ namespace sheet {
         sprite::offset_x(m_current_tile_sprite, view().w - 32.0F);
         sprite::offset_x(m_grid_icon_sprite, view().w - 16.0f);
 
-        if (is_pressed(input::Key::v)) {
+        if (is_pressed(input::Key::v) and !m_is_typing_text_bar) {
             release(input::Key::v);
             m_is_to_change_view = true;
             if (view() == RectU{ 0, 0, 480, 270 }) {
@@ -77,13 +77,7 @@ namespace sheet {
         transform::position_x(m_menu_right_transform, view().w - sprite::rect(m_menu_right_bg_sprite).w);
         transform::position_y(m_menu_down_transform, view().h + 16.0F - std::fmodf(view().h, 16.0F) - sprite::rect(m_menu_down_bg_sprite).h);
 
-        if (is_pressed(input::Key::enter)) {
-            release(input::Key::enter);
-            m_is_hidden_grid = !m_is_hidden_grid;
-            for (auto& i : m_grid_sprites) {
-                sprite::is_hidden(i, m_is_hidden_grid);
-            }
-        }
+        
 
         if (!m_is_moving) {
             if (is_pressed(input::Key::ctrl) and is_pressed(input::Key::z)) {
@@ -97,17 +91,19 @@ namespace sheet {
             handle_typing_text_bar();
         }
         if (m_is_asked_to_remove_level.first) {
-            if (is_pressed(input::Key::y)) {
+            if (is_pressed(input::Key::y) or is_pressed(input::Key::enter)) {
                 release(input::Key::y);
+                release(input::Key::enter);
                 m_info_message.is_hidden(true);
-                remove_level(m_menu_up_lists[m_menu_up_labels[0]].text_items.at(m_is_asked_to_remove_level.second).get()->string());
-                m_menu_up_lists[m_menu_up_labels[0]].text_items.at(m_is_asked_to_remove_level.second).reset();
-                m_menu_up_lists[m_menu_up_labels[0]].text_items.clear();
-                load_menu_up_list(m_menu_up_labels[0], std::filesystem::current_path() / "res" / "level");
+                remove_level(m_menu_up_lists[menu::Label::open].text_items.at(m_is_asked_to_remove_level.second).get()->string());
+                m_menu_up_lists[menu::Label::open].text_items.at(m_is_asked_to_remove_level.second).reset();
+                m_menu_up_lists[menu::Label::open].text_items.clear();
+                load_menu_up_list(menu::Label::open, std::filesystem::current_path() / "res" / "level");
                 m_is_asked_to_remove_level = { false, 0 };
             }
-            else if (is_pressed(input::Key::n)) {
+            else if (is_pressed(input::Key::n) or is_pressed(input::Key::esc)) {
                 release(input::Key::n);
+                release(input::Key::esc);
                 m_info_message.is_hidden(true);
                 m_is_asked_to_remove_level = { false, 0 };
             }
@@ -131,6 +127,14 @@ namespace sheet {
             }
         }
 
+        if (is_pressed(input::Key::enter)) {
+            release(input::Key::enter);
+            m_is_hidden_grid = !m_is_hidden_grid;
+            for (auto& i : m_grid_sprites) {
+                sprite::is_hidden(i, m_is_hidden_grid);
+            }
+        }
+
         cVec2F mouse_remainder_16 = { std::fmodf(input::mouse.x, 16.0F), std::fmodf(input::mouse.y, 16.0F) };
         m_mouse_tile_position = input::mouse - mouse_remainder_16;
         transform::position(m_mouse_transform, m_mouse_tile_position);
@@ -148,9 +152,12 @@ namespace sheet {
             if (is_pressed(input::Key::g)) {
                 release(input::Key::g);
                 //console::log("offset: ", m_mouse_tile_position.x, " ", m_mouse_tile_position.y, "\n");
-                Vec2F grid_pos = m_mouse_tile_position * 16.0F;
-                if (!add_grid_at_offset(grid_pos)) {
-                    erase_grid_at_offset(grid_pos);
+                Vec2F grid_offset = m_mouse_tile_position * 16.0F;
+                if (!add_grid_at_offset(grid_offset)) {
+
+                    if (!erase_grid_at_offset(grid_offset)) {
+                        console::log("sheet::Edit::update() can't erase grid at offset: ", grid_offset.x, " ", grid_offset.y, "\n");
+                    }
                 }
                 return;
             }
@@ -281,8 +288,8 @@ namespace sheet {
             }
         }
         else {
-            transform::position(m_menu_up_lists[m_menu_up_labels[0]].transform, { 0.0F, m_menu_up_lists[m_menu_up_labels[0]].bg_h * -1.0F});
-            transform::position(m_menu_up_lists[m_menu_up_labels[1]].transform, { 0.0F, m_menu_up_lists[m_menu_up_labels[1]].bg_h * -1.0F });
+            transform::position(m_menu_up_lists[menu::Label::open].transform, { 0.0F, m_menu_up_lists[menu::Label::open].bg_h * -1.0F});
+            transform::position(m_menu_up_lists[menu::Label::import].transform, { 0.0F, m_menu_up_lists[menu::Label::import].bg_h * -1.0F });
             for (auto& i : m_mouse_sprites) {
                 sprite::is_hidden(i, false);
             }
@@ -423,15 +430,17 @@ namespace sheet {
                                             m_mouse_tile_position.y >= transform::position(m_menu_down_transform).y)
                 )
                 ) {
-                //console::log("sheet::Edit::update hello\n");
-                if (!is_pressed(input::Key::ctrl)) {
-                    deselect_all_on_tile_set();
-                }
-                for (auto& mouse_id : m_mouse_sprites) {
-                    cVec2F offset = transform::position(m_mouse_transform) -
-                                    transform::position(m_tile_set_transform) +
-                                    sprite::offset(mouse_id);
-                    select_on_tile_set(offset);
+                if (!m_mouse_sprites.empty()) {
+                    if (!is_pressed(input::Key::ctrl)) {
+                        deselect_all_on_tile_set();
+                    }
+                    for (auto& mouse_id : m_mouse_sprites) {
+                        cVec2F offset = transform::position(m_mouse_transform) -
+                            transform::position(m_tile_set_transform) +
+                            sprite::offset(mouse_id);
+                        console::log("sheet::Edit::update select on tile set: ", offset.x, " ", offset.y, "\n");
+                        select_on_tile_set(offset);
+                    }
                 }
             }
             else {

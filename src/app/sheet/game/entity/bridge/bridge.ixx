@@ -7,6 +7,8 @@ import sprite;
 
 export namespace entity {
     class Bridge : public Object {
+        F32 m_offset_from_L = 0.0F,
+            m_offset_from_R = 0.0F;
     public:
         Bridge() {
             m_state = m_next_state = m_start_state = state::Type::idle;
@@ -20,7 +22,6 @@ export namespace entity {
             if (m_is_first_update) {
                 m_is_first_update = false;
             }
-
             state_update(dt);
         }
     };

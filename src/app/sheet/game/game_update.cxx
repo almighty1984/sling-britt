@@ -17,7 +17,7 @@ std::mutex quad_tree_insert_mutex;
 
 namespace sheet {
     void Game::update_unlocked(cF32 dt) {
-        for (auto& i : m_unlocked_entity_objects) {
+        for (auto& i : m_unlocked_entities) {
             if (i) i->update(dt);
         }
     }
@@ -93,22 +93,15 @@ namespace sheet {
         m_bg_planes.update(dt);
         //console::log("focus transform: ", camera::focus_transform, " ", m_player.get_transform(), "\n");
 
-        std::for_each(/*std::execution::par_unseq, */m_entity_objects.begin(), m_entity_objects.end(),
+        std::for_each(/*std::execution::par_unseq, */m_entities.begin(), m_entities.end(),
             [dt](auto& entity) {
-                if (entity and !entity::is_water_line(entity->type()) and !entity::is_track(entity->type())) {
-                    if (!entity->is_start_in_view() and
-                        entity->state() == state::Type::dead and
-                        entity->time_left_dead() == 0) {
-                        console::log("sheet::Game::update() ", entity::to_string(entity->type()), " lives again!\n");
-                        entity->next_state(entity->start_state());
-                        entity->position(entity->start_position());
-                    }
+                if (entity and !entity::is_water_line(entity->type()) and !entity::is_track(entity->type())) {                    
                     entity->update(dt);
                 }
             }
         );
 
-        std::for_each(m_water_entity_objects.begin(), m_water_entity_objects.end(),
+        std::for_each(m_water_entities.begin(), m_water_entities.end(),
             [dt](auto& e) {
                 if (e) e->update(dt);
             }
@@ -135,11 +128,14 @@ namespace sheet {
 
         if (is_pressed(input::Key::g)) {
             release(input::Key::g);
-            m_is_drawing_debug = !m_is_drawing_debug;
+            m_is_drawing_aabb = !m_is_drawing_aabb;
         }
         if (is_pressed(input::Key::q)) {
             release(input::Key::q);
-            m_is_drawing_quad_tree = !m_is_drawing_quad_tree;
+            collision_grid::is_hidden(!collision_grid::is_hidden());
+
+            console::log("sheet::Game::update() collision grid is hidden: ", collision_grid::is_hidden(), "\n");
+            //m_is_drawing_collision_grid = !m_is_drawing_collision_grid;
         }
         /*if (is_pressed(input::Key::enter)) {
             release(input::Key::enter);
@@ -166,7 +162,7 @@ namespace sheet {
         }*/
 
         if (m_player.is_to_save()) {
-            m_is_to_player_save = true;
+            m_is_to_save_game = true;
             m_player.is_to_save(false);
         }
 
@@ -175,13 +171,13 @@ namespace sheet {
         //m_player3.update(dt);
 
         
-       /* for (auto& i : m_entity_objects) {
+       /* for (auto& i : m_entities) {
             if (i and i->time_left_alive() > 0) i->time_left_alive(i->time_left_alive() - 1);
         }*/
 
 
 
-        //console::log("entity objects size: ", m_entity_objects.size(), "\n");
+        //console::log("entity objects size: ", m_entities.size(), "\n");
 
         //m_sound.position({ (m_player.position().x + sprite::get(m_player.aabb_ids().front())->rect.w / 2.0F) / m_window_w,
         //                   (m_player.position().y + sprite::get(m_player.aabb_ids().front())->rect.h / 2.0F) / m_window_h });
@@ -229,7 +225,8 @@ namespace sheet {
         //app::config::view(view());
         particle::update(dt);
 
-        check_collision();
+        //check_collision();
+        collision_grid::update();
 
         particle::check_to_erase();
         particle::check_to_spawn();
@@ -238,58 +235,12 @@ namespace sheet {
         //console::log("player aabb 0: ", m_player.aabb_id(0), "\n");
 
 
-        //collision_grid::clear();
+        
+        //collision_grid::update();
 
 
+        //console::log("cell id:", collision_grid::id_at(aabb::UL(m_player.aabb(aabb::Name::body))), "\n");
 
-        //console::log("aabb size: ", aabb::size(), "\n");
-
-        //I32 count_per_thread = aabb::size() / 4;
-
-        //I32 thread_count = 8;
-
-        //std::vector<std::thread> threads;
-
-        //I32 prev_end = 0;
-
-        //for (int j = 0; j < thread_count; ++j) {
-        //    threads.emplace_back(
-        //        std::thread{ [&]() {
-        //                for (size_t i = prev_end; i < prev_end + aabb::size() / thread_count; ++i) {
-        //                    std::unique_lock<std::mutex> quad_tree_insert_lock(quad_tree_insert_mutex);
-        //                    collision_grid::insert(aabb::UL(i) + camera::position, i);
-        //                    collision_grid::insert(aabb::UR(i) + camera::position, i);
-        //                    collision_grid::insert(aabb::DL(i) + camera::position, i);
-        //                    collision_grid::insert(aabb::DR(i) + camera::position, i);
-        //                    quad_tree_insert_lock.unlock();
-
-        //                    collision_grid::check_collision(i);
-        //                }
-        //            } }
-        //    );
-        //    //console::log("prev end: ", prev_end, "\n");
-        //    prev_end += aabb::size() / thread_count;
-        //}
-        //
-        //for (auto& thread : threads) {
-        //    if (thread.joinable()) {
-        //        thread.join();
-        //    }
-        //}
-        /*for (size_t i = 0; i < aabb::size(); ++i) {
-            if (i == test_aabb) {
-                continue;
-            }
-            collision_grid::insert(aabb::UL(i) + camera::position, i);
-            collision_grid::insert(aabb::UR(i) + camera::position, i);
-            collision_grid::insert(aabb::DL(i) + camera::position, i);
-            collision_grid::insert(aabb::DR(i) + camera::position, i);
-
-            collision_grid::check_collision(i);
-        }*/
-
-
-        collision_grid::update();
         //collision_grid::check_collision();
 
         //for (size_t i = 0; i < aabb::size(); ++i) {

@@ -314,16 +314,16 @@ export namespace sprite {
         s_scale = window->scale();
         window->draw_sf_sprite(s_sprites.at(i)->sf_sprite());
     }
-    void draw_in_layer(std::unique_ptr<Window>& window, cU8 layer) {        
+    void draw_in_layer(std::unique_ptr<Window>& window, cU8 layer) {
         for (const auto& i : ids_in_layer(layer)) {
-            if (is_valid(i)) {
+            if (is_valid(i) and !is_hidden(i)) {
                 draw(window, i);
             }
         }
     }
     void draw_bg_in_layer(std::unique_ptr<Window>& window, cU8 layer) {
         for (const auto& i : bg_ids_in_layer(layer)) {
-            if (is_valid(i)) {
+            if (is_valid(i) and !is_hidden(i)) {
                 draw(window, i);
             }
         }        

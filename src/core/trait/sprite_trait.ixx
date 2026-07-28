@@ -13,7 +13,8 @@ export namespace sprite {
     public:
         I32   sprite()              const { return m_sprite;                       }
         RectI sprite_rect()         const { return sprite::rect(m_sprite);         }
-        F32   sprite_angle()        const { return sprite::angle(m_sprite);        }        
+        F32   sprite_angle()        const { return sprite::angle(m_sprite);        }
+        F32   sprite_radians()      const { return sprite::radians(m_sprite);      }
         Vec2F sprite_offset()       const { return sprite::offset(m_sprite);       }
         Vec2F sprite_start_offset() const { return sprite::start_offset(m_sprite); }
         Vec2F sprite_origin()       const { return sprite::origin(m_sprite);       }

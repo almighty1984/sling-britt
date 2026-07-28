@@ -38,6 +38,7 @@ namespace sheet {
                 return false;
             }
         }
+        //console::log("sheet::Edit::add_grid_at_offset ", offset.x, " ", offset.y, "\n");
         cI32 grid_sprite = sprite::make(m_grid_texture_path);
         m_grid_sprites.emplace_back(grid_sprite);
         //sprite::id(grid_sprite, grid_sprite);
@@ -60,14 +61,14 @@ namespace sheet {
         return true;
     }
     bool Edit::erase_grid_at_offset(cVec2F offset) {
-        if (m_grid_sprites.empty() or m_grid_sprites.size() < 2) {
-            //console::log("sheet::Edit::erase_grid_at_offset grid size is 1");
+        if (offset == Vec2F{ 0.0F, 0.0F }) {
+            console::log("sheet::Edit::erase_grid_at_offset can't erase grid at { 0, 0 }\n");
             return false;
         }
         cI32 grid_sprite = Edit::grid_sprite_at_offset(offset);
         if (grid_sprite == -1) return false;
 
-        //console::log("sheet::Edit::erase_grid_at_offset sprite: ", grid_sprite, "\n");
+
 
         bool is_found = false;
         std::vector<I32> resized_grid_sprites;

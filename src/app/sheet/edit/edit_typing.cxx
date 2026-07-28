@@ -216,8 +216,11 @@ namespace sheet {
         m_typing_pos += 1;
         return true;
     }
-    bool Edit::save_typed_text_bar() {
-        if (m_text_bar.string().empty()) return false;        
+    bool Edit::save_typed_text_bar() {        
+        if (m_text_bar.string().empty()) return false;
+        if (m_is_typing_text_bar) {
+            quit_typing_text_bar();
+        }
         m_is_typing_text_bar = false;
 
         if (!m_selection_on_level_sprites.empty()) {
@@ -255,7 +258,7 @@ namespace sheet {
             return true;
         }
         else if (!m_is_showing_tile_set) {
-            if (m_text_bar.string().back() == '_' and m_text_bar.string().size() < 17 or m_text_bar.string().size() < 16) {
+            if (m_text_bar.string().size() < 16) {
                 console::log("sheet::Edit::save_typed_text_bar() text size: ", m_text_bar.string().size(), "\n");
                 return false;
             }

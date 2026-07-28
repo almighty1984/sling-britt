@@ -37,6 +37,7 @@ export namespace entity {
 
         void state_blocked(cF32 dt) override;
         void state_dead(cF32 dt)    override;
+        void state_dive(cF32 dt)    override;
         void state_heal(cF32 dt)    override;
         void state_hurt(cF32 dt)    override;
         void state_idle(cF32 dt)    override;
@@ -49,10 +50,10 @@ export namespace entity {
             if (m_time_left_hurt > 0) return false;
             m_time_left_hurt = m_config.time_to_hurt();
 
-            if (!culprit) return false;
+            if (!culprit or culprit->is_dead()) return false;
 
-            m_time_left_in_state = 0;
-            m_time_left_in_next_state = 0;
+            m_time_left_until_next_state = 0;
+            //m_time_left_in_next_state = 0;
 
             Vec2F add_to_position = { 0.0F, 0.0F };
 
@@ -66,8 +67,10 @@ export namespace entity {
                 case Type::brick:
                 case Type::bug:
                 case Type::bee: {
-                    m_sensed_objects.clear();
-                    m_sensed_objects.emplace_back(culprit);
+                    m_sensed.clear();
+                    m_sensed.emplace_back(culprit);
+
+                    add_enemy(culprit);
                                         
                     //cF32 amount = std::abs(culprit->velocity().x * culprit->velocity().y) * 3.0F;
                     
@@ -81,8 +84,8 @@ export namespace entity {
                     break;
                 }
                 case Type::particle_brick: {
-                    m_sensed_objects.clear();
-                    m_sensed_objects.emplace_back(culprit);
+                    m_sensed.clear();
+                    m_sensed.emplace_back(culprit);
 
                     //console::log("amount: ", amount, "\n");
 
@@ -99,10 +102,10 @@ export namespace entity {
                     break;
                 }
                 case Type::particle_melee: {                    
-                    m_sensed_objects.clear();
-                    m_sensed_objects.emplace_back(culprit->parent());
-                    m_time_left_in_state = 0;
-                    m_time_left_in_next_state = 0;
+                    m_sensed.clear();
+                    m_sensed.emplace_back(culprit->parent());
+                    m_time_left_until_next_state = 0;
+                    //m_time_left_in_next_state = 0;
                                         
                     health_amount_add(-8.0F);
                     
@@ -120,12 +123,13 @@ export namespace entity {
                 case Type::particle_rock: {
                     //m_time_left_hurt = 0;
                     if (culprit->parent()) {
+                        add_enemy(culprit->parent());
                         console::log(class_name(), "::hurt() particle_rock parent: ", to_string(culprit->parent()->type()), "\n");
                     } else {
                         console::log(class_name(), "::hurt() parent is nullptr\n");
                     }
-                    m_sensed_objects.clear();
-                    m_sensed_objects.emplace_back(culprit->parent());
+                    m_sensed.clear();
+                    m_sensed.emplace_back(culprit->parent());
 
                     console::log(class_name(), "::hurt() rock velocity: ", culprit->velocity().x, " ", culprit->velocity().y, "\n");
 
@@ -136,11 +140,10 @@ export namespace entity {
                 case Type::player: {
                     switch (culprit->state()) {
                         case state::Type::run: {
-                            if (culprit->velocity().y >= 6.0F) {                                
+                            if (culprit->velocity().y >= 6.0F) {                        
                                 next_state = state::Type::stunned;
-                                m_time_to_be_in_state = 100;
-
-                                console::log("Frog::hurt() m_time_to_be_in_state: ", m_time_to_be_in_state, "\n");
+                                m_time_to_be_in_state = 100;                                
+                                //console::log("Frog::hurt() m_time_to_be_in_state: ", m_time_to_be_in_state, "\n");
 
                                 sound_position("bounce", { position().x - app::config::extent().x / 2.0F,
                                                            position().y - app::config::extent().y / 2.0F });
@@ -151,7 +154,7 @@ export namespace entity {
                             break;
                         } 
                         case state::Type::sling: {
-                            m_sensed_objects.clear();
+                            m_sensed.clear();
 
                             sound_position("hit", { position().x - app::config::extent().x / 2.0F,
                                                     position().y - app::config::extent().y / 2.0F });
@@ -162,7 +165,11 @@ export namespace entity {
                             //m_time_to_be_in_state = 20;
                             break;
                         }
-                    }                    
+                    }
+                    break;
+                }
+                case Type::train_saw: {
+                    health::amount_add(m_health_id, -16.0f);
                     break;
                 }
             }
@@ -170,14 +177,16 @@ export namespace entity {
             /*sound_position("hurt", { position().x - app::config::extent().x / 2.0F,
                                        position().y - app::config::extent().y / 2.0F });
             sound_play("hurt");*/
+            
 
-            cVec2F vel_normal = Vec2F::normalize(culprit->velocity());
-
-            if (health_amount() <= 0.0F) {
-                vel_factor = 4.0F;
+            if (!(culprit->type() == Type::player and culprit->state() == state::Type::sling)) {
+                cVec2F vel_normal = Vec2F::normalize(culprit->velocity());
+                if (health_amount() <= 0.0F) {
+                    vel_factor = 4.0F;
+                }
+                velocity(vel_normal * vel_factor);
             }
 
-            velocity(vel_normal * vel_factor);
             if (health_amount() <= 0.0F) {
                 max_velocity({ 10.0F, 10.0F });
                 //velocity(culprit->velocity() * 1.0F);
@@ -185,41 +194,46 @@ export namespace entity {
                 return true;
             }
             position_add(add_to_position);
-            
-            m_next_state = next_state;
+
+            if (m_state != state::Type::swim) {
+                m_next_state = next_state;
+            }
             return true;
         }
         void update(cF32 dt) override {
-            if (m_time_left_blocked > 0) --m_time_left_blocked;
-            if (m_time_left_hurt > 0) --m_time_left_hurt;
+            reduce_time_left(1);
 
             if (m_is_first_update) {
                 m_is_first_update = false;
-                sprite::is_leftward(m_sprite, random::number(0, 1) ? true : false);
+                sprite_is_leftward(random::number(0, 1) ? true : false);
             }
 
             if (velocity().x < -0.5F) {
-                sprite::is_leftward(m_sprite, true);
+                sprite_is_leftward(true);
             } else if (velocity().x > 0.5F) {
-                sprite::is_leftward(m_sprite, false);
+                sprite_is_leftward(false);
             }
             /*if (velocity().y < 0.0F and !m_is_on_slope) {
                 m_is_on_ground = false;
             }*/
-            deceleration_x(m_is_on_ground ? 0.2F : 0.0F);
+            //deceleration_x(m_is_on_ground ? 0.2F : 0.0F);
 
             state_update(dt);
 
-            sprite::rect(m_sprite, anim::source(m_current_anim));
+            //console::log(class_name(), "::update() state: ", to_string(m_state), "\n");
 
-            if (health::amount(m_health_id) <= 0.0f) {                
-                m_next_state = state::Type::dead;
-            }
-            health::layer(m_health_id, m_start_layer);
+            //console::log(class_name(), "::update() time left alive: ", m_time_left_alive, "\n");
+
+            sprite_rect(anim::source(m_current_anim));
+
+            //if (health_amount() <= 0.0F) {
+            //    m_next_state = state::Type::dead;
+            //}
+            health_layer(m_start_layer);
         }
-        void draw(std::unique_ptr<Window>& window) override {
-            sprite::draw(window, m_sprite);
-            line::draw(window, m_tounge_line);
-        }
+        //void draw(std::unique_ptr<Window>& window) override {
+        //    sprite::draw(window, m_sprite);
+        //    line::draw(window, m_tounge_line);
+        //}
     };
 }

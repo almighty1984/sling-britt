@@ -46,24 +46,24 @@ namespace sheet {
         m_menu_up_transform = transform::make();
         transform::position(m_menu_up_transform, { 0.0F, -8.0F });
 
-        add_to_menu_up_bar(m_menu_up_labels[0]);
-        add_to_menu_up_bar(m_menu_up_labels[1]);
+        add_to_menu_up_bar(menu::Label::open);
+        add_to_menu_up_bar(menu::Label::import);
 
-        m_menu_up_lists[m_menu_up_labels[0]].transform = transform::make();        
-        m_menu_up_lists[m_menu_up_labels[0]].bg_sprite = sprite::make("res/texture/editor/menu_bg.png");        
+        m_menu_up_lists[menu::Label::open].transform = transform::make();        
+        m_menu_up_lists[menu::Label::open].bg_sprite = sprite::make("res/texture/editor/menu_bg.png");        
 
-        console::log("sheet::Edit::Edit bg_h: ", m_menu_up_lists[m_menu_up_labels[0]].bg_h, "\n");
+        console::log("sheet::Edit::Edit bg_h: ", m_menu_up_lists[menu::Label::open].bg_h, "\n");
 
-        sprite::layer(m_menu_up_lists[m_menu_up_labels[0]].bg_sprite, MENU_BG_LAYER);
-        sprite::transform(m_menu_up_lists[m_menu_up_labels[0]].bg_sprite, m_menu_up_lists[m_menu_up_labels[0]].transform);
+        sprite::layer(m_menu_up_lists[menu::Label::open].bg_sprite, MENU_BG_LAYER);
+        sprite::transform(m_menu_up_lists[menu::Label::open].bg_sprite, m_menu_up_lists[menu::Label::open].transform);
 
-        m_menu_up_lists[m_menu_up_labels[1]].transform = transform::make();
-        m_menu_up_lists[m_menu_up_labels[1]].bg_sprite = sprite::make("res/texture/editor/menu_bg.png");        
-        sprite::layer(m_menu_up_lists[m_menu_up_labels[1]].bg_sprite, MENU_TEXT_LAYER);
-        sprite::transform(m_menu_up_lists[m_menu_up_labels[1]].bg_sprite, m_menu_up_lists[m_menu_up_labels[1]].transform);
+        m_menu_up_lists[menu::Label::import].transform = transform::make();
+        m_menu_up_lists[menu::Label::import].bg_sprite = sprite::make("res/texture/editor/menu_bg.png");        
+        sprite::layer(m_menu_up_lists[menu::Label::import].bg_sprite, MENU_TEXT_LAYER);
+        sprite::transform(m_menu_up_lists[menu::Label::import].bg_sprite, m_menu_up_lists[menu::Label::import].transform);
 
-        load_menu_up_list(m_menu_up_labels[0], std::filesystem::current_path() / "res" / "level");
-        load_menu_up_list(m_menu_up_labels[1], std::filesystem::current_path() / "res" / "prefab");                
+        load_menu_up_list(menu::Label::open, std::filesystem::current_path() / "res" / "level");
+        load_menu_up_list(menu::Label::import, std::filesystem::current_path() / "res" / "prefab");                
 
         m_menu_down_transform = transform::make();
         transform::position(m_menu_down_transform, { 0.0F, 160.0F });
@@ -141,7 +141,9 @@ namespace sheet {
         m_text_current_tile_set.set_text("0");
 
         m_info_message.transform(m_menu_up_transform);
+        m_info_message.texture("res/texture/font/8_white.png");
         m_info_message.is_hidden(true);
+        m_info_message.layer(MENU_TEXT_LAYER);
 
 
         m_grid_transform = transform::make();
@@ -170,14 +172,23 @@ namespace sheet {
         console::log("sheet::Edit::~Edit()\n");
         input::erase(m_input);
 
+        console::log("sheet::Edit::~Edit() erase m_mouse_transform\n");
         transform::erase(m_mouse_transform);
+        console::log("sheet::Edit::~Edit() erase m_level_transform\n");
         transform::erase(m_level_transform);
+        console::log("sheet::Edit::~Edit() erase m_tile_set_transform\n");
         transform::erase(m_tile_set_transform);
+        console::log("sheet::Edit::~Edit() erase m_tile_set_bg_transform\n");
         transform::erase(m_tile_set_bg_transform);
+        console::log("sheet::Edit::~Edit() erase m_grid_transform\n");
         transform::erase(m_grid_transform);
+        console::log("sheet::Edit::~Edit() erase m_grid_map_transform\n");
         transform::erase(m_grid_map_transform);
+        console::log("sheet::Edit::~Edit() erase m_menu_up_transform\n");
         transform::erase(m_menu_up_transform);
+        console::log("sheet::Edit::~Edit() erase m_menu_down_transform\n");
         transform::erase(m_menu_down_transform);
+        console::log("sheet::Edit::~Edit() erase m_menu_right_transform\n");
         transform::erase(m_menu_right_transform);
 
         sprite::erase(m_menu_down_bg_sprite);
@@ -203,7 +214,7 @@ namespace sheet {
         for (auto& i : m_grid_sprites)                  sprite::erase(i);
         for (auto& i : m_grid_map_sprites)              sprite::erase(i);
 
-        for (auto& i : m_menu_up_bar_bg_sprites)        sprite::erase(i);
+        for (auto& i : m_menu_up_bar_bg_sprites)        sprite::erase(i.second);
                 
         m_menu_up_lists.clear();
 

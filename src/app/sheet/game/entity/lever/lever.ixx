@@ -19,7 +19,7 @@ export namespace entity {
                 anim::speed(anim("idle"), 0.5F);
             }
 
-            /*for (auto& i : m_input_objects) {                
+            /*for (auto& i : m_inputs) {                
                 i->time_left_dead(m_time_left_dead);
             }*/
             
@@ -60,16 +60,16 @@ export namespace entity {
                 --m_time_left_colliding;
             }*/
             //console::log("num outputs: ", output_objects.size(), "\n");
-            if (!m_input_objects.empty()) {
-                //console::log("trigger ", m_start_offset.x, " ", m_start_offset.y, " has ", m_input_objects.size(), " inputs\n");
+            if (!m_inputs.empty()) {
+                //console::log("trigger ", m_start_offset.x, " ", m_start_offset.y, " has ", m_inputs.size(), " inputs\n");
 
                 /*if (inputs().back()->inputs.empty()) {
                     inputs().back()->add_input(std::shared_ptr<Object>(this));
                 }*/
                 
                 //m_time_left_dead = inputs().back()->is_dead() ? -1 : 0;
-                if (m_input_objects.back()->is_dead() and m_time_left_dead == 0 or
-                    !m_input_objects.back()->is_dead() and m_time_left_dead > 0) {
+                if (m_inputs.back()->is_dead() and m_time_left_dead == 0 or
+                    !m_inputs.back()->is_dead() and m_time_left_dead > 0) {
                     flip_it();
                 }
             }

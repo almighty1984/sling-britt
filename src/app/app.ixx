@@ -39,7 +39,7 @@ export namespace app {
         std::set<U8> m_layers_to_draw;
 
         std::filesystem::path     m_level_path,
-            m_level_path_to_save;
+                                  m_level_path_to_save;
 
         U8 m_time_left_player_save = 0,
             m_time_to_player_save = 50;
@@ -186,7 +186,7 @@ export namespace app {
 
                 for (auto& sheet : m_sheet_objects) {
                     if (!sheet) continue;
-                    sheet->update_unlocked(0.0F);                    
+                    sheet->update_unlocked(0.0F);
                 }
 
                 /*F32 r = std::clamp(input::mouse.x, 0.0F, 255.0F);
@@ -211,12 +211,11 @@ export namespace app {
                             if (sheet->is_to_change_view()) {
                                 sheet->is_to_change_view(false);
                                 m_window->view(sheet->view());
-                            }
-                            else {
+                            } else {
                                 sheet->view(m_window->view());
                             }
-                            if (sheet->is_to_player_save()) {
-                                sheet->is_to_player_save(false);
+                            if (sheet->is_to_save_game()) {
+                                sheet->is_to_save_game(false);
                                 if (m_time_left_player_save == 0) {
                                     m_time_left_player_save = m_time_to_player_save;
                                     sheet::game::write_save(0);
@@ -225,7 +224,7 @@ export namespace app {
                             if (sheet->is_to_transition()) {
                                 std::unique_lock<std::mutex> transition_lock(s_transition_mutex);
                                 transition_sheet(sheet->transition_from(), sheet->transition_to());
-                                
+
                                 sheet->transition_from(sheet::Type::none);
                                 sheet->transition_to(sheet::Type::none);
                                 sheet->is_to_transition(false);
@@ -266,21 +265,30 @@ export namespace app {
 
                 m_window->clear();
                 for (U8 layer = 0; layer < 3; ++layer) {
-                    /*const auto bg_sprites_in_layer = sprite::bg_ids_in_layer(layer);
-                    for (const auto& i : bg_sprites_in_layer) {
-                        sprite::draw(m_window, i);
-                    }*/
+                    //const auto bg_sprites_in_layer = sprite::bg_ids_in_layer(layer);
+                    //for (const auto& i : bg_sprites_in_layer) {
+                    //    sprite::draw(m_window, i);
+                    //}
                     sprite::draw_bg_in_layer(m_window, layer);
                 }
-                
+
+                //for (auto& sheet : m_sheet_objects) {
+                //    for (auto& layer : sheet->get_visible_layers()) {
+                //        //console::log("layer: ", (int)layer, "\n");
+                //        if (sheet) sheet->draw(m_window, layer);
+                //    }
+                //}
                 for (auto& sheet : m_sheet_objects) {
-                    for (auto& layer : sheet->get_visible_layers()) {
-                        //console::log("layer: ", (int)layer, "\n");
-                        if (sheet) sheet->draw(m_window, layer);
+                    auto& layers = sheet->get_visible_layers();
+                    for (U8 layer : layers) {
+                        sprite::draw_in_layer(m_window, layer);
+                        line::draw_in_layer(m_window, layer);
+
+                        if (sheet->is_drawing_aabb()) {
+                            line::draw_aabb_in_layer(m_window, layer);
+                        }
                     }
                 }
-                    //sprite::draw_in_layer(m_window, layer);
-                    //line::draw_in_layer(m_window, layer);
                 
                 m_window->display();
 

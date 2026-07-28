@@ -558,7 +558,6 @@ namespace sheet {
         auto sprite_data = sprite::load_level_data(path);
 
         for (auto& i : sprite_data) {
-
             //m_visible_layers.insert(i.layer);
 
             cI32 id = sprite::make(tile_set_texture_path(i.tile_set));
@@ -574,8 +573,8 @@ namespace sheet {
 
             //console::log("sheet::Edit::load_level_sprites sprite ", sprite, " offset: ", i.x, " ", i.y, "\n");                                   
             Vec2F grid_remainder = { std::fmodf(sprite::offset(id).x, 256.0F), std::fmodf(sprite::offset(id).y, 256.0F) };
-            Vec2F grid_pos = sprite::offset(id) - grid_remainder;
-            add_grid_at_offset(grid_pos);
+            Vec2F grid_offset = sprite::offset(id) - grid_remainder;
+            add_grid_at_offset(grid_offset);
         }
         //console::log("\n\nsheet::Edit::load_level_sprites path: ", path.string(), "\n\n");
         m_text_bar.set_text(path.string());

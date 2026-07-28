@@ -156,8 +156,7 @@ namespace sheet {
         for (auto& i : m_grid_map_sprites) {
             sprite::is_hidden(i, m_is_hidden_grid_map);
         }
-        sprite::is_hidden(m_position_on_grid_map_sprite, m_is_hidden_grid_map);
-        
+        sprite::is_hidden(m_position_on_grid_map_sprite, m_is_hidden_grid_map);        
 
         if (m_level_path.empty()) {
             m_text_bar.clear_text();
@@ -307,7 +306,7 @@ namespace sheet {
         }
         return true;
     }
-    bool Edit::deselect_all_on_tile_set() {        
+    bool Edit::deselect_all_on_tile_set() {
         if (m_selection_on_tile_set_sprites.empty()) return false;
         console::log("sheet::Edit::deselect_all_on_tile_set\n");
         for (auto& i : m_selection_on_tile_set_sprites) {

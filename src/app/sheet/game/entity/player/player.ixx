@@ -15,37 +15,38 @@ export namespace entity {
     class Player : public Object,
                    public input::Trait {
     private:
-        start::Type   m_next_level = start::Type::center;
+        start::Type m_next_level = start::Type::center;
 
         start::Info m_next_start = { start::Type::center, 0 };
 
         bool m_is_to_save = false;
 
         U8 m_time_left_until_down_thrust = 0, m_time_until_down_thrust = 16,
-           m_time_left_bouncing          = 0, m_time_to_bounce         = 20,           
            m_time_left_hitting_ground    = 0, m_time_to_hit_ground     = 20,
            m_time_left_holding_jump      = 0, m_time_to_hold_jump      = 10,
-           m_time_to_jump_wall           =  8,
+           m_time_to_wall_jump           = 8,
            m_time_left_jump_again        = 0, m_time_to_jump_again     =  8,
            m_time_left_lever             = 0, m_time_to_lever          = 10,
            m_time_left_melee             = 0, m_time_to_melee          =  8,
            m_time_left_skidding          = 0, m_time_to_skid           = 20,
            m_time_sliding_ground         = 0;
 
-        bool m_is_wall_to_left      = false,
-             m_is_to_wall_jump_left = false;
-
         bool m_is_down_thrusting = false,
              m_is_sliding_ground = false,
              m_is_hovering       = false;
 
         Vec2F m_ground_max_velocity = { 2.0F, 4.0F };
-        Vec2F m_sling_max_velocity  = { 4.0F, 5.0F };
+        Vec2F m_sling_max_velocity  = { 3.5F, 5.0F };
 
         Vec2F m_slide_ground_min_velocity = { 1.4F, 0.0F };
 
-        U8 m_time_left_in_state = 0;
-        
+        I32 m_sling_shot_sprite    = -1,
+            m_sling_shot_bg_sprite = -1,
+            m_target_sprite        = -1;
+
+        I32 m_target_anim = -1;
+
+    public:        
         input::Key key_up     = input::Key::up,
                    key_down   = input::Key::down,
                    key_left   = input::Key::left,
@@ -55,13 +56,6 @@ export namespace entity {
                    key_sprint = input::Key::z,
                    key_shoot  = input::Key::space;
 
-        I32 m_sling_shot_sprite    = -1,
-            m_sling_shot_bg_sprite = -1,
-            m_target_sprite        = -1;
-
-        I32 m_target_anim = -1;
-                
-    public:
         Player();
         ~Player();
 
@@ -72,7 +66,6 @@ export namespace entity {
                 
         void collide_x(aabb::cInfo our, aabb::cInfo other) override;
         void collide_y(aabb::cInfo our, aabb::cInfo other) override;
-
                 
         start::cType next_level() const { return m_next_level; }
         start::cInfo next_start() const { return m_next_start; }
@@ -82,7 +75,7 @@ export namespace entity {
         bool hurt(Object* culprit) override;
         void interact(Object* object) override;
 
-        void spawn_down_thrust(cVec2F position);
+        void spawn_down_thrust(cVec2F position, cVec2F vel_L, cVec2F vel_R);
 
         void state_climb(cF32 dt)      override;
         void state_dead(cF32 dt)       override;
@@ -93,17 +86,17 @@ export namespace entity {
         void state_swim(cF32 dt)       override;
         void state_shoot(cF32 dt)      override;
         void state_sling(cF32 dt)      override;
-        void state_slide_wall(cF32 dt) override;
-        void state_jump_wall(cF32 dt)  override;
+        void state_wall_slide(cF32 dt) override;
+        void state_wall_jump(cF32 dt)  override;
 
         void update(cF32 dt) override;
 
-        void draw(std::unique_ptr<Window>& window) override {
-            sprite::draw(window, m_sling_shot_bg_sprite);
-            Object::draw(window);
-            sprite::draw(window, m_sling_shot_sprite);
-            sprite::draw(window, m_target_sprite);
-        }
+        //void draw(std::unique_ptr<Window>& window) override {
+        //    sprite::draw(window, m_sling_shot_bg_sprite);
+        //    Object::draw(window);
+        //    sprite::draw(window, m_sling_shot_sprite);
+        //    sprite::draw(window, m_target_sprite);
+        //}
 
 
         void jump() {
@@ -142,7 +135,7 @@ export namespace entity {
                     reset_anim("jump");
                     pitch += 1.0F;
                 }
-                if (m_time_left_skidding > 0) {
+                if (m_time_left_skidding > 0 and !m_is_carrying) {
                     m_time_left_skidding = 0;
                     reset_anim("jump_skid");
                 }
@@ -152,6 +145,5 @@ export namespace entity {
                                      (position().y + 8.0F) / (app::config::extent().y / 2.0F) });
             sound_play("jump");
         }
-
     };
 }

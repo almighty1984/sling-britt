@@ -14,7 +14,7 @@ export namespace entity {
         void update(cF32 dt) override {
             //console::log(class_name(), " start offset: ", start_offset().x, " ", start_offset().y, "\n");
             //console::log(class_name(), " is_powered: ", m_is_powered, "\n");
-            for (auto& i : m_input_objects) {
+            for (auto& i : m_inputs) {
                 m_time_left_alive = i->time_left_alive() > 0 ? 0 : U16_MAX;
                 if (i->is_powered()) {
                     m_is_powered = true;

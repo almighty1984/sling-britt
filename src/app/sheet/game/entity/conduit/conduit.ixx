@@ -14,7 +14,7 @@ export namespace entity {
 
             m_is_powered = false;
             m_time_left_alive = 0;
-            for (auto& i : m_input_objects) {
+            for (auto& i : m_inputs) {
                 if (i->is_powered()) {
                     m_is_powered = true;
 

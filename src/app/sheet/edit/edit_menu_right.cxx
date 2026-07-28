@@ -8,12 +8,10 @@ namespace sheet {
     void Edit::handle_menu_right() {
         //console::log("handle_menu_right\n");
         cVec2F position = m_mouse_tile_position;
+
         input::Button button = input::Button::none;
-        if (is_pressed(input::Button::left)) {
-            button = input::Button::left;
-        } else if (is_pressed(input::Button::right)) {
-            button = input::Button::right;
-        }
+        if      (is_pressed(input::Button::left))  button = input::Button::left;
+        else if (is_pressed(input::Button::right)) button = input::Button::right;       
 
         if (button == input::Button::none) return;
         if (position.y > 144.0F) return;
@@ -52,8 +50,15 @@ namespace sheet {
 
                 release(button);
                 switch (button) {
-                case input::Button::left:  init_tile_set(m_tile_set + 1); break;
-                case input::Button::right: init_tile_set(m_tile_set - 1); break; }                
+                    case input::Button::left: {
+                        init_tile_set(m_tile_set + 1);
+                        break;
+                    }
+                    case input::Button::right: {
+                        init_tile_set(m_tile_set - 1);
+                        break;
+                    }
+                }                
             }
 
         }

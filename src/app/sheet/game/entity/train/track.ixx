@@ -15,7 +15,7 @@ export namespace entity {
         void update(cF32 dt) override {
             if (m_is_first_update) {
                 m_is_first_update = false;
-                //direction(m_input_objects.back()->direction());
+                //direction(m_inputs.back()->direction());
 
                 //if (m_type == Type::track_LR) {
                     //console::log(class_name(), "::update() direction: ", direction().x, " ", direction().y, "\n");
@@ -25,10 +25,10 @@ export namespace entity {
 
             //sprite()->is_hidden = false;
 
-            //console::log("num inputs: ", m_input_objects.size(), "\n");
+            //console::log("num inputs: ", m_inputs.size(), "\n");
             m_is_powered = false;
             m_time_left_alive = 0;
-            for (auto& i : m_input_objects) {
+            for (auto& i : m_inputs) {
                 /*if (i->type() == entity::Type::trigger) {
                     console::log("hello trigger\n");
                     if (!i->is_powered()) {

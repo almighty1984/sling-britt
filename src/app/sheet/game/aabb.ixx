@@ -183,7 +183,17 @@ export namespace aabb {
 
     size_t  size() { return s_aabbs.size(); }
 
-    std::vector<AABB*>& get_aabbs() { return s_aabbs; }    
+    std::vector<AABB*>& get_aabbs() { return s_aabbs; }
+
+    std::vector<I32> aabb_ids() {
+        std::vector<I32> used_ids{};
+        for (auto& i : s_aabbs) {
+            if (i and i->is_active()) {
+                used_ids.push_back(i->id());
+            }
+        }
+        return used_ids;
+    }
 
     Color            color(cI32 i)       { return is_valid(i) ? s_aabbs.at(i)->color()       :    Color{}; }
     Color            start_color(cI32 i) { return is_valid(i) ? s_aabbs.at(i)->start_color() :    Color{}; }

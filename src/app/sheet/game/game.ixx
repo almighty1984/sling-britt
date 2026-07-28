@@ -12,7 +12,6 @@ import input;
 import line;
 import particle_system;
 import plane;
-import quad_tree;
 import sprite;
 import transform;
 import types;
@@ -38,13 +37,15 @@ export namespace sheet {
 
         Vec2F m_num_level_tiles{};
 
-        std::vector<entity::Object*> m_entity_objects,
-                                     m_bridge_entity_objects,
-                                     m_trigger_entity_objects,
-                                     m_water_entity_objects,
-                                     m_unlocked_entity_objects;
+        std::vector<entity::Object*> m_entities,
+                                     m_bridge_entities,
+                                     m_trigger_entities,
+                                     m_water_entities,
+                                     m_unlocked_entities;
 
-        std::vector<std::pair<Vec2I, QuadTreeNode*>> m_level_quad_trees;
+        //std::vector<std::pair<Vec2I, QuadTreeNode*>> m_level_quad_trees;
+
+        std::vector<Vec2I> m_grid_coords;
 
         std::filesystem::path m_level_path = "res/level/test.bin";
         
@@ -54,6 +55,8 @@ export namespace sheet {
 
         I32 test_aabb = -1;
         I32 m_mouse_transform = -1;
+
+
 
     public:
         const char* class_name() override { return "sheet::Game"; }
@@ -74,22 +77,22 @@ export namespace sheet {
 
             m_visible_layers.clear();
             //console::log("sheet::Game::clear() quad trees\n");
-            for (auto& i : m_level_quad_trees) {
-                if (i.second) delete i.second;
-            }
-            m_level_quad_trees.clear();
+            //for (auto& i : m_level_quad_trees) {
+            //    if (i.second) delete i.second;
+            //}
+            //m_level_quad_trees.clear();
             
             //console::log("sheet::Game::clear() entities\n");
-            for (auto& i : m_entity_objects) {
+            for (auto& i : m_entities) {
                 if (i) delete i;
             }
-            m_entity_objects.clear();
+            m_entities.clear();
             //console::log("sheet::Game::clear() water entities\n");
-            m_water_entity_objects.clear();
+            m_water_entities.clear();
             //console::log("sheet::Game::clear() unlocked entities\n");
-            m_unlocked_entity_objects.clear();
+            m_unlocked_entities.clear();
             //console::log("sheet::Game::clear() trigger entities\n");
-            m_trigger_entity_objects.clear();
+            m_trigger_entities.clear();
 
             //console::log("sheet::Game::clear() level sprites\n");
             for (auto& i : m_level_sprites) {
@@ -110,9 +113,12 @@ export namespace sheet {
         }
         void check_to_add_input_from(entity::Object* trigger_entity);
 
+        void connect_bridges(cVec2F offset_to_next);
+        void connect_water();
+
         void update(cF32 dt) override;
         void update_unlocked(cF32 dt) override;
-        void draw(std::unique_ptr<Window>& window, cU8 layer) override;
+        //void draw(std::unique_ptr<Window>& window, cU8 layer) override;
 
         std::filesystem::path level_path_to_save() override {
             return m_level_path;
@@ -127,6 +133,6 @@ export namespace sheet {
 
         void load_level(const std::filesystem::path& path);
 
-        void check_collision();
+        //void check_collision();
     };
 }

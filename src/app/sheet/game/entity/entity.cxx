@@ -13,23 +13,23 @@ import transform;
 
 static inline std::map<std::filesystem::path, entity::Config> s_parsed_configs;
 
-namespace entity {    
+namespace entity {
     I32 Object::aabb(aabb::cName name) {
         for (auto& i : m_aabbs) {
             if (aabb::name(i) == name) {
                 return i;
             }
         }
-        return 0;
+        return -1;
     }
-    void Object::draw(std::unique_ptr<Window>& window) {
-        sprite::draw(window, m_sprite);
-    }
-    void Object::draw_aabb(std::unique_ptr<Window>& window) {        
-        for (auto& i : m_aabbs) {
-            aabb::draw(window, i);
-        }
-    }
+    //void Object::draw(std::unique_ptr<Window>& window) {
+    //    sprite::draw(window, m_sprite);
+    //}
+    //void Object::draw_aabb(std::unique_ptr<Window>& window) {        
+    //    for (auto& i : m_aabbs) {
+    //        aabb::draw(window, i);
+    //    }
+    //}
     Object::~Object() {
         //console::log(class_name(), "::~Object() ", entity::to_string(m_type), "\n");
         camera::remove_transform(m_transform);
@@ -37,7 +37,7 @@ namespace entity {
             aabb::erase(i);
         }
         m_aabbs.clear();
-        m_input_objects.clear();
+        m_inputs.clear();
 
         for (const auto& [key, anim] : m_anims) {
             anim::erase(anim);
@@ -66,15 +66,15 @@ namespace entity {
 
         const std::string text = oss.str();
         
-        if (s_parsed_configs.count(path)) {
-            m_config = s_parsed_configs.at(path);
-            //console::log(class_name(), "::load_config() ", to_string(m_type), " already loaded\n");
-        } else {
+        //if (s_parsed_configs.count(path)) {
+        //    m_config = s_parsed_configs.at(path);
+        //    //console::log(class_name(), "::load_config() ", to_string(m_type), " already loaded\n");
+        //} else {
             m_config = parse_config(text);
             s_parsed_configs[path] = m_config;
-        }
-        //m_config = parse_config(text);
+        //}
         m_time_left_alive = m_config.time_to_be_alive();
+        m_time_left_dead = m_config.time_to_be_dead();
 
         m_sounds = sound::parse_config(text);
 

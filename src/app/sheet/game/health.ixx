@@ -10,10 +10,12 @@ class Bar {
         m_bar_hit_line = -1,
         m_bar_bg_line  = -1;
 
+    bool m_is_hidden = true;
+
 public:
     I32 id = -1;
 
-    U8 layer = 0;
+    U8 layer = NUM_VISIBLE_LAYERS - 1;
 
     F32 amount = 16.0F,
         max    = 16.0F,
@@ -21,26 +23,36 @@ public:
 
     Vec2F offset = { 0.0F, 0.0F };
 
-    bool is_hidden = false;
+    bool is_hidden() const { return m_is_hidden; }
+    void is_hidden(bool q) {
+        if (m_is_hidden == q) return;
+        m_is_hidden = q;
+        line::is_hidden(m_bar_bg_line, q);
+        line::is_hidden(m_bar_hit_line, q);
+        line::is_hidden(m_bar_line, q);
+    }
 
     Bar() = delete;
     Bar(cI32 transform) {
-        m_bar_bg_line = line::make({ 0.0F, 0.0F }, { max, 0.0F });
-        line::size(m_bar_bg_line, 2);
-        line::layer(m_bar_bg_line, layer);
-        line::transform(m_bar_bg_line, transform);
-
-        m_bar_hit_line = line::make({ 0.0F, 0.0F }, { max, 0.0F });
-        line::transform(m_bar_hit_line, transform);
-        line::size(m_bar_hit_line, 2);
-        line::layer(m_bar_hit_line, layer);
-        line::color(m_bar_hit_line, { 191, 191, 191 });
-
         m_bar_line = line::make({ 0.0F, 0.0F }, { max, 0.0F });
         line::transform(m_bar_line, transform);
         line::size(m_bar_line, 2);
         line::layer(m_bar_line, layer);
         line::color(m_bar_line, { 255, 0, 0 });
+        line::is_hidden(m_bar_line, m_is_hidden);
+
+        m_bar_hit_line = line::make({ 0.0F, 0.0F }, { max, 0.0F });
+        line::transform(m_bar_hit_line, transform);
+        line::size(m_bar_hit_line, 2);
+        line::layer(m_bar_hit_line, layer - 1);
+        line::color(m_bar_hit_line, { 191, 191, 191 });
+        line::is_hidden(m_bar_hit_line, m_is_hidden);
+
+        m_bar_bg_line = line::make({ 0.0F, 0.0F }, { max, 0.0F });
+        line::size(m_bar_bg_line, 2);
+        line::layer(m_bar_bg_line, layer - 2);
+        line::transform(m_bar_bg_line, transform);
+        line::is_hidden(m_bar_bg_line, m_is_hidden);
     }
     ~Bar() {
         line::erase(m_bar_bg_line);
@@ -74,19 +86,9 @@ public:
         line::offset(m_bar_hit_line, offset);
         line::offset(m_bar_line, offset);
 
-        line::layer(m_bar_bg_line, layer);
-        line::layer(m_bar_hit_line, layer);
-        line::layer(m_bar_line, layer);
-
         if (amount > 0.0f and amount < max) {
             amount += regen;
         }
-    }
-    void draw(std::unique_ptr<Window>& window) {
-        if (amount <= 0.0F or amount >= max or is_hidden) return;
-        line::draw(window, m_bar_bg_line);
-        line::draw(window, m_bar_hit_line);
-        line::draw(window, m_bar_line);
     }
 };
 
@@ -101,12 +103,12 @@ export namespace health {
     bool  is_zero(cI32 i) { return is_valid(i) ? s_bars.at(i)->amount <= 0.0F : true; }
     bool  is_max(cI32 i)  { return is_valid(i) ? s_bars.at(i)->amount >= s_bars.at(i)->max : false; }
 
-    U8    layer(cI32 i)     { return is_valid(i) ? s_bars.at(i)->layer     :       0; }
-    F32   amount(cI32 i)    { return is_valid(i) ? s_bars.at(i)->amount    :    0.0F; }
-    F32   max(cI32 i)       { return is_valid(i) ? s_bars.at(i)->max       :    0.0F; }
-    F32   regen(cI32 i)     { return is_valid(i) ? s_bars.at(i)->regen     :    0.0F; }
-    Vec2F offset(cI32 i)    { return is_valid(i) ? s_bars.at(i)->offset    : Vec2F{}; }
-    bool  is_hidden(cI32 i) { return is_valid(i) ? s_bars.at(i)->is_hidden :   false; }
+    U8    layer(cI32 i)     { return is_valid(i) ? s_bars.at(i)->layer       :       0; }
+    F32   amount(cI32 i)    { return is_valid(i) ? s_bars.at(i)->amount      :    0.0F; }
+    F32   max(cI32 i)       { return is_valid(i) ? s_bars.at(i)->max         :    0.0F; }
+    F32   regen(cI32 i)     { return is_valid(i) ? s_bars.at(i)->regen       :    0.0F; }
+    Vec2F offset(cI32 i)    { return is_valid(i) ? s_bars.at(i)->offset      : Vec2F{}; }
+    bool  is_hidden(cI32 i) { return is_valid(i) ? s_bars.at(i)->is_hidden() : false; }
 
     void  layer(cI32 i, cU8 l)       { if (is_valid(i)) s_bars.at(i)->layer     = l; }
     void  amount(cI32 i, cF32 a)     { if (is_valid(i)) s_bars.at(i)->amount    = a; }
@@ -114,7 +116,7 @@ export namespace health {
     void  max(cI32 i, cF32 m)        { if (is_valid(i)) s_bars.at(i)->max       = m; }
     void  regen(cI32 i, cF32 r)      { if (is_valid(i)) s_bars.at(i)->regen     = r; }
     void  offset(cI32 i, cVec2F o)   { if (is_valid(i)) s_bars.at(i)->offset    = o; }
-    void  is_hidden(cI32 i, bool q)  { if (is_valid(i)) s_bars.at(i)->is_hidden = q; }
+    void  is_hidden(cI32 i, bool q)  { if (is_valid(i)) s_bars.at(i)->is_hidden(q);  }
 
     void reset(cI32 i) { if (is_valid(i)) s_bars.at(i)->reset(); }
 
@@ -145,13 +147,13 @@ export namespace health {
     }
     void update() {
         for (auto& i : s_bars) {
-            if (i) i->update();
-        }
-    }
-    void draw(std::unique_ptr<Window>& window, cU8 layer) {
-        for (auto& i : s_bars) {
             if (i) {
-                i->draw(window);
+                if (i->amount <= 0.0F or i->amount >= i->max) {
+                    i->is_hidden(true);
+                } else {
+                    i->is_hidden(false);
+                }
+                i->update();
             }
         }
     }

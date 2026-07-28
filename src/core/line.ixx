@@ -326,6 +326,15 @@ export namespace line {
             }
         }
     }
+    void draw_aabb_in_layer(std::unique_ptr<Window>& window, cU8 layer) {
+        for (size_t i = 0; i < s_lines.size(); ++i) {
+            if (is_valid(i) and s_lines.at(i)->layer() == layer) {
+                if (s_lines.at(i)->is_aabb()) {
+                    draw(window, i);
+                }
+            }
+        }
+    }
     void clear() {
         for (size_t i = 0; i < s_lines.size(); ++i) {
             //console::log("line::clear erasing ", i, "\n");

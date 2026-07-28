@@ -106,7 +106,7 @@ export namespace anim {
         ledge, lever,
         melee,
         rise, run,
-        skid, slide_ground, slide_wall, stunned, swim, sling,
+        skid, slide_ground, wall_slide, stunned, swim, sling,
         walk,
         upended
     };
@@ -134,7 +134,7 @@ export namespace anim {
         case Type::run:          return "run";
         case Type::skid:         return "skid";
         case Type::slide_ground: return "slide_ground";
-        case Type::slide_wall:   return "slide_wall";
+        case Type::wall_slide:   return "wall_slide";
         case Type::stunned:      return "stunned";
         case Type::swim:         return "swim";
         case Type::sling:        return "sling";
@@ -165,7 +165,7 @@ export namespace anim {
         { "run"          , Type::run          },
         { "skid"         , Type::skid         },
         { "slide_ground" , Type::slide_ground },
-        { "slide_wall"   , Type::slide_wall   },
+        { "wall_slide"   , Type::wall_slide   },
         { "stunned"      , Type::stunned      },
         { "swim"         , Type::swim         },
         { "sling"        , Type::sling        },
@@ -184,8 +184,8 @@ export namespace entity {
     enum class Type {
         none = 0,
         arch_L_1x1, arch_R_1x1, arch_L_2x1_0, arch_L_2x1_1, arch_R_2x1_0, arch_R_2x1_1,
-        bee, brick, bridge, bug,
-        clip, clip_D, clip_LD, clip_RD, clip_L, clip_R, clip_ledge, clip_U, clip_UD, clip_LR,
+        bee, bee_hive, brick, bridge, /*bridge_L, bridge_R,*/ bug,
+        clip, clip_D, clip_D_50, clip_LD, clip_RD, clip_L, clip_L_50, clip_R, clip_R_50, clip_ledge, clip_ledge_L_50, clip_ledge_R_50, clip_U, clip_U_50, clip_UD, clip_LR,
         coin,
         conduit_UD, conduit_LR,
         conduit_corner_UL, conduit_corner_UR, conduit_corner_DL, conduit_corner_DR,
@@ -232,10 +232,10 @@ export namespace entity {
            t == Type::slope_U;
     }
     bool is_clip(cType t) {
-        return t == Type::clip or t == Type::clip_U or t == Type::clip_D or
-               t == Type::clip_L or t == Type::clip_R or t == Type::clip_LR or t == Type::clip_LD or t == Type::clip_RD or
+        return t == Type::clip or t == Type::clip_U or t == Type::clip_U_50 or t == Type::clip_D or t == Type::clip_U_50 or
+               t == Type::clip_L or t == Type::clip_L_50 or t == Type::clip_R or t == Type::clip_R_50 or t == Type::clip_LR or t == Type::clip_LD or t == Type::clip_RD or
                t == Type::clip_UD or
-               t == Type::clip_ledge;
+               t == Type::clip_ledge or t == Type::clip_ledge_L_50 or t == Type::clip_ledge_R_50;
     }
     bool is_level_geometry(cType t) {
         return is_arch(t) or is_clip(t) or is_slope(t);
@@ -279,17 +279,26 @@ export namespace entity {
         { "arch_R_2x1_0"         , Type::arch_R_2x1_0         },
         { "arch_R_2x1_1"         , Type::arch_R_2x1_1         },
         { "bee"                  , Type::bee                  },
+        { "bee_hive"             , Type::bee_hive             },
         { "brick"                , Type::brick                },
         { "bridge"               , Type::bridge               },
+        //{ "bridge_L"             , Type::bridge_L             },
+        //{ "bridge_R"             , Type::bridge_R             },
         { "bug"                  , Type::bug                  },
         { "clip"                 , Type::clip                 },
         { "clip_L"               , Type::clip_L               },
+        { "clip_L_50"            , Type::clip_L_50            },
         { "clip_R"               , Type::clip_R               },
+        { "clip_R_50"            , Type::clip_R_50            },
         { "clip_D"               , Type::clip_D               },
+        { "clip_D_50"            , Type::clip_D_50            },
         { "clip_LD"              , Type::clip_LD              },
         { "clip_RD"              , Type::clip_RD              },
         { "clip_ledge"           , Type::clip_ledge           },
+        { "clip_ledge_L_50"      , Type::clip_ledge_L_50      },
+        { "clip_ledge_R_50"      , Type::clip_ledge_R_50      },
         { "clip_U"               , Type::clip_U               },
+        { "clip_U_50"            , Type::clip_U_50            },
         { "clip_UD"              , Type::clip_UD              },
         { "clip_LR"              , Type::clip_LR              },
         { "coin"                 , Type::coin                 },        
@@ -405,17 +414,26 @@ export namespace entity {
             case Type::arch_R_2x1_0:         return "arch_R_2x1_0";
             case Type::arch_R_2x1_1:         return "arch_R_2x1_1";
             case Type::bee:                  return "bee";
+            case Type::bee_hive:             return "bee_hive";
             case Type::brick:                return "brick";
             case Type::bridge:               return "bridge";
+            //case Type::bridge_L:             return "bridge_L";
+            //case Type::bridge_R:             return "bridge_R";
             case Type::bug:                  return "bug";
             case Type::clip:                 return "clip";
             case Type::clip_L:               return "clip_L";
+            case Type::clip_L_50:            return "clip_L_50";
             case Type::clip_R:               return "clip_R";
+            case Type::clip_R_50:            return "clip_R_50";
             case Type::clip_D:               return "clip_D";
+            case Type::clip_D_50:            return "clip_D_50";
             case Type::clip_LD:              return "clip_LD";
             case Type::clip_RD:              return "clip_RD";
             case Type::clip_ledge:           return "clip_ledge";
+            case Type::clip_ledge_L_50:      return "clip_ledge_L_50";
+            case Type::clip_ledge_R_50:      return "clip_ledge_R_50";
             case Type::clip_U:               return "clip_U";
+            case Type::clip_U_50:            return "clip_U_50";
             case Type::clip_UD:              return "clip_UD";
             case Type::clip_LR:              return "clip_LR";
             case Type::coin:                 return "coin";
@@ -550,7 +568,7 @@ export namespace state {
         melee,
         run,
         shoot, stunned, swim, sling,
-        slide_wall, jump_wall,
+        wall_slide, wall_jump,
         tossed,
         upended,
         walk
@@ -580,8 +598,8 @@ export namespace state {
             case Type::stunned:    return "stunned";
             case Type::swim:       return "swim";
             case Type::sling:      return "sling";
-            case Type::slide_wall: return "slide_wall";
-            case Type::jump_wall:  return "jump_wall";
+            case Type::wall_slide: return "wall_slide";
+            case Type::wall_jump:  return "wall_jump";
             case Type::tossed:     return "tossed";
             case Type::upended:    return "upended";
             case Type::walk:       return "walk";
@@ -805,7 +823,7 @@ struct Vec2 {
     template<typename T>
     bool operator ==(const T value)     const { return x == value and y == value; }
     template<typename T>
-    bool operator !=(const T value)     const { return x != value and y != value; }
+    bool operator !=(const T value)     const { return !operator==(value); }
     bool operator <(const Vec2& other)  const { return x < other.x and y < other.y; }
 };
 

@@ -6,7 +6,7 @@ import aabb;
 import console;
 import input;
 import line;
-import quad_tree;
+//import quad_tree;
 import sound;
 import sprite;
 import transform;
@@ -44,13 +44,15 @@ namespace sheet {
 
         //console::log("level transform: ", m_level_transform, "\n");
 
-        //m_entity_objects.emplace_back(std::make_unique<entity::Player>());
-        //m_entity_objects.back()->level_transform = m_level_transform;
-        //m_entity_objects.back()->position(m_start_position);
+        //m_entities.emplace_back(std::make_unique<entity::Player>());
+        //m_entities.back()->level_transform = m_level_transform;
+        //m_entities.back()->position(m_start_position);
 
 
         sheet::game::current_level_path(level_path);
         sheet::game::add_visited_level(level_path);
+
+        collision_grid::reset();
 
         load_level(level_path);
         m_level_path = level_path;
@@ -70,6 +72,8 @@ namespace sheet {
         }*/
 
         m_visible_layers.insert(NUM_VISIBLE_LAYERS - 1);  // for particles like blood
+        m_visible_layers.insert(NUM_VISIBLE_LAYERS - 2);
+        m_visible_layers.insert(NUM_VISIBLE_LAYERS - 3);
                 
 
         //m_player.start_offset(m_start_position);
@@ -147,302 +151,59 @@ namespace sheet {
         //collision_grid::init(num_cells);
 
         //Vec2F extent = m_num_level_tiles.x > m_num_level_tiles.y ? Vec2F{ m_num_level_tiles.x, m_num_level_tiles.x } : Vec2F{ m_num_level_tiles.y, m_num_level_tiles.y };
-        Vec2F extent = m_num_level_tiles;
-        I32 depth = m_num_level_tiles.x / m_num_level_tiles.y;
-        if (depth < 4) depth = 4;
-        console::log("depth: ", depth, "\n\n");
-        collision_grid::init(extent, depth);
+        //Vec2F extent = m_num_level_tiles;
+        //I32 depth = m_num_level_tiles.x / m_num_level_tiles.y;
+        //if (depth < 4) depth = 4;
+        //console::log("depth: ", depth, "\n\n");
+
+        console::log("m_num_level_tiles: ", m_num_level_tiles.x, " ", m_num_level_tiles.y, "\n\n");
+        //cVec2F extent = { 128, 128 };
+
+        collision_grid::init(m_grid_coords);
 
         m_mouse_transform = transform::make();
 
         test_aabb = aabb::make(m_mouse_transform, { 0, 0, 16, 16 });
     }
 
-    void Game::check_to_add_input_from(entity::Object* trigger_entity) {
-        //if (trigger_entity->type() != entity::Type::track_trigger_UL) {
-        //    //console::log("")
-        //    return;
-        //}
 
-        entity::Object* current_entity = nullptr;
-
-        entity::Object* prev_entity = trigger_entity;
-        entity::Object* start_of_loop_entity = nullptr;
-
-        Vec2F current_pos = {};
-
-        Vec2F offset_to_next  = { 0.0F, -16.0F },
-              offset_to_next2 = { 0.0F,   0.0F };
-        for (auto& entity : m_unlocked_entity_objects) {
-            if (entity->start_offset() == prev_entity->start_offset() + offset_to_next) {
-                //console::log("sheet::Game::check_to_add_input_from() entity above trigger: ", entity::to_string(entity->type()), "\n");
-                //current_offset = trigger_entity->start_offset() + Vec2F{ 0.0F,-16.0F };
-                bool is_track_found = false;
-                switch (entity->type()) {
-                    case entity::Type::conduit_corner_UR: {
-                        offset_to_next = { -16.0F, 0.0F };
-                        break;
-                    }
-                    case entity::Type::track_trigger_UL: {
-                        offset_to_next = { -16.0F, 0.0F };
-                        is_track_found = true;
-                        start_of_loop_entity = entity;
-                        break;
-                    }
-                    case entity::Type::conduit_corner_UL: {
-                        offset_to_next = { 16.0F, 0.0F };
-                        break;
-                    }
-                    case entity::Type::track_trigger_UR: {
-                        offset_to_next = { 16.0F, 0.0F };
-                        is_track_found = true;
-                        start_of_loop_entity = entity;
-                        break;
-                    }
-                    case entity::Type::conduit_UD: {
-                        offset_to_next = { 0.0F, -16.0F };
-                        break;
-                    }
-                    case entity::Type::track_UD: {
-                        is_track_found = false;
-                        offset_to_next = { 0.0F, -16.0F };
-                        break;
-                    }
-                }
-
-                entity->add_input(prev_entity);
-
-                console::log(to_string(entity->type()), " add input: ", to_string(prev_entity->type()), "\n");
-
-                entity->direction(offset_to_next);
-                prev_entity = entity;
-
-                current_entity = entity;
-                current_pos = entity->start_offset();                
-                
-                if (is_track_found) {
-                    console::log("state::Game::check_to_add_input_from() found trigger direction: ", entity->direction().x, " ", entity->direction().y, "\n");                    
-                    break;
-                }
-            }
-        }
-
-
-
-        while (1) {
-            cVec2F pos      = current_entity->start_offset(),
-                   prev_pos = prev_entity->start_offset();
-
-            offset_to_next = {};
-            offset_to_next2 = {};
-
-            console::log("current entity: ", to_string(current_entity->type()), "\n");
-            switch (current_entity->type()) {                
-                case entity::Type::track_trigger_UL: {
-                    offset_to_next = { -16.0F, 0.0F };
-                    start_of_loop_entity = current_entity;
-                    break;
-                }                
-                case entity::Type::track_trigger_UR: {
-                    offset_to_next = { 16.0F, 0.0F };
-                    start_of_loop_entity = current_entity;
-                    break;
-                }
-                case entity::Type::conduit_UD:
-                case entity::Type::logic_not_UD:
-                case entity::Type::track_UD: {
-                    offset_to_next = prev_pos.y < pos.y ? Vec2F{ 0.0F,  16.0F } : Vec2F{ 0.0F, -16.0F };
-                    break;
-                }                
-                case entity::Type::conduit_LR:
-                case entity::Type::track_LR: {
-                    offset_to_next = prev_pos.x < pos.x ? Vec2F{ 16.0F,   0.0F } : Vec2F{ -16.0F,   0.0F };
-                    break;
-                }
-                case entity::Type::conduit_corner_DL:
-                case entity::Type::track_corner_DL: {
-                    offset_to_next = prev_pos.x > pos.x ? Vec2F{ 0.0F, -16.0F } : Vec2F{ 16.0F,   0.0F };
-                    break;
-                }
-                case entity::Type::conduit_corner_UL:
-                case entity::Type::track_corner_UL: {                    
-                    offset_to_next = prev_pos.x > pos.x ? Vec2F{ 0.0F,  16.0F } : Vec2F{ 16.0F,   0.0F };
-                    break;
-                }
-                case entity::Type::conduit_corner_UR:
-                case entity::Type::track_corner_UR: {
-                    offset_to_next = prev_pos.x < pos.x ? Vec2F{ 0.0F,  16.0F } : Vec2F{ -16.0F,   0.0F };
-                    break;
-                }
-                case entity::Type::conduit_corner_DR:
-                case entity::Type::track_corner_DR: {
-                    offset_to_next = prev_pos.x < pos.x ? Vec2F{ 0.0F, -16.0F } : Vec2F{ -16.0F,   0.0F };
-                    break;
-                }
-                case entity::Type::conduit_L_1x1_0:
-                case entity::Type::track_L_1x1_0: {
-                    offset_to_next = prev_pos.x < pos.x ? Vec2F{ 0.0F,  16.0F } : Vec2F{ -16.0F,   0.0F };
-                    break;
-                }
-                case entity::Type::conduit_L_1x1_1:
-                case entity::Type::track_L_1x1_1: {
-                    offset_to_next = prev_pos.y < pos.y ? Vec2F{ 16.0F,   0.0F } : Vec2F{ 0.0F, -16.0F };
-                    break;
-                }
-                case entity::Type::conduit_R_1x1_0:
-                case entity::Type::track_R_1x1_0: {
-                    offset_to_next = prev_pos.y > pos.y ? Vec2F{ 16.0F,   0.0F } : Vec2F{ 0.0F,  16.0F };
-                    break;
-                }
-                case entity::Type::conduit_R_1x1_1:
-                case entity::Type::track_R_1x1_1: {
-                    offset_to_next = prev_pos.y < pos.y ? Vec2F{ -16.0F,   0.0F } : Vec2F{ 0.0F, -16.0F };
-                    break;
-                }
-                case entity::Type::conduit_L_1x2_0:
-                case entity::Type::track_L_1x2_0: {
-                    offset_to_next = prev_pos.y < pos.y ? Vec2F{ 0.0F,  16.0F } : Vec2F{ -16.0F, -16.0F };
-                    break;
-                }
-                case entity::Type::conduit_L_1x2_1:
-                case entity::Type::track_L_1x2_1: {
-                    offset_to_next = prev_pos.y < pos.y ? Vec2F{ 16.0F,  16.0F } : Vec2F{ 0.0F, -16.0F };
-                    break;
-                }
-                case entity::Type::conduit_R_1x2_0:
-                case entity::Type::track_R_1x2_0: {
-                    offset_to_next = prev_pos.y < pos.y ? Vec2F{ 0.0F,   16.0F } : Vec2F{ 16.0F, -16.0F };
-                    break;
-                }
-                case entity::Type::conduit_R_1x2_1:
-                case entity::Type::track_R_1x2_1: {
-                    if (prev_pos.y < pos.y) {
-                        offset_to_next = { -16.0F,  16.0F };
-                        offset_to_next2 = { 0.0F,  16.0F };
-                    } else {
-                        offset_to_next = { 0.0F, -16.0F };
-                    }
-                    break;
-                }
-                case entity::Type::conduit_L_2x1_0:
-                case entity::Type::track_L_2x1_0: {
-                    offset_to_next = prev_pos.x < pos.x ? Vec2F{ 16.0F,  16.0F } : Vec2F{ -16.0F,   0.0F };
-                    break;
-                }
-                case entity::Type::conduit_L_2x1_1:
-                case entity::Type::track_L_2x1_1: {
-                    offset_to_next = prev_pos.x < pos.x ? Vec2F{ 16.0F,   0.0F } : Vec2F{ -16.0F, -16.0F };
-                    break;
-                }
-                case entity::Type::conduit_R_2x1_0:
-                case entity::Type::track_R_2x1_0: {
-                    offset_to_next = prev_pos.y > pos.y ? Vec2F{ 16.0F,   0.0F } : Vec2F{ -16.0F,  16.0F };
-                    break;
-                }
-                case entity::Type::conduit_R_2x1_1:
-                case entity::Type::track_R_2x1_1: {
-                    if (prev_pos.x < pos.x) {
-                        offset_to_next = { 16.0F, -16.0F };
-                        offset_to_next2 = { 16.0F,   0.0F };
-                    } else {
-                        offset_to_next = { -16.0F,   0.0F };
-                    }
-                    break;
-                }
-                case entity::Type::logic_not_LR: {
-                    offset_to_next = prev_pos.x < pos.x ? Vec2F{ 16.0F,   0.0F } : Vec2F{ -16.0F,   0.0F };
-                    break;
-                }
-            }
-
-            //console::log("current: ", to_string(current_entity->type()), " offset to next: ", offset_to_next.x, " ", offset_to_next.y, "\n");
-
-            
-            auto it = std::find_if(m_unlocked_entity_objects.begin(), m_unlocked_entity_objects.end(),
-                [current_pos, offset_to_next](const entity::Object* e) {
-                    return (is_conduit(e->type()) or is_logic(e->type()) or is_track(e->type())) and
-                        offset_to_next != Vec2F{} and
-                        e->start_offset() == current_pos + offset_to_next;
-                });
-
-            if (it != m_unlocked_entity_objects.end()) {
-                if ((*it) == start_of_loop_entity) {
-                    console::log("1: found start of loop: ", to_string((*it)->type()), "\n");
-                    return;
-                }
-                prev_entity = current_entity;
-                (*it)->add_input(prev_entity);
-
-                //console::log(to_string((*it)->type()), " add input: ", to_string(prev_entity->type()), "\n");
-                (*it)->direction(pos - prev_pos);
-                //console::log("1: ", to_string((*it)->type()), " ", (*it)->direction().x, " ", (*it)->direction().y, "\n");
-                current_entity = (*it);
-                current_pos = (*it)->start_offset();
-                continue;
-            }
-            
-            auto it2 = std::find_if(m_unlocked_entity_objects.begin(), m_unlocked_entity_objects.end(),
-                [current_pos, offset_to_next2](const entity::Object* e) {
-                    return (is_conduit(e->type()) or is_logic(e->type()) or is_track(e->type())) and
-                        offset_to_next2 != Vec2F{} and
-                        e->start_offset() == current_pos + offset_to_next2;
-                });
-
-            if (it2 != m_unlocked_entity_objects.end()) {
-                if ((*it2) == start_of_loop_entity) {
-                    console::log("2: found start of loop: ", to_string((*it2)->type()), "\n");
-                    return;
-                }
-                prev_entity = current_entity;
-                (*it2)->add_input(prev_entity);
-                (*it2)->direction(pos - prev_pos);
-                //console::log("2: ", to_string((*it2)->type()), " ", (*it2)->direction().x, " ", (*it2)->direction().y, "\n");
-                current_entity = (*it2);
-                current_pos = (*it2)->start_offset();
-                continue;
-            }
-
-            console::log(class_name(), "::check_to_add_input_from() no path forward found.\n");
-            return;        
-        }
-    }
-
-    void Game::check_collision() {
-        std::vector<std::thread> threads;
-        for (std::pair<Vec2I, QuadTreeNode*>& quad_tree_node : m_level_quad_trees) {
-            if (!quad_tree_node.second) continue;
-
-            auto check_collision_lambda = [&]() {
-                std::unique_lock<std::mutex> quad_tree_node_lock(quad_tree_node_mutex);
-
-                quad_tree_node.second->clear();
-                quad_tree_node.second->init(
-                    { (quad_tree_node.first.x - 1) * 256.0F + transform::position(m_level_transform).x,
-                      (quad_tree_node.first.y - 1) * 256.0F + transform::position(m_level_transform).y,
-                    256.0F, 256.0F });
-
-                //for (auto& i : aabb::get_aabbs()) {
-                for (I32 aabb = 0; aabb < aabb::size(); ++aabb) {
-                    if (!aabb::is_active(aabb)) continue;
-
-                    //aabb->quad_tree_node.clear();
-                    //quad_tree_node.second->insert_aabb(aabb);
-                    quad_tree_node.second->insert_point(aabb, aabb::UL(aabb));
-                    quad_tree_node.second->insert_point(aabb, aabb::UR(aabb));
-                    quad_tree_node.second->insert_point(aabb, aabb::DL(aabb));
-                    quad_tree_node.second->insert_point(aabb, aabb::DR(aabb));
-                }
-                quad_tree_node_lock.unlock();
-
-                quad_tree_node.second->check_collision();
-                };
-            threads.emplace_back(std::thread(check_collision_lambda));
-        }
-        //console::log("sheet::Game::quad_trees_check_collision() num threads: ", threads.size(), "\n");
-        for (auto& thread : threads) {
-            if (thread.joinable()) {
-                thread.join();
-            }
-        }
-    }
+    //void Game::check_collision() {
+    //    std::vector<std::thread> threads;
+    //    for (std::pair<Vec2I, QuadTreeNode*>& quad_tree_node : m_level_quad_trees) {
+    //        if (!quad_tree_node.second) continue;
+    //
+    //        auto check_collision_lambda = [&]() {
+    //            std::unique_lock<std::mutex> quad_tree_node_lock(quad_tree_node_mutex);
+    //
+    //            quad_tree_node.second->clear();
+    //            quad_tree_node.second->init(
+    //                { (quad_tree_node.first.x - 1) * 256.0F + transform::position(m_level_transform).x,
+    //                  (quad_tree_node.first.y - 1) * 256.0F + transform::position(m_level_transform).y,
+    //                256.0F, 256.0F });
+    //
+    //            //for (auto& i : aabb::get_aabbs()) {
+    //            for (I32 aabb : aabb::aabb_ids()) {
+    //            //for (I32 aabb = 0; aabb < aabb::size(); ++aabb) {
+    //                if (!aabb::is_active(aabb)) continue;
+    //
+    //                //aabb->quad_tree_node.clear();
+    //                //quad_tree_node.second->insert_aabb(aabb);
+    //                quad_tree_node.second->insert_point(aabb, aabb::UL(aabb));
+    //                quad_tree_node.second->insert_point(aabb, aabb::UR(aabb));
+    //                quad_tree_node.second->insert_point(aabb, aabb::DL(aabb));
+    //                quad_tree_node.second->insert_point(aabb, aabb::DR(aabb));
+    //            }
+    //            quad_tree_node_lock.unlock();
+    //
+    //            quad_tree_node.second->check_collision();
+    //            };
+    //        threads.emplace_back(std::thread(check_collision_lambda));
+    //    }
+    //    //console::log("sheet::Game::quad_trees_check_collision() num threads: ", threads.size(), "\n");
+    //    for (auto& thread : threads) {
+    //        if (thread.joinable()) {
+    //            thread.join();
+    //        }
+    //    }
+    //}
 }

@@ -48,16 +48,17 @@ namespace entity {
 }
 
 namespace menu {
-    /*enum class Label {
-        none = 0, Open, Import
+    enum class Label {
+        open = 0, import
     };
     using cLabel = const Label;
     std::string to_string(cLabel l) {
         switch (l) {
-        case Label::Open:   return "Open";
-        case Label::Import: return "Import";
-        default:            return "";       }
-    }*/
+            case Label::open:   return "open";
+            case Label::import: return "import";            
+        }
+        return "";
+    }
     struct List {
         I32 transform = -1,
             bg_sprite = -1;
@@ -135,18 +136,14 @@ export namespace sheet {
         std::vector<I32> m_grid_sprites,
                          m_grid_map_sprites;
 
-        std::vector<I32> m_menu_up_bar_bg_sprites;
 
-        std::string      m_menu_up_labels[2] = { "Open ", "Import" };
-
-        //std::vector<menu::Label> m_menu_labels;
-
-        std::map<std::string, menu::List> m_menu_up_lists;
+        std::map<menu::Label, I32>                         m_menu_up_bar_bg_sprites;
+        std::map<menu::Label, std::unique_ptr<BitmapText>> m_menu_up_bar_texts;
+        std::map<menu::Label, menu::List>                  m_menu_up_lists;
 
         size_t m_typing_pos = 0;
         U16 m_time_typing_text_bar = 0;
 
-        std::vector<std::unique_ptr<BitmapText>> m_menu_up_bar;
 
         BitmapText m_text_current_tile_set,
                    m_text_bar,
@@ -202,9 +199,9 @@ export namespace sheet {
         std::map<entity::Info, std::string> m_types;
         
         void handle_menu_up();
-        bool add_to_menu_up_bar(const std::string& text);
-        void load_menu_up_list(const std::string& menu, const std::filesystem::path& level_dir_path);
-        bool add_to_menu_up_list(const std::string& menu, const std::filesystem::path& level_path);
+        bool add_to_menu_up_bar(menu::Label menu);
+        void load_menu_up_list(menu::Label menu, const std::filesystem::path& level_dir_path);
+        bool add_to_menu_up_list(menu::Label menu, const std::filesystem::path& level_path);
         bool remove_level(const std::filesystem::path& path);
         
         void handle_menu_down();

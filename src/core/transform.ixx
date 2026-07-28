@@ -147,18 +147,18 @@ export namespace transform {
         return object->id;
     }
 
-    Vec2F position(cI32 i)           { return is_valid(i) ? s_transforms.at(i)->position           : Vec2F{}; }    
-    Vec2F start_position(cI32 i)     { return is_valid(i) ? s_transforms.at(i)->start_position     : Vec2F{}; }
-    Vec2F velocity(cI32 i)           { return is_valid(i) ? s_transforms.at(i)->velocity           : Vec2F{}; }
-    Vec2F move_velocity(cI32 i)     { return is_valid(i) ? s_transforms.at(i)->move_velocity     : Vec2F{}; }
-    Vec2F acceleration(cI32 i)       { return is_valid(i) ? s_transforms.at(i)->acceleration       : Vec2F{}; }
-    Vec2F start_acceleration(cI32 i) { return is_valid(i) ? s_transforms.at(i)->start_acceleration : Vec2F{}; }
-    Vec2F deceleration(cI32 i)       { return is_valid(i) ? s_transforms.at(i)->deceleration       : Vec2F{}; }
-    Vec2F start_deceleration(cI32 i) { return is_valid(i) ? s_transforms.at(i)->start_deceleration : Vec2F{}; }
-    Vec2F max_velocity(cI32 i)       { return is_valid(i) ? s_transforms.at(i)->max_velocity       : Vec2F{}; }
-    Vec2F start_max_velocity(cI32 i) { return is_valid(i) ? s_transforms.at(i)->start_max_velocity : Vec2F{}; }
-
-    Vec2F direction(cI32 i)          { return is_valid(i) ? s_transforms.at(i)->direction          : Vec2F{}; }
+    Vec2F position(cI32 i)           { return is_valid(i) ? s_transforms.at(i)->position                                     : Vec2F{}; }    
+    Vec2F start_position(cI32 i)     { return is_valid(i) ? s_transforms.at(i)->start_position                               : Vec2F{}; }
+    Vec2F velocity(cI32 i)           { return is_valid(i) ? s_transforms.at(i)->velocity                                     : Vec2F{}; }
+    Vec2F move_velocity(cI32 i)      { return is_valid(i) ? s_transforms.at(i)->move_velocity                                : Vec2F{}; }
+    Vec2F sum_velocity(cI32 i)       { return is_valid(i) ? s_transforms.at(i)->velocity + s_transforms.at(i)->move_velocity : Vec2F{}; }
+    Vec2F acceleration(cI32 i)       { return is_valid(i) ? s_transforms.at(i)->acceleration                                 : Vec2F{}; }
+    Vec2F start_acceleration(cI32 i) { return is_valid(i) ? s_transforms.at(i)->start_acceleration                           : Vec2F{}; }
+    Vec2F deceleration(cI32 i)       { return is_valid(i) ? s_transforms.at(i)->deceleration                                 : Vec2F{}; }
+    Vec2F start_deceleration(cI32 i) { return is_valid(i) ? s_transforms.at(i)->start_deceleration                           : Vec2F{}; }
+    Vec2F max_velocity(cI32 i)       { return is_valid(i) ? s_transforms.at(i)->max_velocity                                 : Vec2F{}; }
+    Vec2F start_max_velocity(cI32 i) { return is_valid(i) ? s_transforms.at(i)->start_max_velocity                           : Vec2F{}; }
+    Vec2F direction(cI32 i)          { return is_valid(i) ? s_transforms.at(i)->direction                                    : Vec2F{}; }
 
     void position(cI32 i, cVec2F p)           { if (is_valid(i)) s_transforms.at(i)->position             = p; }
     void position_x(cI32 i, cF32 x)           { if (is_valid(i)) s_transforms.at(i)->position.x           = x; }    
@@ -173,12 +173,12 @@ export namespace transform {
     void velocity_add(cI32 i, cVec2F v)       { if (is_valid(i)) s_transforms.at(i)->velocity            += v; }
     void velocity_add_x(cI32 i, cF32 x)       { if (is_valid(i)) s_transforms.at(i)->velocity.x          += x; }
     void velocity_add_y(cI32 i, cF32 y)       { if (is_valid(i)) s_transforms.at(i)->velocity.y          += y; }
-    void move_velocity(cI32 i, cVec2F v)     { if (is_valid(i)) s_transforms.at(i)->move_velocity       = v; }
-    void move_velocity_x(cI32 i, cF32 x)     { if (is_valid(i)) s_transforms.at(i)->move_velocity.x     = x; }
-    void move_velocity_y(cI32 i, cF32 y)     { if (is_valid(i)) s_transforms.at(i)->move_velocity.y     = y; }
-    void move_velocity_add(cI32 i, cVec2F v) { if (is_valid(i)) s_transforms.at(i)->move_velocity      += v; }
-    void move_velocity_add_x(cI32 i, cF32 x) { if (is_valid(i)) s_transforms.at(i)->move_velocity.x    += x; }
-    void move_velocity_add_y(cI32 i, cF32 y) { if (is_valid(i)) s_transforms.at(i)->move_velocity.y    += y; }
+    void move_velocity(cI32 i, cVec2F v)      { if (is_valid(i)) s_transforms.at(i)->move_velocity        = v; }
+    void move_velocity_x(cI32 i, cF32 x)      { if (is_valid(i)) s_transforms.at(i)->move_velocity.x      = x; }
+    void move_velocity_y(cI32 i, cF32 y)      { if (is_valid(i)) s_transforms.at(i)->move_velocity.y      = y; }
+    void move_velocity_add(cI32 i, cVec2F v)  { if (is_valid(i)) s_transforms.at(i)->move_velocity       += v; }
+    void move_velocity_add_x(cI32 i, cF32 x)  { if (is_valid(i)) s_transforms.at(i)->move_velocity.x     += x; }
+    void move_velocity_add_y(cI32 i, cF32 y)  { if (is_valid(i)) s_transforms.at(i)->move_velocity.y     += y; }
     void acceleration(cI32 i, cVec2F a)       { if (is_valid(i)) s_transforms.at(i)->acceleration         = a; }
     void acceleration_x(cI32 i, cF32 x)       { if (is_valid(i)) s_transforms.at(i)->acceleration.x       = x; }
     void acceleration_y(cI32 i, cF32 y)       { if (is_valid(i)) s_transforms.at(i)->acceleration.y       = y; }

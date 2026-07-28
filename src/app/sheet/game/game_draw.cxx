@@ -5,74 +5,75 @@ import line;
 import collision_grid;
 
 namespace sheet {
-    void Game::draw(std::unique_ptr<Window>& window, cU8 layer) {
-
-        //for (auto& i : sprite::ids_in_layer(layer)) {
-        //    sprite::draw(window, i);
-        //}
-        ////health::draw(window, layer);
-        //
-        //for (auto& i : line::ids_in_layer(layer)) {
-        //    if (!line::is_hidden(i) and !line::is_aabb(i) or m_is_drawing_debug) {
-        //        line::draw(window, i);
-        //    }
-        //}
-        //return;
-
-        if (m_is_drawing_quad_tree and layer == NUM_VISIBLE_LAYERS - 1) {
-            for (auto& i : m_level_quad_trees) {
-                i.second->draw(window);
-            }
-
-            //collision_grid::draw(window, layer);
-        }
-        
-        for (auto& i : m_level_sprites) {
-            if (sprite::layer(i) == layer) {
-                sprite::draw(window, i);
-            }
-        }
-        
-        if (m_player.sprite_layer() == layer) {            
-            //console::log("m_player.sprite_layer(): ", (int)m_player.sprite_layer(), "\n");
-            m_player.draw(window);
-            if (m_is_drawing_debug) {
-                m_player.draw_aabb(window);
-            }
-        }
-        for (auto& i : m_entity_objects) {
-            if (i and sprite::layer(i->sprite()) == layer) {
-                if (sprite::is_debug(i->sprite())) {
-                    if (m_is_drawing_debug) {
-                        i->draw(window);                        
-                    }
-                }
-                else {
-                    i->draw(window);
-                }
-
-                if (m_is_drawing_debug) {
-                    i->draw_aabb(window);
-                }
-            }
-        }
-        for (auto& i : m_water_entity_objects) {
-            if (i and i->start_layer() == layer) {                
-                i->draw(window);
-                if (m_is_drawing_debug) {
-                    i->draw_aabb(window);
-                }
-            }
-        }        
-        
-        particle::draw(window, layer);
-        if (m_is_drawing_debug) {
-            particle::draw_aabb(window, layer);
-        }
-
-        health::draw(window, layer);
-
-        aabb::draw(window, test_aabb);
-
-    }
+    //void Game::draw(std::unique_ptr<Window>& window, cU8 layer) {
+    //
+    //    //for (auto& i : sprite::ids_in_layer(layer)) {
+    //    //    sprite::draw(window, i);
+    //    //}
+    //    ////health::draw(window, layer);
+    //    //
+    //    //for (auto& i : line::ids_in_layer(layer)) {
+    //    //    if (!line::is_hidden(i) and !line::is_aabb(i) or m_is_drawing_aabb) {
+    //    //        line::draw(window, i);
+    //    //    }
+    //    //}
+    //    //return;
+    //
+    //    //if (m_is_drawing_collision_grid and layer == NUM_VISIBLE_LAYERS - 1) {
+    //    //    for (auto& i : m_level_quad_trees) {
+    //    //        i.second->draw(window);
+    //    //    }
+    //    //}
+    //    //if (m_is_drawing_collision_grid and layer == NUM_VISIBLE_LAYERS - 1) {
+    //        collision_grid::draw(window, layer);
+    //    //}
+    //    
+    //    for (auto& i : m_level_sprites) {
+    //        if (sprite::layer(i) == layer) {
+    //            sprite::draw(window, i);
+    //        }
+    //    }
+    //    
+    //    if (m_player.sprite_layer() == layer) {            
+    //        //console::log("m_player.sprite_layer(): ", (int)m_player.sprite_layer(), "\n");
+    //        m_player.draw(window);
+    //        if (m_is_drawing_aabb) {
+    //            m_player.draw_aabb(window);
+    //        }
+    //    }
+    //    for (auto& i : m_entities) {
+    //        if (i and sprite::layer(i->sprite()) == layer) {
+    //            if (sprite::is_debug(i->sprite())) {
+    //                if (m_is_drawing_aabb) {
+    //                    i->draw(window);                        
+    //                }
+    //            }
+    //            else {
+    //                i->draw(window);
+    //            }
+    //
+    //            if (m_is_drawing_aabb) {
+    //                i->draw_aabb(window);
+    //            }
+    //        }
+    //    }
+    //    for (auto& i : m_water_entities) {
+    //        if (i and i->start_layer() == layer) {                
+    //            i->draw(window);
+    //            if (m_is_drawing_aabb) {
+    //                i->draw_aabb(window);
+    //            }
+    //        }
+    //    }        
+    //    
+    //    particle::draw(window, layer);
+    //    if (m_is_drawing_aabb) {
+    //        particle::draw_aabb(window, layer);
+    //    }
+    //
+    //    //health::draw(window, layer);
+    //
+    //    aabb::draw(window, test_aabb);
+    //
+    //}
 }

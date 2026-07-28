@@ -10,9 +10,6 @@ import types;
 export namespace entity {
     class Spring : public Object {
     public:
-        Spring() {
-            //load_config("res/entity/spring_U.cfg");
-        }
         void collide_x(aabb::cInfo our, aabb::cInfo other) override {
             if (other.owner->state() == state::Type::carried) return;
 

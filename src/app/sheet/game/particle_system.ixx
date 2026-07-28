@@ -18,34 +18,36 @@ import types;
 import window;
 import std;
 
-struct Spawn {
-    entity::Object* parent      = nullptr;
-    particle::Type  type        = particle::Type::none;
-    Vec2F           position    = { 0.0F, 0.0F },
-                    velocity    = { 0.0F, 0.0F };
-    state::Type     state       = state::Type::none;
-    bool            is_leftward = false;
-};
-using cSpawn = const Spawn;
+namespace particle {
+    struct Info {
+        entity::Object* parent      = nullptr;
+        particle::Type  type        = particle::Type::none;
+        Vec2F           position    = { 0.0F, 0.0F },
+                        velocity    = { 0.0F, 0.0F };
+        state::Type     state       = state::Type::none;
+        bool            is_leftward = false;
+    };
+    using cInfo = const Info;
+}
 
-std::vector<Spawn>           s_to_spawn;
+std::vector<particle::Info>  s_to_spawn;
 std::list<entity::Particle*> s_particle_entities;
 
 export namespace particle {
-    void draw(std::unique_ptr<Window>& window, cU8 layer) {
-        for (auto& i : s_particle_entities) {
-            if (i and i->start_layer() == layer and !i->is_to_erase()) {
-                i->draw(window);
-            }
-        }
-    }
-    void draw_aabb(std::unique_ptr<Window>& window, cU8 layer) {
-        for (auto& i : s_particle_entities) {
-            if (i and i->start_layer() == layer and !i->is_to_erase()) {
-                i->draw_aabb(window);                
-            }
-        }
-    }
+    //void draw(std::unique_ptr<Window>& window, cU8 layer) {
+    //    for (auto& i : s_particle_entities) {
+    //        if (i and i->start_layer() == layer and !i->is_to_erase()) {
+    //            i->draw(window);
+    //        }
+    //    }
+    //}
+    //void draw_aabb(std::unique_ptr<Window>& window, cU8 layer) {
+    //    for (auto& i : s_particle_entities) {
+    //        if (i and i->start_layer() == layer and !i->is_to_erase()) {
+    //            i->draw_aabb(window);                
+    //        }
+    //    }
+    //}
     void clear() {
         s_to_spawn.clear();
         for (auto it = s_particle_entities.begin(); it != s_particle_entities.end(); ++it) {
@@ -53,16 +55,16 @@ export namespace particle {
         }
         s_particle_entities.clear();
     }
-    void spawn(cSpawn to_spawn) {
+    void spawn(cInfo to_spawn) {
         s_to_spawn.emplace_back(to_spawn);
     }
     void spawn(entity::Object* parent, particle::cType type, cVec2F position, cVec2F velocity, state::cType state = state::Type::none, bool is_leftward = false) {
-        spawn(Spawn{ .parent      = parent,
-                     .type        = type,
-                     .position    = position,
-                     .velocity    = velocity,
-                     .state       = state,
-                     .is_leftward = is_leftward });
+        spawn(Info{ .parent      = parent,
+                    .type        = type,
+                    .position    = position,
+                    .velocity    = velocity,
+                    .state       = state,
+                    .is_leftward = is_leftward });
     }
     void spawn_fan(entity::Object* parent, cF32 start_angle, cF32 end_angle, cU8 num, particle::cType type, cVec2F position, cVec2F velocity, cF32 speed, state::cType state = state::Type::none) {
         cF32 end_angle_adjusted = start_angle > end_angle ? (end_angle + 360.0F) : end_angle;        
@@ -86,31 +88,36 @@ export namespace particle {
                   205.0F, 335.0F, 14,
                   particle::Type::drop_water, position + Vec2F{ 0.0F, -4.0F },
                   Vec2F{ velocity.x * 0.9F, -std::abs(velocity.y * 0.1F) },
-                  speed + 0.4F);
+                  speed + 0.4F,
+                  state::Type::idle);
 
         spawn_fan(parent,
                   205.0F, 335.0F, 13,
                   particle::Type::drop_water, position + Vec2F{ 0.0F, -3.0F },
                   Vec2F{ velocity.x * 0.9F, -std::abs(velocity.y * 0.1F) },
-                  speed + 0.3F);
+                  speed + 0.3F,
+                  state::Type::idle);
 
         spawn_fan(parent,
                   215.0F, 325.0F, 12,
                   particle::Type::drop_water, position + Vec2F{ 0.0F, -2.0F },
                   Vec2F{ velocity.x * 0.9F, -std::abs(velocity.y * 0.1F) },
-                  speed + 0.2F);
+                  speed + 0.2F,
+                  state::Type::idle);
 
         spawn_fan(parent,
                   225.0F, 315.0F, 10,
                   particle::Type::drop_water, position + Vec2F{ 0.0F, -1.0F },
                   Vec2F{ velocity.x * 0.9F, -std::abs(velocity.y * 0.1F) },
-                  speed + 0.1F);
+                  speed + 0.1F,
+                  state::Type::idle);
 
         spawn_fan(parent,
                   225.0F, 315.0F, 9,
                   particle::Type::drop_water, position + Vec2F{ 0.0F, 0.0F },
                   Vec2F{ velocity.x * 0.9F, -std::abs(velocity.y * 0.1F) },
-                  speed + 0.0F);
+                  speed + 0.0F,
+                  state::Type::idle);
     }
 
     void update(cF32 dt) {
@@ -156,7 +163,7 @@ export namespace particle {
                     console::log("spawn bubble\n");
                     s_particle_entities.emplace_back(new entity::ParticleBubble);
                     s_particle_entities.back()->load_config("res/entity/particle/bubble.cfg");
-                    //m_entity_objects.back()->direction({ (F32)random::number(0, 1), 0.0F });
+                    //m_entities.back()->direction({ (F32)random::number(0, 1), 0.0F });
                     break;
                 }
                 case Type::health: {
@@ -169,6 +176,7 @@ export namespace particle {
                     s_particle_entities.back()->load_config("res/entity/particle/hit.cfg");
                     velocity = {};
                     s_particle_entities.back()->start_layer(NUM_VISIBLE_LAYERS - 1);
+                    //console::log("\nSPAWN HIT ", (int)s_particle_entities.back()->start_layer(), "\n\n");
                     break;
                 }
                 case Type::interact: {

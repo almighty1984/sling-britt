@@ -1,10 +1,17 @@
 export module health.config;
 import health;
-import entity;
+//import entity;
 import types;
 import std;
 
 export namespace health {
+    struct Config {
+        I32 id       = -1;
+        F32 max      = 0.0F,
+            amount   = 0.0F,
+            regen    = 0.0F;
+        Vec2F offset = {};
+    };
     Config parse_config(const std::string& text, cI32 transform) {
         const size_t health_label = text.find("Health", 0);
         if (health_label == std::string::npos or text.find("{", health_label) == std::string::npos) {

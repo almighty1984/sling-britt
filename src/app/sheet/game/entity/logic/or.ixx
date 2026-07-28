@@ -12,7 +12,7 @@ export namespace entity {
         }
         void update(cF32 dt) override {
             m_time_left_alive = 0;
-            for (auto& i : m_input_objects) {
+            for (auto& i : m_inputs) {
                 if (i->time_left_alive() > 0) {
                     m_time_left_alive = U16_MAX;
                     break;

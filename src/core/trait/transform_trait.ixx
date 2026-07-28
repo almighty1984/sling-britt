@@ -29,13 +29,14 @@ export namespace transform {
         void  velocity_add(cVec2F v)       const { transform::velocity_add(m_transform, v);           }
         void  velocity_add_x(cF32 x)       const { transform::velocity_add_x(m_transform, x);         }
         void  velocity_add_y(cF32 y)       const { transform::velocity_add_y(m_transform, y);         }
-        Vec2F move_velocity()             const { return transform::move_velocity(m_transform);     }
-        void  move_velocity(cVec2F v)     const { transform::move_velocity(m_transform, v);         }
-        void  move_velocity_x(cF32 x)     const { transform::move_velocity_x(m_transform, x);       }
-        void  move_velocity_y(cF32 y)     const { transform::move_velocity_y(m_transform, y);       }
-        void  move_velocity_add(cVec2F v) const { transform::move_velocity_add(m_transform, v);     }
-        void  move_velocity_add_x(cF32 x) const { transform::move_velocity_add_x(m_transform, x);   }
-        void  move_velocity_add_y(cF32 y) const { transform::move_velocity_add_y(m_transform, y);   }
+        Vec2F move_velocity()              const { return transform::move_velocity(m_transform);      }
+        void  move_velocity(cVec2F v)      const { transform::move_velocity(m_transform, v);          }
+        void  move_velocity_x(cF32 x)      const { transform::move_velocity_x(m_transform, x);        }
+        void  move_velocity_y(cF32 y)      const { transform::move_velocity_y(m_transform, y);        }
+        void  move_velocity_add(cVec2F v)  const { transform::move_velocity_add(m_transform, v);      }
+        void  move_velocity_add_x(cF32 x)  const { transform::move_velocity_add_x(m_transform, x);    }
+        void  move_velocity_add_y(cF32 y)  const { transform::move_velocity_add_y(m_transform, y);    }
+        Vec2F sum_velocity()               const { return transform::sum_velocity(m_transform);       }
         Vec2F acceleration()               const { return transform::acceleration(m_transform);       }
         void  acceleration(cVec2F a)       const { transform::acceleration(m_transform, a);           }
         void  acceleration_x(cF32 a)       const { transform::acceleration_x(m_transform, a);         }

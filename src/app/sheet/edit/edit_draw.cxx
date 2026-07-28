@@ -27,17 +27,36 @@ namespace sheet {
         for (auto& i : m_grid_map_sprites)              if (sprite::layer(i) == layer) sprite::draw(window, i);
 
         if (!m_is_hidden_menu_up) {
-            for (auto& i : m_menu_up_bar_bg_sprites) if (sprite::layer(i) == layer) sprite::draw(window, i);            
-            for (auto& label : m_menu_up_bar)   if (label and label->layer() == layer) label->draw(window);                
+            for (auto& i : m_menu_up_bar_bg_sprites) {
+                if (sprite::layer(i.second) == layer) {
+                    sprite::draw(window, i.second);
+                }
+            }
+            for (auto& i : m_menu_up_bar_texts) {
+                if (i.second and i.second->layer() == layer) {
+                    i.second->draw(window);
+                }
+            }
             
         }
         if (m_text_current_tile_set.layer() == layer) m_text_current_tile_set.draw(window);        
-        if (m_text_bar.layer()              == layer) m_text_bar.draw(window);
-        if (m_info_message.layer()          == layer) m_info_message.draw(window);        
+        if (m_text_bar.layer()              == layer) m_text_bar.draw(window);        
 
-        for (auto& i : m_level_sprites)  if (sprite::layer(i) == layer) sprite::draw(window, i);        
-        for (auto& i : m_moving_sprites) if (sprite::layer(i) == layer) sprite::draw(window, i);
-
-        for (auto& i : m_menu_up_lists) i.second.draw(window);        
+        for (auto& i : m_level_sprites) {
+            if (sprite::layer(i) == layer) {
+                sprite::draw(window, i);
+            }
+        }
+        for (auto& i : m_moving_sprites) {
+            if (sprite::layer(i) == layer) {
+                sprite::draw(window, i);
+            }
+        }
+        for (auto& i : m_menu_up_lists) {
+            i.second.draw(window);
+        }
+        if (m_info_message.layer() == layer) {
+            m_info_message.draw(window);
+        }
     }
 }

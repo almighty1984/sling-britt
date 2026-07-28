@@ -5,29 +5,30 @@ import types;
 export namespace state {
     class Trait {
     protected:
-        Type  m_state       = Type::none,
-              m_next_state  = Type::none,
-              m_prev_state  = Type::none,
-              m_start_state = Type::none,
-              m_saved_state = Type::none;
+        Type m_state       = Type::none,
+             m_next_state  = Type::none,
+             m_prev_state  = Type::none,
+             m_start_state = Type::none,
+             m_saved_state = Type::none;
 
-        bool  m_is_first_state_update = true;
+        bool m_is_first_state_update = true;
 
-        U16 m_time_left_in_state      = 0,
-            m_time_left_in_next_state = 0,
-            m_time_in_state           = 0,
-            m_time_to_be_in_state =     0;
+        U16 m_time_left_until_next_state  = 0,
+            m_time_in_state               = 0,
+            m_time_to_be_in_state         = 0;
 
     public:
         void next_state(cType t) { m_next_state = t; }
         void state(cType t)      { m_state = t; }
 
-        Type state()       const { return m_state; }
+        Type state()       const { return m_state;       }
         Type start_state() const { return m_start_state; }
+        Type next_state()  const { return m_next_state;  }
         Type prev_state()  const { return m_prev_state;  }
 
-        U16 time_left_in_next_state() const { return m_time_left_in_next_state; } void time_left_in_next_state(cU16 t) { m_time_left_in_next_state = t; }
-
+        U16 time_to_be_in_state()         const { return m_time_to_be_in_state;        } void time_to_be_in_state(cU16 t)        { m_time_to_be_in_state         = t; }
+        U16 time_left_until_next_state()  const { return m_time_left_until_next_state; } void time_left_until_next_state(cU16 t) { m_time_left_until_next_state  = t; }
+        
         virtual void state_attack(cF32 dt)     {}
         virtual void state_blocked(cF32 dt)    {}
         virtual void state_bounce(cF32 dt)     {}
@@ -53,8 +54,8 @@ export namespace state {
         virtual void state_swim(cF32 dt)       {}
         virtual void state_tossed(cF32 dt)     {}
         virtual void state_upended(cF32 dt)    {}
-        virtual void state_slide_wall(cF32 dt) {}
-        virtual void state_jump_wall(cF32 dt)  {}
+        virtual void state_wall_slide(cF32 dt) {}
+        virtual void state_wall_jump(cF32 dt)  {}
 
         void state_update(cF32 dt) {
             if (m_next_state != m_state) {
@@ -62,15 +63,14 @@ export namespace state {
                 m_state = m_next_state;
                 m_is_first_state_update = true;*/
 
-                if (m_time_left_in_state > 0) {
-                    --m_time_left_in_state;
-                    console::log("state::Trait::state_update() m_time_left_in_state: ", m_time_left_in_state, "\n");
+                if (m_time_left_until_next_state > 0) {
+                    --m_time_left_until_next_state;
+                    //console::log("state::Trait::state_update() m_time_left_until_next_state: ", m_time_left_until_next_state, "\n");
                 }
-                if (m_time_left_in_state == 0) {
+                if (m_time_left_until_next_state == 0) {
                     m_prev_state = m_state;
                     m_state = m_next_state;
                     m_is_first_state_update = true;
-                    //m_time_left_in_state = m_time_left_in_next_state; // FROG did it
                 }
             }
 
@@ -100,8 +100,8 @@ export namespace state {
                 case Type::swim:       state_swim(dt);       break;
                 case Type::tossed:     state_tossed(dt);     break;
                 case Type::upended:    state_upended(dt);    break;
-                case Type::slide_wall: state_slide_wall(dt); break;
-                case Type::jump_wall:  state_jump_wall(dt);  break;
+                case Type::wall_slide: state_wall_slide(dt); break;
+                case Type::wall_jump:  state_wall_jump(dt);  break;
                 default:                                     break;
             }
         }

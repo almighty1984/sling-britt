@@ -1,6 +1,6 @@
 export module aabb.config;
 import aabb;
-import entity;
+//import entity;
 import types;
 import std;
 

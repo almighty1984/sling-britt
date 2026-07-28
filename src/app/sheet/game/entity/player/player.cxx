@@ -2,6 +2,7 @@ module entity.player;
 import app.config;
 import anim;
 import aabb;
+import camera;
 import console;
 import health;
 import input;
@@ -24,7 +25,9 @@ namespace entity {
 
         load_config("res/entity/player/britt.cfg");
 
+
         m_sling_shot_sprite = sprite::make("res/texture/sling_shot.png");
+        sprite::layer(m_sling_shot_sprite, NUM_VISIBLE_LAYERS - 1);
         sprite::rect(m_sling_shot_sprite, { 0, 0, 32, 32 });
         sprite::origin(m_sling_shot_sprite, { 12, 16 });
         sprite::offset(m_sling_shot_sprite, { -5.0F, -8.0F });
@@ -39,6 +42,7 @@ namespace entity {
         sprite::transform(m_sling_shot_bg_sprite, sprite::transform(m_sling_shot_sprite));
 
         m_target_sprite = sprite::make("res/texture/target.png");
+        sprite::layer(m_target_sprite, NUM_VISIBLE_LAYERS - 1);
         sprite::rect(m_target_sprite, { 0, 0, 16, 16 });
         sprite::origin(m_target_sprite, { 8, 8 });
         sprite::offset(m_target_sprite, { 0.0F, 0.0F });
@@ -74,7 +78,7 @@ namespace entity {
 
         switch (culprit->type()) {
             case Type::bee: {
-                health::amount_add(m_health_id, -16.0f);
+                health_amount_add(-16.0F);
                 break;
             }
             case Type::particle_melee: {
@@ -82,7 +86,7 @@ namespace entity {
                     return false;
                 }
                 if (culprit->parent()->type() == Type::frog) {
-                    health::amount_add(m_health_id, -16.0f);
+                    health_amount_add(-16.0F);
 
                     if      (culprit->position().x < position().x + 8.0F) add_to_position.x =  4.0F;
                     else if (culprit->position().x + 8.0F > position().x) add_to_position.x = -4.0F;
@@ -99,7 +103,7 @@ namespace entity {
                 break;
             }
             case Type::train_saw: {
-                health::amount_add(m_health_id, -16.0f);
+                health::amount_add(m_health_id, -64.0f);
                 break;
             }
         }
@@ -130,6 +134,9 @@ namespace entity {
                     object->time_left_interacting(10);
                     console::log(class_name(), "::interact pick up\n");
                     m_is_carrying = true;
+                    m_weight = m_start_weight + object->weight();
+
+                    add_child(object);
                     object->parent(this);
                     object->next_state(state::Type::carried);
                     sprite::layer(object->sprite(), sprite::layer(m_sprite) + 1);
@@ -147,8 +154,9 @@ namespace entity {
                         return;
                     }
                     m_is_carrying = false;
+                    m_weight = m_start_weight;
                     sprite::layer(object->sprite(), object->start_layer());
-                    object->parent(nullptr);
+                    object->parent(this);
                     object->velocity(velocity() + move_velocity());
                     //object->position_add_x(object->velocity().x);
                     if (sprite_is_leftward()) {
@@ -171,8 +179,21 @@ namespace entity {
                 }
                 break;
             }
-            case Type::clip_ledge: {
-                if (m_is_carrying or object->start_offset().y >= position_on_level().y + aabb::h(aabb(aabb::Name::body))) {
+            case Type::clip_ledge:
+            case Type::clip_ledge_L_50: 
+            case Type::clip_ledge_R_50: {
+                if (m_is_carrying or 
+                    position_on_level().y > object->start_offset().y
+                    //or
+                    //(!m_is_on_ground and aabb::DR(aabb(aabb::Name::body)).y <= object->start_offset().y)
+                    //or 
+                    //is_pressed(key_sprint)
+                    //or
+                    //(aabb::DR(aabb(aabb::Name::body)).x + 1.0F > -camera::position.x + object->start_offset().x and
+                    // aabb::UL(aabb(aabb::Name::body)).x - 1.0F < -camera::position.x + object->start_offset().x + 16.0F)
+                    //or aabb::DR(aabb(aabb::Name::body)).x > -camera::position.x + object->start_offset().x + 16.0F
+                    //or aabb::UL(aabb(aabb::Name::body)).x < -camera::position.x + object->start_offset().x                    
+                    ) {
                     return;
                 }
 
@@ -182,7 +203,11 @@ namespace entity {
                 
                 m_next_state = state::Type::climb;
                 input::press(m_input, key_up);
-                m_is_wall_to_left = sprite_is_leftward();
+                
+                //m_is_wall_to_left = sprite_is_leftward();
+                m_is_near_wall_L =  sprite_is_leftward();
+                m_is_near_wall_R = !sprite_is_leftward();
+
                 //position().y = object->other_UL.y - 8;
                 velocity_y(0.0F);
                 break;
@@ -190,11 +215,14 @@ namespace entity {
             case Type::trigger: {
                 //console::log("aabb h: ", aabb::h(aabb("body")), "\n");
                 if (!is_pressed(key_sprint) or m_is_carrying) return;
+
+                //console::log(class_name(), "::interact()\n");
+
                 m_time_left_lever = m_time_to_lever;
                 reset_anim("lever");
                 sprite::is_leftward(m_sprite, object->is_dead());
 
-                if (object->is_dead()) {
+                if (object->time_left_dead() > 0) {
                     object->time_left_alive(U16_MAX);
                     object->time_left_dead(0);
                 } else {
@@ -203,7 +231,7 @@ namespace entity {
                 }
 
                 sound_position("lever", { position().x - app::config::extent().x / 2.0F,
-                                        position().y - app::config::extent().y / 2.0F });
+                                          position().y - app::config::extent().y / 2.0F });
                 sound_play("lever");
                 break;
             }
@@ -211,9 +239,8 @@ namespace entity {
         m_time_left_interacting = m_config.time_to_interact();
     }
 
-    void Player::spawn_down_thrust(cVec2F position) {
-        cVec2F dimensions = { 32.0F, 32.0F };
-        cF32 speed = 3.0F;
+    void Player::spawn_down_thrust(cVec2F position, cVec2F vel_L, cVec2F vel_R) {
+        cVec2F dimensions = { 32.0F, 32.0F };        
 
         particle::cType type = particle::Type::down_thrust;
 
@@ -222,27 +249,18 @@ namespace entity {
         particle::spawn({ .parent = this,
                           .type = type,
                           .position = p,
-                          .velocity = { -speed, 0.0F } });
+                          .velocity = vel_L });
         particle::spawn({ .parent = this,
                           .type = type,
                           .position = p,
-                          .velocity = {  speed, 0.0F } });
-
+                          .velocity = vel_R });
     }
 
 
     void Player::update(cF32 dt) {
-        for (auto& i : m_time_left_colliding_with) {
-            if (i.second > 0) {
-                --i.second;
-            }
-        }
-
         //console::log(position_on_level().y + aabb::rect(aabb("body")).h, "\n");
         //console::log(class_name(), "::update() water line y: ", m_water_line_y, "\n");
-        if (m_time_left_hurt > 0)        --m_time_left_hurt;        
-        if (m_time_left_interacting > 0) --m_time_left_interacting;
-
+        
         //console::log(class_name(), "::update() saved state: ", to_string(m_saved_state), "\n");
         
         if (is_pressed(input::Key::ctrl)) {
@@ -267,9 +285,10 @@ namespace entity {
         }
 
         //sprite_angle(sprite_angle() + 1.0F);
-
+        
         state_update(dt);
 
+        reduce_time_left(1);
         //console::log("Player::update() anim source x: ", anim::source(m_current_anim).x, "\n");
         sprite_rect(anim::source(m_current_anim));
 
@@ -281,10 +300,7 @@ namespace entity {
         //console::log("is_carrying: ", m_is_carrying, "\n");
         //console::log("is to write save: ", m_is_to_write_save, "\n");
 
-        if (m_time_left_in_state > 0) {
-            --m_time_left_in_state;
-            //console::log("time_left_in_state: ", (int)m_time_left_in_state, "\n");
-        }
+        
         //console::log("level pos: ", position_difference(level_transform).x, "\n");
 
         if (is_pressed(input::Key::m)) {
@@ -326,6 +342,8 @@ namespace entity {
                                 velocity() + move_velocity(), 2.5F,
                                 state::Type::idle);
         }
+
+        //console::log(class_name(), "::update() is near wall: ", m_is_near_wall_L, " ", m_is_near_wall_R, "\n");
 
         if (!is_mouse_steer) return;
 
